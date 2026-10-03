@@ -11,6 +11,8 @@
     "check": "astro check",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "placeholders": "node scripts/make-placeholders.mjs",
+    "check:assets": "node scripts/check-assets.mjs",
     "verify": "npm run check && npm run test && npm run build && npm run test:e2e"
   },
   "dependencies": {
