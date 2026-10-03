@@ -1,0 +1,10 @@
+- id: unc
+  order: 1
+  school: University of North Carolina at Chapel Hill
+  detail: "B.S. Computer Science · B.S. Statistics & Analytics · Minor in Business · Honors Carolina"
+  dates: Graduating May 2028
+- id: cpcc
+  order: 2
+  school: Central Piedmont Community College
+  detail: "Associate in Arts (dual enrollment) · 4.0 GPA"
+  dates: Completed July 2025

@@ -1,0 +1,34 @@
+- id: aws
+  order: 1
+  org: Amazon Web Services
+  role: Solutions Architect Intern
+  place: Arlington, VA
+  dates: May–Aug 2026
+  summary: "Built a serverless 4-agent generative AI app on Amazon Bedrock AgentCore, and co-led Quick Sprint Demo Packs: 60+ SAs interviewed, greenlit by senior leaders in New York, all five industry packs built and handed off."
+- id: cig
+  order: 2
+  org: Carolina Investment Group
+  role: Director of Technology
+  place: Chapel Hill, NC
+  dates: Sep 2026–present
+  summary: "Lead five engineers building the internal platform for a 35-member investment group; own the roadmap and review all contributions."
+- id: arthmetis
+  order: 3
+  org: Arthmetis
+  role: Artificial Intelligence Intern
+  place: Charlotte, NC
+  dates: Jun–Aug 2025
+  summary: "Built a hybrid LLM and ML retail recommendation engine on 50K+ real customer-product interactions, lifting top-3 precision 25% over semantic search alone."
+- id: uncc
+  order: 4
+  org: UNC Charlotte, Dept. of Mathematics & Statistics
+  role: Data Science Researcher
+  place: Charlotte, NC
+  dates: Feb 2024–May 2026
+  summary: "Published co-author of NSF-supported research analysing a 5,000-stop sample of ~124,000 Charlotte traffic stops (TEEM, 2026)."
+- id: inspirit
+  order: 5
+  org: Inspirit AI
+  role: AI Scholar Intern
+  dates: May 2023–Dec 2024
+  summary: "Fine-tuned BERT to 97.36% test accuracy on financial-news sentiment, and built road-object detection from a perceptron up to YOLOv3."

@@ -1,0 +1,20 @@
+- id: hackathon
+  order: 1
+  numeral: 220+
+  caption: competitors at the Duke AI Hackathon, where Case Closed placed 1st (November 2025)
+- id: interviews
+  order: 2
+  numeral: 60+
+  caption: Solutions Architects interviewed at AWS before building
+- id: opinions
+  order: 3
+  numeral: 9M+
+  caption: court opinions Case Closed searches
+- id: tests
+  order: 4
+  numeral: 1,100+
+  caption: automated tests in StreetLab
+- id: certifications
+  order: 5
+  numeral: "4"
+  caption: AWS certifications, earned in six weeks during the internship

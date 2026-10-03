@@ -1,0 +1,20 @@
+main:
+  name: Jason Pereira
+  description: Jason Pereira is an AI engineer who ships. CS and Statistics at UNC-Chapel Hill, former AWS Solutions Architect intern, and co-founder of Case Closed.
+  location: Chapel Hill, NC
+  timezone: America/New_York
+  timezoneLabel: ET
+  availability: Open to Summer 2027 internships
+  graduation: May 2028
+  email: jasonpereira518@gmail.com
+  links:
+    linkedin: https://linkedin.com/in/jasonpereira518
+    github: https://github.com/jasonpereira518
+    scholar: https://scholar.google.com/citations?user=qDR0TFwAAAAJ
+  pitch:
+    - AI engineer who ships.
+    - CS + Statistics at UNC-Chapel Hill.
+    - Former AWS Solutions Architect intern.
+    - Co-founder of Case Closed.
+  statement: I build AI systems that *ship*. I start with the *people* who will use them, *measure* before I claim, and make the *business case* myself.
+  marquee: Direction *before* speed

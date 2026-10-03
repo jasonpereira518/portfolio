@@ -1,0 +1,31 @@
+main:
+  skills:
+    - label: Languages
+      items: Python, TypeScript, JavaScript, Java, C++, C, Rust, OCaml, Swift, SQL, Bash
+    - label: Frameworks
+      items: React, Next.js, Node.js, FastAPI, Flask, SwiftUI, Tauri, Three.js, Tailwind CSS
+    - label: AI and ML
+      items: PyTorch, TensorFlow/Keras, Hugging Face, scikit-learn, XGBoost, Amazon Bedrock (AgentCore, Knowledge Bases, Guardrails), Vertex AI, LangChain, RAG, FAISS, pgvector, MCP
+    - label: Data and infrastructure
+      items: PostgreSQL, DynamoDB, MongoDB, Firebase/Firestore, Supabase, AWS, GCP, Docker, Kubernetes, CI/CD, Git, Linux
+  certifications:
+    - AWS Certified Solutions Architect – Associate
+    - AWS Certified Machine Learning Engineer – Associate
+    - AWS Certified AI Practitioner
+    - AWS Certified Cloud Practitioner
+    - Google Generative AI Leader
+    - Duke Machine Learning Foundations for Product Managers
+  awards:
+    - 1st place, Duke AI Hackathon (Nov 2025)
+    - 1st place, Anthropic Claude AI Hackathon (Nov 2025)
+    - 1st place, Tminus0 Startup Challenge
+    - Final showcase invite, AWS Global AI Expo Challenge (2026)
+    - UNC 1789 Student Venture Fund recipient (Mar 2026)
+    - Robert E. Bryan Fellow
+    - Selected for Y Combinator Startup School 2026 (San Francisco, Jul 25–26)
+    - Charlotte's 20 Under 20 (Jan 2026)
+    - TEDxUNC speaker (Feb 2026)
+    - Eagle Scout (Oct 2024)
+  publication:
+    citation: "Adala, V., Jun, T., Pereira, J., Sandwar, V., & Fernandes, A. (2026). Analyzing Real Traffic Stop Data for Racial Bias. Teaching for Excellence and Equity in Mathematics, 17(1), 32–43."
+    url: https://doi.org/10.63966/teem.v17i1.2265

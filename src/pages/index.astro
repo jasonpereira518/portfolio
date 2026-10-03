@@ -1,13 +1,16 @@
 ---
+import { getSite } from '../lib/content';
+
+const site = await getSite();
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Jason Pereira</title>
+    <title>{site.name}</title>
   </head>
   <body>
-    <h1>Jason Pereira</h1>
+    <h1>{site.name}</h1>
   </body>
 </html>
