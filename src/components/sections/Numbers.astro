@@ -1,0 +1,81 @@
+---
+import ContourBg from '../ContourBg.astro';
+import { getNumbers } from '../../lib/content';
+
+const numbers = await getNumbers();
+---
+<section class="numbers section theme-ink" data-island="numbers">
+  <ContourBg />
+  <header class="section__head">
+    <h2 class="label">By the numbers</h2>
+  </header>
+  <ul class="numbers__list">
+    {numbers.map((item) => (
+      <li class="numbers__item">
+        <p class="numbers__numeral display" data-count={item.data.numeral}>{item.data.numeral}</p>
+        <p class="numbers__caption">{item.data.caption}</p>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .numbers__item {
+    display: grid;
+    gap: 0.5rem;
+    padding-block: clamp(1.25rem, 3vw, 2.5rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .numbers__numeral {
+    font-size: clamp(3.5rem, 1rem + 12.5vw, 13rem);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .numbers__item:first-child .numbers__numeral {
+    color: var(--accent);
+  }
+
+  .numbers__caption {
+    max-width: 34ch;
+    color: var(--muted);
+    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.35rem);
+  }
+
+  @media (min-width: 800px) {
+    .numbers__item {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+      align-items: end;
+    }
+
+    .numbers__caption {
+      justify-self: end;
+      text-align: right;
+    }
+  }
+
+  /* Numerals grow as they scroll into view, where the browser supports scroll-driven animation. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .numbers__numeral {
+        transform-origin: left bottom;
+        animation: numeral-grow linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 45%;
+      }
+
+      @keyframes numeral-grow {
+        from {
+          opacity: 0.35;
+          transform: scale(0.72);
+        }
+
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    }
+  }
+</style>

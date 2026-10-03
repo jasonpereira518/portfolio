@@ -6,6 +6,7 @@ type Island = { mount: (el: HTMLElement) => void };
 const islands: Partial<Record<string, () => Promise<Island>>> = {
   'hero-wash': () => import('./hero-wash'),
   showcase: () => import('./showcase'),
+  numbers: () => import('./numbers'),
 };
 
 document.documentElement.classList.add('js');
