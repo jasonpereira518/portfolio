@@ -35,3 +35,18 @@ test.describe('selected work', () => {
     await expect(section.getByRole('link', { name: 'All work' })).toHaveAttribute('href', '/work');
   });
 });
+
+test('if the showcase script fails to load, all four projects are shown stacked without tabs', async ({ page }) => {
+  // A stale cached page can point at a hashed chunk that no longer exists; simulate that by aborting it.
+  await page.route('**/_astro/showcase.*.js', (route) => route.abort());
+  await page.goto('/');
+  const section = page.locator('#work');
+  await section.scrollIntoViewIfNeeded();
+
+  await expect(section).toHaveAttribute('data-island-failed', 'true');
+  await expect(section).not.toHaveAttribute('data-enhanced', 'true');
+  await expect(section.getByRole('tablist')).toBeHidden();
+  for (const name of ['Case Closed', 'Orbit', 'StreetLab', 'GPU Portfolio & Risk Decision Engine']) {
+    await expect(section.getByRole('heading', { name })).toBeVisible();
+  }
+});

@@ -3,7 +3,9 @@ import { nextTabIndex } from '../lib/tabs';
 export function mount(root: HTMLElement): void {
   const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
   const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
-  if (tabs.length === 0 || tabs.length !== panels.length) return;
+  if (tabs.length === 0 || tabs.length !== panels.length) {
+    throw new Error(`Showcase needs one tabpanel for every tab, but found ${tabs.length} tabs and ${panels.length} panels`);
+  }
 
   const select = (index: number, moveFocus: boolean) => {
     tabs.forEach((tab, position) => {

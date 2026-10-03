@@ -56,6 +56,8 @@ const inView = new IntersectionObserver(
 document.querySelectorAll('[data-reveal], [data-inview]').forEach((el) => inView.observe(el));
 
 // Import and mount each island when it comes within 300px of the viewport.
+// An island that cannot start is marked data-island-failed so its section can fall back to the
+// no-script layout instead of staying half-hidden.
 const nearView = new IntersectionObserver(
   (entries) => {
     for (const entry of entries) {
@@ -66,11 +68,15 @@ const nearView = new IntersectionObserver(
       const load = islands[name];
       if (!load) {
         console.error(`No script module is registered for data-island="${name}"`);
+        el.dataset.islandFailed = 'true';
         continue;
       }
       load()
         .then((island) => island.mount(el))
-        .catch((error: unknown) => console.error(`Island "${name}" failed to start`, error));
+        .catch((error: unknown) => {
+          console.error(`Island "${name}" failed to start`, error);
+          el.dataset.islandFailed = 'true';
+        });
     }
   },
   { rootMargin: '300px' },

@@ -61,8 +61,10 @@ const projects = await getFlagship();
     margin-bottom: clamp(2rem, 4vw, 3.5rem);
   }
 
-  /* The tab buttons do nothing without scripts, so they are hidden until main.ts has run. */
-  :global(html:not(.js)) .work__tabs {
+  /* The tab buttons do nothing without scripts, so they are hidden until main.ts has run.
+     They are also hidden if the showcase script failed to start (main.ts sets data-island-failed). */
+  :global(html:not(.js)) .work__tabs,
+  .work[data-island-failed] .work__tabs {
     display: none;
   }
 
@@ -101,13 +103,15 @@ const projects = await getFlagship();
     display: none;
   }
 
-  /* With scripts but before the tabs are wired up, show only the first project so nothing jumps. */
-  :global(.js) .work:not([data-enhanced]) .work__panel:not(:first-of-type) {
+  /* With scripts but before the tabs are wired up, show only the first project so nothing jumps.
+     A failed section is excluded: it falls back to showing every project. */
+  :global(.js) .work:not([data-enhanced]):not([data-island-failed]) .work__panel:not(:first-of-type) {
     display: none;
   }
 
-  /* Without scripts every project is shown, stacked. */
-  :global(html:not(.js)) .work__panel + .work__panel {
+  /* Without scripts, or if the showcase script failed, every project is shown, stacked. */
+  :global(html:not(.js)) .work__panel + .work__panel,
+  .work[data-island-failed] .work__panel + .work__panel {
     margin-top: var(--section-gap);
   }
 
