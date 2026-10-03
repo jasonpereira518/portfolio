@@ -51,6 +51,72 @@ test.describe('smooth scrolling', () => {
   });
 });
 
+test.describe('reduced motion', () => {
+  test('the home page is static and nothing is hidden waiting for a reveal', async ({ page }) => {
+    const scripts: string[] = [];
+    page.on('request', (request) => {
+      if (/\/_astro\/[^?]*\.js/.test(request.url())) scripts.push(request.url());
+    });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await expect(page.locator('html')).toHaveClass(/\bjs\b/);
+    await page.waitForTimeout(500);
+
+    // Nothing below scrolls the page first: content must already be visible, not waiting for a reveal.
+    // The assertions are soft so one run lists every one that fails.
+
+    // 1. Smooth scrolling never loads or starts.
+    const smoothRequests = scripts.filter((url) => /\/_astro\/smooth\./.test(url));
+    expect.soft(smoothRequests, 'requests for the smooth-scrolling chunk').toEqual([]);
+    await expect.soft(page.locator('html')).not.toHaveClass(/\blenis\b/);
+
+    // 2. The marquee does not animate.
+    await expect.soft(page.locator('.marquee__track')).toHaveCSS('animation-name', 'none');
+
+    // 3. Nothing is dimmed or hidden until a scroll reveal runs.
+    const revealOpacities = await page
+      .locator('[data-reveal]')
+      .evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity));
+    expect(revealOpacities.length, 'there are [data-reveal] elements to check').toBeGreaterThan(0);
+    expect.soft(
+      revealOpacities.filter((opacity) => opacity !== '1').length,
+      `[data-reveal] elements not fully opaque, of ${revealOpacities.length}: ${revealOpacities.join(', ')}`,
+    ).toBe(0);
+    const wordOpacities = await page
+      .locator('.statement__word')
+      .evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity));
+    expect(wordOpacities.length, 'there are statement words to check').toBeGreaterThan(0);
+    expect.soft(
+      wordOpacities.filter((opacity) => opacity !== '1').length,
+      `statement words not fully opaque, of ${wordOpacities.length}: ${wordOpacities.join(', ')}`,
+    ).toBe(0);
+
+    // 5. The hero canvas is not painted. The hero script was loaded, so the missing flag is the
+    // reduced-motion guard at work and not a script that never ran.
+    expect.soft(
+      scripts.some((url) => /\/_astro\/hero-wash\./.test(url)),
+      'the hero script was loaded',
+    ).toBe(true);
+    await expect.soft(page.locator('.hero__wash')).not.toHaveAttribute('data-ready', 'true');
+
+    // 4. Numerals show their final text without counting. This one scrolls each numeral into view
+    // (after the checks above) so the count-up would have run if it were going to.
+    const numerals = page.locator('.numbers__numeral');
+    for (const numeral of await numerals.all()) await numeral.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(2000); // longer than the 1.4 s count-up
+    const shown = await numerals.evaluateAll((els) =>
+      els.map((el) => ({
+        text: el.textContent?.trim() ?? '',
+        count: el.getAttribute('data-count') ?? '',
+        counted: el.hasAttribute('data-counted'),
+      })),
+    );
+    expect(shown.length, 'there are numerals to check').toBeGreaterThan(0);
+    expect.soft(shown.filter((n) => n.text !== n.count), 'numerals whose text differs from data-count').toEqual([]);
+    expect.soft(shown.filter((n) => n.counted), 'numerals that counted up').toEqual([]);
+  });
+});
+
 test('the first Tab stop is the skip link', async ({ page }) => {
   await page.goto('/');
   await page.keyboard.press('Tab');
