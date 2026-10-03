@@ -83,3 +83,14 @@ const nearView = new IntersectionObserver(
   { rootMargin: '300px' },
 );
 document.querySelectorAll<HTMLElement>('[data-island]').forEach((el) => nearView.observe(el));
+
+// Smooth scrolling for mouse and trackpad users, loaded once the browser is idle.
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches && matchMedia('(pointer: fine)').matches) {
+  const start = () => {
+    import('./smooth')
+      .then((module) => module.startSmoothScroll())
+      .catch((error: unknown) => console.error('Smooth scrolling failed to start', error));
+  };
+  if ('requestIdleCallback' in window) requestIdleCallback(start);
+  else setTimeout(start, 1);
+}
