@@ -16,7 +16,17 @@ test('the page script marks the document as scripted', async ({ page }) => {
 });
 
 test('the self-hosted Archivo font loads', async ({ page }) => {
+  // Registered before goto so the font request cannot be missed.
+  const fontResponse = page.waitForResponse((response) => new URL(response.url()).pathname.endsWith('.woff2'));
   await page.goto('/');
+
+  // The woff2 comes from this site's own origin, not a third-party font host.
+  const response = await fontResponse;
+  expect(new URL(response.url()).origin).toBe(new URL(page.url()).origin);
+  expect(response.ok()).toBe(true);
+
+  // The generated Archivo face itself is loaded. The local Arial fallback face is named
+  // "Archivo-<hash> fallback: Arial" and can report loaded on its own, so it must not match.
   const loaded = await page.evaluate(async () => {
     await document.fonts.ready;
     const names: string[] = [];
@@ -25,5 +35,5 @@ test('the self-hosted Archivo font loads', async ({ page }) => {
     });
     return names;
   });
-  expect(loaded.join(' ')).toMatch(/Archivo/);
+  expect(loaded).toContainEqual(expect.stringMatching(/^Archivo-[0-9a-f]+$/));
 });

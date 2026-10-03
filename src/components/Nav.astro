@@ -48,6 +48,11 @@ const links = [
     text-decoration: underline;
   }
 
+  /* The header is difference-blended, so a white ring blends to ink on paper and paper on ink. */
+  .nav a:focus-visible {
+    outline-color: #fff;
+  }
+
   .nav__name {
     justify-self: start;
     font-size: 0.8125rem;
