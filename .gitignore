@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.vercel/
+test-results/
+playwright-report/
+lighthouse.json
+.DS_Store
+.env
+.env.*
