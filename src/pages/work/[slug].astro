@@ -1,0 +1,226 @@
+---
+import type { InferGetStaticPropsType } from 'astro';
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { asset, assetsIn } from '../../lib/assets';
+import { getFlagship } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const flagship = await getFlagship();
+  return flagship.map((project, index) => ({
+    params: { slug: project.id },
+    props: { project, next: flagship[(index + 1) % flagship.length] },
+  }));
+}
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { project, next } = Astro.props;
+const { data } = project;
+const { Content } = await render(project);
+const cover = asset(`work/${data.cover}`);
+const gallery = assetsIn(`work/${project.id}`);
+---
+<Base title={data.title} description={data.summary}>
+  <article class="case section theme-paper">
+    <p class="case__crumb label"><a href="/work">Work</a> / {data.tagline}</p>
+    <h1 class="case__title display">{data.title}</h1>
+    <p class="case__summary">{data.summary}</p>
+
+    <div class="case__cover">
+      <Image
+        src={cover}
+        alt={`${data.title} screenshot`}
+        widths={[640, 960, 1280, 1600]}
+        sizes="(max-width: 1100px) 94vw, 1400px"
+        priority
+      />
+    </div>
+
+    <dl class="case__credits">
+      <div>
+        <dt class="label">Role</dt>
+        <dd>{data.role}</dd>
+      </div>
+      <div>
+        <dt class="label">Year</dt>
+        <dd>{data.dates}</dd>
+      </div>
+      <div>
+        <dt class="label">Status</dt>
+        <dd>{data.status}</dd>
+      </div>
+      <div>
+        <dt class="label">Stack</dt>
+        <dd>{data.stack.join(', ')}</dd>
+      </div>
+      <div>
+        <dt class="label">Links</dt>
+        <dd class="case__links">
+          {data.links.map((link) => (
+            <a href={link.href} target="_blank" rel="noopener">{link.label}</a>
+          ))}
+        </dd>
+      </div>
+    </dl>
+
+    <div class="case__blocks">
+      <section>
+        <h2 class="label">Problem</h2>
+        <p>{data.problem}</p>
+      </section>
+      <section>
+        <h2 class="label">What I built</h2>
+        <Content />
+      </section>
+      <section>
+        <h2 class="label">Result</h2>
+        <p>{data.result}</p>
+      </section>
+    </div>
+
+    {gallery.length > 0 && (
+      <ul class="case__gallery">
+        {gallery.map((image) => (
+          <li>
+            <Image src={image} alt="" widths={[640, 960, 1280]} sizes="(max-width: 800px) 92vw, 46vw" loading="lazy" />
+          </li>
+        ))}
+      </ul>
+    )}
+
+    <a class="case__next" href={`/work/${next.id}`}>
+      <span class="label">Next</span>
+      <span class="case__next-title display">{next.data.title}</span>
+    </a>
+  </article>
+</Base>
+
+<style>
+  .case {
+    padding-top: calc(var(--nav-height) + clamp(2.5rem, 6vw, 6rem));
+  }
+
+  .case__crumb {
+    margin-bottom: 1rem;
+    color: var(--muted);
+  }
+
+  .case__title {
+    font-size: clamp(2.2rem, 0.8rem + 7.4vw, 8.5rem);
+    overflow-wrap: anywhere;
+  }
+
+  .case__summary {
+    max-width: 46ch;
+    margin-top: 1.25rem;
+    font-size: clamp(1.1rem, 1rem + 0.6vw, 1.6rem);
+  }
+
+  .case__cover {
+    overflow: hidden;
+    margin-top: clamp(2rem, 5vw, 4rem);
+    border-radius: var(--radius);
+    background: var(--line);
+  }
+
+  .case__cover :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .case__credits {
+    margin-top: clamp(2rem, 5vw, 4rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .case__credits > div {
+    display: grid;
+    grid-template-columns: minmax(5rem, 1fr) minmax(0, 4fr);
+    gap: 1rem;
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .case__credits dt {
+    padding-top: 0.25em;
+    color: var(--muted);
+  }
+
+  .case__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    font-weight: 700;
+  }
+
+  .case__blocks {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    margin-top: var(--section-gap);
+  }
+
+  @media (min-width: 900px) {
+    .case__blocks {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .case__blocks h2 {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+  }
+
+  /* :global because the "What I built" paragraphs are rendered from Markdown, outside this component's scope. */
+  .case__blocks :global(p) {
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem);
+  }
+
+  .case__blocks :global(p + p) {
+    margin-top: 1em;
+  }
+
+  .case__gallery {
+    display: grid;
+    gap: clamp(1rem, 2.5vw, 2rem);
+    margin-top: var(--section-gap);
+  }
+
+  @media (min-width: 800px) {
+    .case__gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .case__gallery :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: calc(var(--radius) / 2);
+  }
+
+  .case__next {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: var(--section-gap);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    text-decoration: none;
+  }
+
+  .case__next .label {
+    color: var(--muted);
+  }
+
+  .case__next-title {
+    font-size: clamp(1.8rem, 1rem + 4.4vw, 5.5rem);
+    overflow-wrap: anywhere;
+    transition: color 0.25s var(--ease);
+  }
+
+  .case__next:hover .case__next-title {
+    color: var(--accent);
+  }
+</style>

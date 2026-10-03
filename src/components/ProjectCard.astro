@@ -1,0 +1,55 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { data } = Astro.props.project;
+---
+<article class="card">
+  <h3 class="card__title display">{data.title}</h3>
+  <p class="card__meta label">{[data.role, data.dates].filter(Boolean).join(' · ')}</p>
+  <p class="card__summary">{data.summary}</p>
+  <p class="card__status label">{data.status}</p>
+  {data.links.length > 0 && (
+    <ul class="card__links">
+      {data.links.map((link) => (
+        <li>
+          <a href={link.href} target="_blank" rel="noopener">{link.label}</a>
+        </li>
+      ))}
+    </ul>
+  )}
+</article>
+
+<style>
+  .card {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    padding-block: clamp(1.25rem, 2.5vw, 2rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .card__title {
+    font-size: clamp(1.15rem, 1rem + 0.8vw, 1.75rem);
+    overflow-wrap: anywhere;
+  }
+
+  .card__meta,
+  .card__status {
+    color: var(--muted);
+  }
+
+  .card__summary {
+    max-width: 52ch;
+  }
+
+  .card__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    font-weight: 700;
+  }
+</style>

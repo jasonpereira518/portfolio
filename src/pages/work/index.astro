@@ -1,0 +1,124 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { asset } from '../../lib/assets';
+import { getCardsByGroup, getFlagship } from '../../lib/content';
+
+const [flagship, groups] = await Promise.all([getFlagship(), getCardsByGroup()]);
+---
+<Base
+  title="Work"
+  description="Everything Jason Pereira has built: AI products, full-stack apps, quant projects, hackathon wins and a rocket motor."
+>
+  <section class="index section theme-paper">
+    <p class="index__label label">Work</p>
+    <h1 class="index__title display">Everything I've built.</h1>
+
+    <ul class="index__flagship">
+      {flagship.map((project, index) => (
+        <li>
+          <a class="feature" href={`/work/${project.id}`}>
+            <div class="feature__media">
+              <Image
+                src={asset(`work/${project.data.cover}`)}
+                alt=""
+                widths={[480, 720, 960, 1280]}
+                sizes="(max-width: 800px) 92vw, 46vw"
+                loading={index < 2 ? 'eager' : 'lazy'}
+              />
+            </div>
+            <h2 class="feature__title display">{project.data.title}</h2>
+            <p class="feature__tagline">{project.data.tagline}</p>
+            <p class="feature__meta label">{project.data.dates}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    {groups.map((group) => (
+      <section class="index__group" aria-labelledby={`group-${group.group}`}>
+        <h2 class="index__group-title label" id={`group-${group.group}`}>{group.label}</h2>
+        <div class="index__cards">
+          {group.projects.map((project) => <ProjectCard project={project} />)}
+        </div>
+      </section>
+    ))}
+  </section>
+</Base>
+
+<style>
+  .index {
+    padding-top: calc(var(--nav-height) + clamp(2.5rem, 6vw, 6rem));
+  }
+
+  .index__label {
+    margin-bottom: 1rem;
+    color: var(--muted);
+  }
+
+  .index__title {
+    margin-bottom: clamp(2.5rem, 6vw, 5rem);
+    font-size: clamp(1.9rem, 0.5rem + 7.4vw, 8rem);
+    overflow-wrap: anywhere;
+  }
+
+  .index__flagship {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .feature {
+    display: grid;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+
+  .feature__media {
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    margin-bottom: 0.5rem;
+    border-radius: var(--radius);
+    background: var(--line);
+  }
+
+  .feature__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease);
+  }
+
+  .feature:hover .feature__media :global(img) {
+    transform: scale(1.03);
+  }
+
+  .feature__title {
+    font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.75rem);
+    overflow-wrap: anywhere;
+  }
+
+  .feature__tagline,
+  .feature__meta {
+    color: var(--muted);
+  }
+
+  .index__group {
+    margin-top: var(--section-gap);
+  }
+
+  .index__group-title {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+  }
+
+  @media (min-width: 800px) {
+    .index__flagship,
+    .index__cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(1.5rem, 3vw, 2.5rem);
+    }
+  }
+</style>
