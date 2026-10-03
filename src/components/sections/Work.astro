@@ -1,0 +1,184 @@
+---
+import { Image } from 'astro:assets';
+import Button from '../Button.astro';
+import { asset } from '../../lib/assets';
+import { getFlagship } from '../../lib/content';
+
+const projects = await getFlagship();
+---
+<section class="work section theme-paper" id="work" data-island="showcase">
+  <header class="section__head">
+    <h2 class="label">Selected work</h2>
+    <a class="label" href="/work">All work</a>
+  </header>
+
+  <div class="work__tabs" role="tablist" aria-label="Selected work">
+    {projects.map((project, index) => (
+      <button
+        class="work__tab"
+        type="button"
+        role="tab"
+        id={`tab-${project.id}`}
+        aria-controls={`panel-${project.id}`}
+        aria-selected={index === 0 ? 'true' : 'false'}
+        tabindex={index === 0 ? 0 : -1}
+      >
+        <span class="work__num">{String(index + 1).padStart(2, '0')}</span>{' '}{project.data.short}
+      </button>
+    ))}
+  </div>
+
+  {projects.map((project) => (
+    <article class="work__panel" role="tabpanel" id={`panel-${project.id}`} aria-labelledby={`tab-${project.id}`}>
+      <div class="work__info">
+        <h3 class="work__title display">{project.data.title}</h3>
+        <p class="work__tagline serif">{project.data.tagline}</p>
+        <p class="work__summary">{project.data.summary}</p>
+        <ul class="work__proof">
+          {project.data.proof.map((point) => <li>{point}</li>)}
+        </ul>
+        <p class="work__status label">{project.data.status}</p>
+        <Button href={`/work/${project.id}`}>Read the case study</Button>
+      </div>
+      <div class="work__stage">
+        <Image
+          src={asset(`work/${project.data.cover}`)}
+          alt={`${project.data.title} screenshot`}
+          widths={[640, 960, 1280, 1600]}
+          sizes="(max-width: 800px) 92vw, 56vw"
+          loading="lazy"
+        />
+      </div>
+    </article>
+  ))}
+</section>
+
+<style>
+  .work__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem clamp(1rem, 2.4vw, 2.5rem);
+    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  /* The tab buttons do nothing without scripts, so they are hidden until main.ts has run. */
+  :global(html:not(.js)) .work__tabs {
+    display: none;
+  }
+
+  .work__tab {
+    padding: 0.35rem 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--muted);
+    font-size: clamp(0.8rem, 0.7rem + 0.5vw, 1.05rem);
+    font-weight: 900;
+    font-stretch: 125%;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .work__tab[aria-selected='true'] {
+    border-bottom-color: var(--accent);
+    color: var(--fg);
+  }
+
+  .work__num {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    font-stretch: 100%;
+  }
+
+  .work__panel {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: end;
+    gap: clamp(1.5rem, 4vw, 4rem);
+  }
+
+  .work__panel[hidden] {
+    display: none;
+  }
+
+  /* With scripts but before the tabs are wired up, show only the first project so nothing jumps. */
+  :global(.js) .work:not([data-enhanced]) .work__panel:not(:first-of-type) {
+    display: none;
+  }
+
+  /* Without scripts every project is shown, stacked. */
+  :global(html:not(.js)) .work__panel + .work__panel {
+    margin-top: var(--section-gap);
+  }
+
+  .work__info {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+  }
+
+  .work__title {
+    font-size: clamp(2.2rem, 1.2rem + 4.6vw, 5.25rem);
+    overflow-wrap: anywhere;
+  }
+
+  .work__tagline {
+    color: var(--accent);
+    font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2.2rem);
+    line-height: 1.1;
+  }
+
+  .work__summary {
+    max-width: 42ch;
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem);
+  }
+
+  .work__proof {
+    display: grid;
+    gap: 0.4rem;
+    width: 100%;
+    padding-block: 0.75rem;
+    border-block: 1px solid var(--line);
+    font-weight: 700;
+  }
+
+  .work__status {
+    color: var(--muted);
+  }
+
+  .work__stage {
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius);
+    background: var(--line);
+  }
+
+  .work__stage :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .work__panel:not([hidden]) .work__stage {
+      animation: stage-in 0.6s var(--ease);
+    }
+  }
+
+  @keyframes stage-in {
+    from {
+      opacity: 0;
+      transform: translateY(1rem) scale(0.985);
+    }
+  }
+
+  @media (max-width: 800px) {
+    .work__panel {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .work__stage {
+      order: -1;
+    }
+  }
+</style>
