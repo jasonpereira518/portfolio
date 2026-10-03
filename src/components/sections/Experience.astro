@@ -1,0 +1,93 @@
+---
+import { getEducation, getExperience } from '../../lib/content';
+
+const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
+---
+<section class="xp section theme-paper" id="experience">
+  <header class="section__head">
+    <h2 class="label">Experience</h2>
+    <a class="label" href="/resume">Full resume</a>
+  </header>
+  <ol class="xp__list xp__list--roles">
+    {roles.map((item, index) => (
+      <li class="xp__row" data-reveal style={`--i:${index % 3}`}>
+        <h3 class="xp__org display">{item.data.org}</h3>
+        <p class="xp__role">{item.data.role}</p>
+        <p class="xp__meta label">{[item.data.place, item.data.dates].filter(Boolean).join(' · ')}</p>
+        <p class="xp__summary">{item.data.summary}</p>
+      </li>
+    ))}
+  </ol>
+
+  <h2 class="xp__sub label">Education</h2>
+  <ul class="xp__list xp__list--schools">
+    {schools.map((item) => (
+      <li class="xp__row" data-reveal>
+        <h3 class="xp__org display">{item.data.school}</h3>
+        <p class="xp__role">{item.data.detail}</p>
+        <p class="xp__meta label">{item.data.dates}</p>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .xp__list {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .xp__row {
+    display: grid;
+    gap: 0.35rem 2rem;
+    padding-block: clamp(1.1rem, 2.2vw, 1.9rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .xp__org {
+    font-size: clamp(1.25rem, 1rem + 1.4vw, 2.25rem);
+    overflow-wrap: anywhere;
+  }
+
+  .xp__role {
+    font-weight: 700;
+  }
+
+  .xp__meta,
+  .xp__summary {
+    color: var(--muted);
+  }
+
+  .xp__summary {
+    max-width: 62ch;
+  }
+
+  .xp__sub {
+    margin: clamp(2.5rem, 5vw, 4.5rem) 0 1rem;
+    color: var(--muted);
+  }
+
+  @media (min-width: 900px) {
+    .xp__row {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) minmax(0, 5fr);
+      grid-template-areas:
+        'org role summary'
+        'org meta summary';
+    }
+
+    .xp__org {
+      grid-area: org;
+    }
+
+    .xp__role {
+      grid-area: role;
+    }
+
+    .xp__meta {
+      grid-area: meta;
+    }
+
+    .xp__summary {
+      grid-area: summary;
+    }
+  }
+</style>
