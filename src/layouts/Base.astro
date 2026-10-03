@@ -1,6 +1,7 @@
 ---
 import { Font } from 'astro:assets';
 import Nav from '../components/Nav.astro';
+import Contact from '../components/sections/Contact.astro';
 import { getSite } from '../lib/content';
 import '../styles/tokens.css';
 import '../styles/global.css';
@@ -38,6 +39,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <main id="main">
       <slot />
     </main>
+    <Contact />
     <script>
       import '../scripts/main.ts';
     </script>

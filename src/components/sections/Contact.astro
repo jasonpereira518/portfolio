@@ -1,0 +1,90 @@
+---
+import Button from '../Button.astro';
+import ContourBg from '../ContourBg.astro';
+import { getSite } from '../../lib/content';
+
+const site = await getSite();
+const year = new Date().getFullYear();
+---
+<footer class="footer theme-paper" id="contact">
+  <div class="footer__panel theme-ink">
+    <ContourBg />
+    <h2 class="footer__label label">Say hi</h2>
+    <a class="footer__email display" href={`mailto:${site.email}`} data-fit><span>{site.email}</span></a>
+    <div class="footer__actions">
+      <Button href={`mailto:${site.email}`} variant="solid">Email</Button>
+      <Button href={site.links.linkedin} external>LinkedIn</Button>
+      <Button href={site.links.github} external>GitHub</Button>
+      <Button href={site.links.scholar} external>Google Scholar</Button>
+      <Button href="/resume">Resume</Button>
+    </div>
+    <div class="footer__meta label">
+      <p>© {year} {site.name}</p>
+      <nav aria-label="Footer">
+        <a href="/">Home</a>
+        <a href="/work">Work</a>
+        <a href="/resume">Resume</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: var(--gutter);
+  }
+
+  .footer__panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding: clamp(2rem, 5vw, 5rem) clamp(1.25rem, 4vw, 4rem) clamp(1.25rem, 2.5vw, 2rem);
+    border-radius: var(--radius);
+  }
+
+  .footer__label {
+    color: var(--muted);
+  }
+
+  .footer__email {
+    --fit-base: 3.6vw;
+    text-decoration: none;
+    transition: color 0.25s var(--ease);
+  }
+
+  .footer__email:hover {
+    color: var(--accent);
+  }
+
+  .footer__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+  }
+
+  .footer__meta nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+  }
+
+  .footer__meta a {
+    text-decoration: none;
+  }
+
+  .footer__meta a:hover {
+    color: var(--fg);
+  }
+</style>
