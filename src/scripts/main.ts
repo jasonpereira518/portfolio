@@ -3,7 +3,9 @@ import { formatClock } from '../lib/clock';
 type Island = { mount: (el: HTMLElement) => void };
 
 // Script modules loaded only when their section nears the viewport. One line per module.
-const islands: Partial<Record<string, () => Promise<Island>>> = {};
+const islands: Partial<Record<string, () => Promise<Island>>> = {
+  'hero-wash': () => import('./hero-wash'),
+};
 
 document.documentElement.classList.add('js');
 
