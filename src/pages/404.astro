@@ -4,12 +4,13 @@ import Button from '../components/Button.astro';
 ---
 <Base title="Page not found" description="This page does not exist.">
   <section class="lost section theme-paper">
-    <div class="lost__wash" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
+    <div class="lost__mark">
+      <div class="lost__wash" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </div>
+      <h1 class="lost__code display">404</h1>
     </div>
-    <h1 class="lost__code display">404</h1>
     <p class="lost__text">This page isn't here.</p>
     <Button href="/" variant="solid">Back home</Button>
   </section>
@@ -24,52 +25,47 @@ import Button from '../components/Button.astro';
     min-height: 82svh;
   }
 
-  .lost__code {
+  /* The numerals and the paint behind them share one scale. */
+  .lost__mark {
+    position: relative;
     font-size: clamp(6rem, 2rem + 26vw, 24rem);
+  }
+
+  .lost__code {
+    font-size: 1em;
   }
 
   .lost__text {
     font-size: clamp(1.1rem, 1rem + 0.6vw, 1.6rem);
   }
 
-  /* A still paint wash behind the numerals: three uneven blobs. */
+  /* A still paint wash behind the numerals: two uneven, translucent blobs sized and placed in em. */
   .lost__wash {
     position: absolute;
     inset: 0;
     z-index: -1;
-    overflow: hidden;
   }
 
   .lost__wash span {
     position: absolute;
-    background: var(--orange);
+    background: var(--accent);
   }
 
   .lost__wash span:nth-child(1) {
-    top: 12%;
-    left: 30%;
-    width: 44vw;
-    height: 34vw;
+    top: -0.23em;
+    left: 1.12em;
+    width: 1.56em;
+    height: 1.28em;
     border-radius: 58% 42% 55% 45% / 48% 60% 40% 52%;
     opacity: 0.8;
   }
 
   .lost__wash span:nth-child(2) {
-    top: 36%;
-    left: 54%;
-    width: 30vw;
-    height: 26vw;
+    top: 0.25em;
+    left: 1.93em;
+    width: 1.12em;
+    height: 0.98em;
     border-radius: 42% 58% 38% 62% / 55% 45% 55% 45%;
     opacity: 0.5;
-  }
-
-  .lost__wash span:nth-child(3) {
-    top: 62%;
-    left: 22%;
-    width: 9vw;
-    height: 8vw;
-    border-radius: 50% 50% 46% 54% / 52% 48% 52% 48%;
-    background: var(--ink);
-    opacity: 0.9;
   }
 </style>

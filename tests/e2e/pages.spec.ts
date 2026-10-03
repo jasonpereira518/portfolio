@@ -29,3 +29,27 @@ test('unknown addresses get the 404 page with a way home', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('404');
   await expect(page.locator('main').getByRole('link', { name: 'Back home' })).toHaveAttribute('href', '/');
 });
+
+test('the 404 paint wash is exactly two shapes', async ({ page }) => {
+  await page.goto('/404');
+  await expect(page.locator('.lost__wash span')).toHaveCount(2);
+});
+
+test('the 404 paint wash uses the orange for paper, #F0440F', async ({ page }) => {
+  await page.goto('/404');
+  for (const shape of await page.locator('.lost__wash span').all()) {
+    await expect(shape).toHaveCSS('background-color', 'rgb(240, 68, 15)');
+  }
+});
+
+for (const width of [375, 1024, 1440]) {
+  test(`the 404 page does not scroll sideways at ${width}px wide`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/404');
+    const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+  });
+}
