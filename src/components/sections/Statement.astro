@@ -1,0 +1,116 @@
+---
+import { getSite } from '../../lib/content';
+import { parseStatement } from '../../lib/statement';
+
+const site = await getSite();
+const words = parseStatement(site.statement);
+const marquee = parseStatement(site.marquee);
+const marqueeText = marquee.map((word) => word.text + word.tail).join(' ');
+---
+<section class="statement section theme-ink">
+  <p class="statement__text" data-inview>
+    {words.map((word, index) => (
+      <Fragment>
+        <span class="statement__word" style={`--i:${index}`}>
+          {word.accent ? <em class="serif">{word.text}</em> : word.text}{word.tail}
+        </span>{' '}
+      </Fragment>
+    ))}
+  </p>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      {[0, 1, 2, 3].map(() => (
+        <span class="marquee__item display">
+          {marquee.map((word) => (word.accent ? <em class="serif">{word.text}{word.tail}</em> : <span>{word.text}{word.tail}</span>))}
+          <span class="marquee__dot"></span>
+        </span>
+      ))}
+    </div>
+  </div>
+  <p class="sr-only">{marqueeText}</p>
+</section>
+
+<style>
+  .statement {
+    text-align: center;
+  }
+
+  .statement__text {
+    max-width: 22ch;
+    margin-inline: auto;
+    font-size: clamp(1.9rem, 1rem + 4.4vw, 5.25rem);
+    font-weight: 800;
+    font-stretch: 112%;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .statement__text em {
+    color: var(--accent);
+    font-size: 1.14em;
+    line-height: 0.9;
+  }
+
+  /* Words start dim and light up in order when the paragraph scrolls into view. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .statement__word {
+      opacity: 0.14;
+      transition: opacity 0.6s var(--ease);
+      transition-delay: calc(var(--i) * 45ms);
+    }
+
+    :global(.js) .statement__text.is-in .statement__word {
+      opacity: 1;
+    }
+  }
+
+  .marquee {
+    margin: var(--section-gap) calc(var(--gutter) * -1) 0;
+    padding-block: clamp(1rem, 2vw, 2rem);
+    overflow: hidden;
+    border-block: 1px solid var(--line);
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+  }
+
+  .marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding-right: 0.3em;
+    font-size: clamp(3rem, 2rem + 8vw, 9.5rem);
+    white-space: nowrap;
+  }
+
+  .marquee__item em {
+    color: var(--accent);
+    font-size: 1.1em;
+  }
+
+  .marquee__dot {
+    flex: none;
+    width: 0.26em;
+    height: 0.26em;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Four copies of the line; sliding by half the track loops seamlessly. */
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee__track {
+      animation: marquee 26s linear infinite;
+    }
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>
