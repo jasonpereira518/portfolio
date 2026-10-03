@@ -24,6 +24,16 @@ test('a flagship card on the index opens its case study', async ({ page }) => {
   await expect(page).toHaveURL(/\/work\/orbit\/?$/);
 });
 
+test('with reduced motion, hovering a flagship card does not zoom its image', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/work');
+  const feature = page.locator('.feature').first();
+  await feature.hover();
+  // Wait out the 0.6s zoom transition, so a zoom that is merely delayed cannot pass as "none".
+  await page.waitForTimeout(800);
+  await expect(feature.locator('img')).toHaveCSS('transform', 'none');
+});
+
 for (const project of flagship) {
   test(`case study: ${project.title}`, async ({ page }) => {
     await page.goto(`/work/${project.slug}`);
