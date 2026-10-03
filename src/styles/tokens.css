@@ -3,6 +3,8 @@
   --ink: #121210;
   --orange: #ff5a26;
   --orange-deep: #f0440f;
+  /* Paper minus ink. Under difference blending this renders as exact ink over paper. */
+  --blend-ink: #dad5cc;
 
   --font-sans: var(--font-archivo), system-ui, sans-serif;
   --font-serif: var(--font-instrument), Georgia, serif;

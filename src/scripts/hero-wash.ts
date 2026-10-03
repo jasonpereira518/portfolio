@@ -72,7 +72,8 @@ export function mount(hero: HTMLElement): void {
     ctx.setTransform(RESOLUTION, 0, 0, RESOLUTION, 0, 0);
     ctx.clearRect(0, 0, width, height);
     for (const blob of blobs) paintBlob(ctx, blob, now);
-    if (sim.active) schedule();
+    // In drift mode keep looping even when the sim is idle, so the ambient stroke can restart after a cancelled touch.
+    if (sim.active || drift) schedule();
   };
 
   // Only draw while the hero is on screen and the tab is visible.

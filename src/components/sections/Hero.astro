@@ -95,14 +95,14 @@ const portrait = asset('portrait.png');
     object-position: bottom;
   }
 
-  /* White with difference blending: ink over the paper, paper over the dark suit. */
+  /* Paper minus ink with difference blending: exact ink over the paper, a light grey over the dark suit. */
   .hero__foot {
     position: absolute;
     right: var(--gutter);
     bottom: clamp(0.5rem, 1.2vw, 1.25rem);
     left: var(--gutter);
     z-index: 2;
-    color: #fff;
+    color: var(--blend-ink);
     mix-blend-mode: difference;
     pointer-events: none;
   }

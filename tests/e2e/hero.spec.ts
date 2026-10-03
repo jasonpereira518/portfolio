@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
+import { devices, expect, test, type Page } from '@playwright/test';
+import sharp from 'sharp';
 
 async function strokeAcrossPortrait(page: Page) {
   const box = await page.locator('.hero__figure').boundingBox();
@@ -39,6 +40,42 @@ test.describe('hero', () => {
     expect(ratio).toBeLessThan(1.01);
   });
 
+  test('the wordmark renders as exact ink where it sits over the paper', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    const wordmark = page.locator('.hero__wordmark');
+    await expect
+      .poll(() =>
+        wordmark.evaluate((el) => {
+          const inner = el.firstElementChild;
+          return inner ? inner.getBoundingClientRect().width / el.clientWidth : 0;
+        }),
+      )
+      .toBeGreaterThan(0.98);
+    const box = await wordmark.boundingBox();
+    if (!box) throw new Error('The wordmark has no layout box');
+
+    // The far left of the wordmark (the J and the A) is well clear of the silhouette, so it sits over bare paper.
+    const clip = { x: box.x, y: box.y, width: box.width * 0.15, height: box.height };
+    const { data, info } = await sharp(await page.screenshot({ clip }))
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    // The letter fill is the most common dark colour. (The single darkest pixel is not used: where a contour line
+    // crosses a letter, difference blending darkens a few pixels below ink.)
+    const counts = new Map<string, number>();
+    for (let index = 0; index < data.length; index += info.channels) {
+      if (data[index] + data[index + 1] + data[index + 2] >= 150) continue;
+      const key = `${data[index]},${data[index + 1]},${data[index + 2]}`;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    const [fill] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? ['none'];
+    const ink = [18, 18, 16];
+    const channels = fill.split(',').map(Number);
+    expect(channels).toHaveLength(3);
+    channels.forEach((channel, index) => expect(Math.abs(channel - ink[index])).toBeLessThanOrEqual(3));
+  });
+
   test('moving the pointer over the portrait lays paint on the canvas', async ({ page }) => {
     await page.goto('/');
     const canvas = page.locator('.hero__wash');
@@ -56,5 +93,40 @@ test.describe('hero', () => {
     const canvas = page.locator('.hero__wash');
     await expect(canvas).not.toHaveAttribute('data-ready', 'true');
     expect(await canvas.evaluate(hasPaint)).toBe(false);
+  });
+});
+
+// `defaultBrowserType` cannot be set inside a describe group (it forces a new worker); the project is Chromium anyway.
+const { defaultBrowserType: _browser, ...pixel7 } = devices['Pixel 7'];
+
+test.describe('hero on a touch device', () => {
+  test.use(pixel7);
+
+  test('the ambient paint keeps drifting after a swipe on the portrait is cancelled', async ({ page }) => {
+    await page.goto('/');
+    const canvas = page.locator('.hero__wash');
+    await expect(canvas).toHaveAttribute('data-ready', 'true');
+    // With no input at all, a slow stroke paints by itself.
+    await expect.poll(() => canvas.evaluate(hasPaint)).toBe(true);
+
+    // A swipe that starts on the portrait, then becomes a scroll: one move inside the portrait, then a cancel.
+    await page.evaluate(() => {
+      const hero = document.querySelector('.hero');
+      const figure = document.querySelector('.hero__figure');
+      if (!hero || !figure) throw new Error('The hero is missing');
+      const box = figure.getBoundingClientRect();
+      figure.dispatchEvent(
+        new PointerEvent('pointermove', {
+          bubbles: true,
+          clientX: box.left + box.width / 2,
+          clientY: box.top + box.height / 2,
+        }),
+      );
+      hero.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true }));
+    });
+
+    // The drift resumes 2.5 s after the last touch; by 6 s it must be painting again.
+    await page.waitForTimeout(6000);
+    expect(await canvas.evaluate(hasPaint)).toBe(true);
   });
 });
