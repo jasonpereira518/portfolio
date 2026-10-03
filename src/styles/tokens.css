@@ -1,0 +1,37 @@
+:root {
+  --paper: #ece7dc;
+  --ink: #121210;
+  --orange: #ff5a26;
+  --orange-deep: #f0440f;
+
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-serif: var(--font-instrument), Georgia, serif;
+
+  --gutter: clamp(1rem, 0.5rem + 2.2vw, 2.5rem);
+  --section-gap: clamp(4.5rem, 3rem + 7vw, 10rem);
+  --radius: clamp(1rem, 0.6rem + 1.6vw, 2rem);
+  --nav-height: 3.5rem;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.theme-paper {
+  --bg: var(--paper);
+  --fg: var(--ink);
+  --muted: rgb(18 18 16 / 0.64);
+  --line: rgb(18 18 16 / 0.16);
+  --accent: var(--orange-deep);
+}
+
+.theme-ink {
+  --bg: var(--ink);
+  --fg: var(--paper);
+  --muted: rgb(236 231 220 / 0.66);
+  --line: rgb(236 231 220 / 0.18);
+  --accent: var(--orange);
+}
+
+.theme-paper,
+.theme-ink {
+  background: var(--bg);
+  color: var(--fg);
+}

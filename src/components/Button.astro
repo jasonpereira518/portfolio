@@ -1,0 +1,63 @@
+---
+interface Props {
+  href: string;
+  variant?: 'outline' | 'solid';
+  external?: boolean;
+}
+
+const { href, variant = 'outline', external = false } = Astro.props;
+const externalAttrs = external ? { target: '_blank', rel: 'noopener' } : {};
+---
+<a class:list={['button', `button--${variant}`]} href={href} {...externalAttrs}>
+  <span><slot /></span>
+  <svg class="button__arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+    <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+  </svg>
+</a>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.15rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+      background-color 0.25s var(--ease),
+      color 0.25s var(--ease),
+      border-color 0.25s var(--ease);
+  }
+
+  .button--solid {
+    border-color: var(--fg);
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .button--outline:hover {
+    border-color: var(--fg);
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .button--solid:hover {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--ink);
+  }
+
+  .button__arrow {
+    transition: transform 0.25s var(--ease);
+  }
+
+  .button:hover .button__arrow {
+    transform: translateX(3px);
+  }
+</style>

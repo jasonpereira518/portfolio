@@ -1,0 +1,92 @@
+---
+import { getSite } from '../lib/content';
+
+const site = await getSite();
+const links = [
+  { href: '/work', label: 'Work', optional: false },
+  { href: '/#about', label: 'About', optional: true },
+  { href: '/resume', label: 'Resume', optional: false },
+  { href: '#contact', label: 'Contact', optional: false },
+];
+---
+<header class="nav">
+  <a class="nav__name" href="/">{site.name}</a>
+  <p class="nav__meta label">
+    <span>{site.location}</span>
+    <span data-clock data-tz={site.timezone} data-tz-label={site.timezoneLabel} aria-hidden="true"></span>
+  </p>
+  <nav class="nav__links label" aria-label="Primary">
+    {links.map((link) => (
+      <a href={link.href} data-optional={link.optional ? '' : undefined}>{link.label}</a>
+    ))}
+  </nav>
+</header>
+
+<style>
+  /* White text with difference blending reads as ink over paper and as paper over ink. */
+  .nav {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 100;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    height: var(--nav-height);
+    padding: 0 var(--gutter);
+    color: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+  }
+
+  .nav a {
+    pointer-events: auto;
+    text-decoration: none;
+  }
+
+  .nav a:hover {
+    text-decoration: underline;
+  }
+
+  .nav__name {
+    justify-self: start;
+    font-size: 0.8125rem;
+    font-weight: 900;
+    font-stretch: 125%;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .nav__meta {
+    display: flex;
+    gap: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .nav__links {
+    display: flex;
+    justify-self: end;
+    gap: clamp(0.7rem, 1.6vw, 1.75rem);
+  }
+
+  @media (max-width: 720px) {
+    .nav {
+      grid-template-columns: 1fr auto;
+    }
+
+    .nav__meta {
+      display: none;
+    }
+
+    .nav__links {
+      letter-spacing: 0.04em;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .nav__links a[data-optional] {
+      display: none;
+    }
+  }
+</style>
