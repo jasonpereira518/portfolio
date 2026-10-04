@@ -117,10 +117,10 @@ test.describe('reduced motion', () => {
     // 5. The hero canvas is not painted. The hero script was loaded, so the missing flag is the
     // reduced-motion guard at work and not a script that never ran.
     expect.soft(
-      scripts.some((url) => /\/_astro\/hero-wash\./.test(url)),
+      scripts.some((url) => /\/_astro\/hero-ink\./.test(url)),
       'the hero script was loaded',
     ).toBe(true);
-    await expect.soft(page.locator('.hero__wash')).not.toHaveAttribute('data-ready', 'true');
+    await expect.soft(page.locator('.hero__ink')).not.toHaveAttribute('data-ready', 'true');
 
     // 4. Numerals show their final text without counting. This one scrolls each numeral into view
     // (after the checks above) so the count-up would have run if it were going to.
