@@ -26,7 +26,7 @@ export const INK_DEFAULTS: InkOptions = {
   minStep: 2,
   maxPoints: 160,
   ease: 0.3,
-  maxWidth: 14,
+  maxWidth: 22,
 };
 
 const FRAME_MS = 1000 / 60;
@@ -34,7 +34,8 @@ const FRAME_MS = 1000 / 60;
 /** Width of the line at fraction `t` of a point's life, as a share of `maxWidth`: full at the pointer, tapering to a point. */
 export function inkWidth(t: number): number {
   if (t < 0 || t >= 1) return 0;
-  return (1 - t) ** 0.85;
+  // An exponent below 1 keeps the body of the stroke full, like a loaded brush, before it thins to the tail.
+  return (1 - t) ** 0.6;
 }
 
 /** An ink line that eases after the pointer. Each point it lays thins and then vanishes, so the line tapers into a tail. */
