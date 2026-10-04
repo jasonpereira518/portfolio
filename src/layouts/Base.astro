@@ -29,6 +29,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical.href} />
+    <!-- public/og.jpg is made by `npm run share-image`. -->
+    <meta property="og:image" content={new URL('/og.jpg', Astro.site).href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name}: portrait, name and the line “${site.pitch[0]}”`} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#ECE7DC" />
     <Font cssVariable="--font-archivo" preload />
     <Font cssVariable="--font-instrument" />

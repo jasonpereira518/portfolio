@@ -11,6 +11,7 @@ Static site built with Astro. Design and content specs are in `docs/superpowers/
 | `npm run placeholders` | Create placeholder images for any that are missing |
 | `npm run check:assets` | Fail if any placeholder image is still in use |
 | `npm run check:links` | Request every external link in the built site and list the ones that do not load (run after `npm run build`) |
+| `npm run share-image` | Render the link-preview card to `public/og.jpg` (run after `npm run build`, and again whenever the portrait, name, first pitch line or availability changes) |
 
 ## Changing the copy
 

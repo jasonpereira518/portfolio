@@ -14,6 +14,7 @@
     "placeholders": "node scripts/make-placeholders.mjs",
     "check:assets": "node scripts/check-assets.mjs",
     "check:links": "node scripts/check-links.mjs",
+    "share-image": "node scripts/make-share-image.mjs",
     "verify": "npm run check && npm run test && npm run build && npm run test:e2e"
   },
   "dependencies": {
