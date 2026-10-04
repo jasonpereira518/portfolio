@@ -1,5 +1,29 @@
 import { describe, expect, test } from 'vitest';
-import { contourSvg, mulberry32, ringToPath } from '../../src/lib/contours';
+import { contourSvg, createHeightField, mulberry32, ringToPath } from '../../src/lib/contours';
+
+describe('createHeightField', () => {
+  const cols = 56;
+  const rows = 35;
+  const field = createHeightField(cols, rows, 7);
+
+  test('repeats every `cols` columns and every `rows` rows, so the artwork tiles seamlessly', () => {
+    for (const [x, y] of [
+      [0, 0],
+      [3.3, 17.8],
+      [41.05, 2.6],
+      [55.9, 34.9],
+    ]) {
+      expect(field(x + cols, y)).toBeCloseTo(field(x, y), 10);
+      expect(field(x, y + rows)).toBeCloseTo(field(x, y), 10);
+      expect(field(x - cols, y - rows)).toBeCloseTo(field(x, y), 10);
+    }
+  });
+
+  test('varies across the tile, so it draws more than a few lines', () => {
+    const samples = Array.from({ length: 200 }, (_, index) => field((index * 7.3) % cols, (index * 3.1) % rows));
+    expect(Math.max(...samples) - Math.min(...samples)).toBeGreaterThan(0.8);
+  });
+});
 
 describe('mulberry32', () => {
   test('is deterministic for a seed and stays within [0, 1)', () => {

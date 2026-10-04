@@ -18,3 +18,32 @@ test('a section can show the contour lines behind its content', async ({ page })
     });
   expect(mask).toContain('contours.svg');
 });
+
+test('the contour lines repeat as tiles and keep moving across the section', async ({ page }) => {
+  await page.goto('/');
+  const lines = page.locator('.hero .contours__lines');
+  const repeat = await lines.evaluate((el) => {
+    const style = getComputedStyle(el);
+    return style.maskRepeat || style.getPropertyValue('-webkit-mask-repeat');
+  });
+  expect(repeat).toMatch(/^repeat/);
+
+  const position = () => lines.evaluate((el) => Math.round(el.getBoundingClientRect().x));
+  const before = await position();
+  await page.waitForTimeout(1000);
+  expect(Math.abs((await position()) - before)).toBeGreaterThan(5);
+});
+
+test('with reduced motion the contour lines stand still', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const lines = page.locator('.hero .contours__lines');
+  const position = () =>
+    lines.evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      return [Math.round(box.x), Math.round(box.y)];
+    });
+  const before = await position();
+  await page.waitForTimeout(1000);
+  expect(await position()).toEqual(before);
+});
