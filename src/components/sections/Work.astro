@@ -6,95 +6,68 @@ import { getFlagship, liveUrl } from '../../lib/content';
 
 const projects = await getFlagship();
 ---
-<section class="work section theme-paper" id="work" data-island="showcase">
-  <header class="section__head">
-    <h2 class="label">Selected work</h2>
-    <a class="label" href="/work">All work</a>
-  </header>
+<section class="work section theme-paper" id="work" data-island="showcase" style={`--n:${projects.length}`}>
+  <div class="work__pin">
+    <div class="work__viewport">
+      <header class="section__head">
+        <h2 class="label">Selected work</h2>
+        <a class="label" href="/work">All work</a>
+      </header>
 
-  <div class="work__tabs" role="tablist" aria-label="Selected work">
-    {projects.map((project, index) => (
-      <button
-        class="work__tab"
-        type="button"
-        role="tab"
-        id={`tab-${project.id}`}
-        aria-controls={`panel-${project.id}`}
-        aria-selected={index === 0 ? 'true' : 'false'}
-        tabindex={index === 0 ? 0 : -1}
-      >
-        <span class="work__num">{String(index + 1).padStart(2, '0')}</span>{' '}{project.data.short}
-      </button>
-    ))}
+      <div class="work__track">
+        {projects.map((project) => (
+          <article class="work__panel" id={`panel-${project.id}`} aria-labelledby={`title-${project.id}`}>
+            <div class="work__info">
+              <h3 class="work__title display" id={`title-${project.id}`} data-title-lines="2" style={project.data.color ? `--project:${project.data.color}` : undefined}>{project.data.title}</h3>
+              <p class="work__tagline serif">{project.data.tagline}</p>
+              <p class="work__summary">{project.data.summary}</p>
+              <ul class="work__proof">
+                {project.data.proof.map((point) => <li>{point}</li>)}
+              </ul>
+              <p class="work__status label">{project.data.status}</p>
+              <div class="work__actions">
+                <Button href={`/work/${project.id}`}>Read the case study</Button>
+                {liveUrl(project) && (
+                  <Button href={liveUrl(project)!} variant="solid" external>See it live</Button>
+                )}
+              </div>
+            </div>
+            <div class:list={['work__stage', { 'work__stage--whole': project.data.coverFit === 'contain' }]}>
+              <Image
+                src={asset(`work/${project.data.cover}`)}
+                alt={project.data.coverAlt}
+                widths={[640, 960, 1280, 1600]}
+                sizes="(max-width: 800px) 92vw, 56vw"
+                loading="lazy"
+              />
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <!-- Only shown while the projects slide sideways: where you are, and a way to jump to a project. -->
+      <nav class="work__progress" aria-label="Selected work">
+        {projects.map((project, index) => (
+          <button class="work__step" type="button" aria-controls={`panel-${project.id}`}>
+            <span class="work__num">{String(index + 1).padStart(2, '0')}</span>{' '}{project.data.short}
+          </button>
+        ))}
+        <span class="work__bar" aria-hidden="true"><span class="work__fill"></span></span>
+      </nav>
+    </div>
   </div>
-
-  {projects.map((project) => (
-    <article class="work__panel" role="tabpanel" id={`panel-${project.id}`} aria-labelledby={`tab-${project.id}`}>
-      <div class="work__info">
-        <h3 class="work__title display" data-title-lines="2" style={project.data.color ? `--project:${project.data.color}` : undefined}>{project.data.title}</h3>
-        <p class="work__tagline serif">{project.data.tagline}</p>
-        <p class="work__summary">{project.data.summary}</p>
-        <ul class="work__proof">
-          {project.data.proof.map((point) => <li>{point}</li>)}
-        </ul>
-        <p class="work__status label">{project.data.status}</p>
-        <div class="work__actions">
-          <Button href={`/work/${project.id}`}>Read the case study</Button>
-          {liveUrl(project) && (
-            <Button href={liveUrl(project)!} variant="solid" external>See it live</Button>
-          )}
-        </div>
-      </div>
-      <div class:list={['work__stage', { 'work__stage--whole': project.data.coverFit === 'contain' }]}>
-        <Image
-          src={asset(`work/${project.data.cover}`)}
-          alt={project.data.coverAlt}
-          widths={[640, 960, 1280, 1600]}
-          sizes="(max-width: 800px) 92vw, 56vw"
-          loading="lazy"
-        />
-      </div>
-    </article>
-  ))}
 </section>
 
 <style>
-  .work__tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem clamp(1rem, 2.4vw, 2.5rem);
-    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  /* Without scripts, on a small or short screen, or if the showcase script failed, the projects are stacked.
+     The script turns on data-slider when there is room to pin the section and slide the projects sideways. */
+  .work__track {
+    display: grid;
+    gap: var(--section-gap);
   }
 
-  /* The tab buttons do nothing without scripts, so they are hidden until main.ts has run.
-     They are also hidden if the showcase script failed to start (main.ts sets data-island-failed). */
-  :global(html:not(.js)) .work__tabs,
-  .work[data-island-failed] .work__tabs {
+  .work__progress {
     display: none;
-  }
-
-  .work__tab {
-    padding: 0.35rem 0;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    background: none;
-    color: var(--muted);
-    font-size: clamp(0.8rem, 0.7rem + 0.5vw, 1.05rem);
-    font-weight: 900;
-    font-stretch: 125%;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
-
-  .work__tab[aria-selected='true'] {
-    border-bottom-color: var(--accent);
-    color: var(--fg);
-  }
-
-  .work__num {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    font-stretch: 100%;
   }
 
   .work__panel {
@@ -104,20 +77,104 @@ const projects = await getFlagship();
     gap: clamp(1.5rem, 4vw, 4rem);
   }
 
-  .work__panel[hidden] {
-    display: none;
+  /* The pinned slider: the pin is as tall as it takes to scroll through every project, the viewport sticks to the
+     screen inside it, and the script sets --offset (in projects) to slide the track along. */
+  .work[data-slider='on'] {
+    --slide-scroll: 90svh; /* how far the page scrolls to move from one project to the next */
+    padding-inline: 0;
+    padding-block: 0;
   }
 
-  /* With scripts but before the tabs are wired up, show only the first project so nothing jumps.
-     A failed section is excluded: it falls back to showing every project. */
-  :global(.js) .work:not([data-enhanced]):not([data-island-failed]) .work__panel:not(:first-of-type) {
-    display: none;
+  .work[data-slider='on'] .work__pin {
+    height: calc(100svh + (var(--n) - 1) * var(--slide-scroll));
   }
 
-  /* Without scripts, or if the showcase script failed, every project is shown, stacked. */
-  :global(html:not(.js)) .work__panel + .work__panel,
-  .work[data-island-failed] .work__panel + .work__panel {
-    margin-top: var(--section-gap);
+  .work[data-slider='on'] .work__viewport {
+    position: sticky;
+    top: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    height: 100svh;
+    padding-block: calc(var(--nav-height) + 1rem) 1.25rem;
+    overflow: clip;
+  }
+
+  .work[data-slider='on'] .section__head {
+    margin: 0 var(--gutter);
+    margin-bottom: clamp(1rem, 2.5vh, 2rem);
+  }
+
+  .work[data-slider='on'] .work__track {
+    display: flex;
+    gap: 0;
+    width: calc(var(--n) * 100%);
+    min-height: 0;
+    transform: translate3d(calc(var(--offset, 0) * -100% / var(--n)), 0, 0);
+    will-change: transform;
+  }
+
+  .work[data-slider='on'] .work__panel {
+    flex: 0 0 calc(100% / var(--n));
+    align-items: center;
+    min-height: 0;
+    padding-inline: var(--gutter);
+  }
+
+  .work[data-slider='on'] .work__stage {
+    justify-self: end;
+    width: 100%;
+    /* Never taller than what is left of the screen below the heading and above the progress strip. */
+    max-width: calc((100svh - 14rem) * 1.6);
+  }
+
+  .work[data-slider='on'] .work__progress {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem clamp(1rem, 2.4vw, 2.5rem);
+    margin-inline: var(--gutter);
+  }
+
+  .work__step {
+    padding: 0.35rem 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: clamp(0.8rem, 0.7rem + 0.5vw, 1.05rem);
+    font-weight: 900;
+    font-stretch: 125%;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.3s var(--ease);
+  }
+
+  .work__step[aria-current='true'] {
+    color: var(--fg);
+  }
+
+  .work__num {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    font-stretch: 100%;
+  }
+
+  /* A thin line under the steps that fills as the page scrolls through the projects. */
+  .work__bar {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: var(--line);
+  }
+
+  .work__fill {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform: scaleX(var(--progress, 0));
+    transform-origin: left;
   }
 
   .work__info {
@@ -189,19 +246,6 @@ const projects = await getFlagship();
 
   .work__stage--whole :global(img) {
     object-fit: contain;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .work__panel:not([hidden]) .work__stage {
-      animation: stage-in 0.6s var(--ease);
-    }
-  }
-
-  @keyframes stage-in {
-    from {
-      opacity: 0;
-      transform: translateY(1rem) scale(0.985);
-    }
   }
 
   @media (max-width: 800px) {

@@ -37,7 +37,7 @@ Order of work: (1) design spec — this document, (2) content analysis, (3) impl
 |---|---|---|---|
 | 1 | Hero | Cut-out portrait centred with giant `JASON PEREIRA` wordmark at the bottom, one-line pitch, buttons: See the work / Resume. Moving the cursor over the face draws a tapered ink line over it that trails the cursor and fades. Touch: drag to draw, with a slow auto-drift | Lando hero, Cooper wordmark |
 | 2 | Statement | Large serif-and-grotesk paragraph with orange accent words, resolving word by word on scroll; marquee line with a signature that draws itself | Lando |
-| 3 | Selected work | Tabbed showcase with a sticky screenshot stage; each tab links to its case study | Cooper |
+| 3 | Selected work | Pinned horizontal slider: scrolling down slides through all four projects, then the page scrolls on; each project links to its case study. Stacked on phones, short screens and with reduced motion | Cooper |
 | 4 | Numbers | Giant numerals that scale and count up on scroll | Lando "49 podiums" |
 | 5 | Experience | Clean dated rows (role, place, dates, one line) | Cooper resume |
 | 6 | About | Short bio, numbered facts, scattered parallax photo collage with captions | Both |
@@ -93,6 +93,6 @@ Blog, CMS, contact form backend, analytics, dark mode, video, command palette.
 ## Verification (once built)
 
 - `astro check` and `astro build` pass.
-- In the browser pane: screenshot every section at desktop and mobile widths; exercise the hero reveal and showcase tabs.
+- In the browser pane: screenshot every section at desktop and mobile widths; exercise the hero reveal and scroll through the showcase slider.
 - Lighthouse mobile run meets the budget; islands load lazily.
 - Re-test with JavaScript disabled and with reduced motion enabled.
