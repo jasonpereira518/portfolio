@@ -22,8 +22,8 @@ test('body text is set in DM Sans and loads it, while the display type stays Arc
   for (const selector of ['.work__summary', '.xp__summary']) {
     expect(await family(selector), selector).toMatch(/^Calibri/);
   }
-  // The wide, uppercase voice: headings, labels, the hero pitch and the project tabs.
-  for (const selector of ['.display', '.label', '.hero__pitch', '.work__tab']) {
+  // The wide, uppercase voice: headings, labels, the hero pitch and the project steps.
+  for (const selector of ['.display', '.label', '.hero__pitch', '.work__step']) {
     expect(await family(selector), selector).toContain('Archivo');
   }
   // The font file is really downloaded and in use, not just named.

@@ -9,6 +9,10 @@ export function fitTitles(): void {
   const titles = Array.from(document.querySelectorAll<HTMLElement>('[data-title-lines]'));
   if (titles.length === 0) return;
 
+  // With reduced motion the stylesheet gives every property a tiny transition. A size set and read back in the
+  // same frame would then still report the old one, and the fit would flip between sizes forever.
+  titles.forEach((title) => title.style.setProperty('transition', 'none', 'important'));
+
   const fit = (title: HTMLElement) => {
     const lines = Number(title.dataset.titleLines);
     if (!(lines > 0)) return;

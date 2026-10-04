@@ -12,7 +12,7 @@ test.describe('without JavaScript', () => {
     for (const title of ['Case Closed', 'Orbit', 'StreetLab', 'GPU Portfolio & Risk Decision Engine']) {
       await expect(page.locator('#work').getByRole('heading', { name: title })).toBeVisible();
     }
-    await expect(page.locator('#work [role="tablist"]')).toBeHidden();
+    await expect(page.locator('#work .work__progress')).toBeHidden();
     await expect(page.locator('.numbers__numeral').first()).toHaveText('220+');
     await expect(page.getByRole('link', { name: 'jasonpereira518@gmail.com' })).toBeVisible();
   });
@@ -38,7 +38,7 @@ test('if the page script fails to load, the page goes back to its no-script layo
   for (const title of ['Case Closed', 'Orbit', 'StreetLab', 'GPU Portfolio & Risk Decision Engine']) {
     await expect(page.locator('#work').getByRole('heading', { name: title })).toBeVisible();
   }
-  await expect(page.locator('#work [role="tablist"]')).toBeHidden();
+  await expect(page.locator('#work .work__progress')).toBeHidden();
 });
 
 test.describe('layout', () => {

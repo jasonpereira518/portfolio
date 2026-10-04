@@ -1,40 +1,74 @@
-import { nextTabIndex } from '../lib/tabs';
+import { activeIndex, restingScroll, slideOffset, slideProgress } from '../lib/work-slide';
+
+// Pinning and sliding needs room: a wide, tall screen, and no request to cut down on motion. Anywhere else the
+// projects stay stacked (the CSS default).
+const SLIDER = '(min-width: 801px) and (min-height: 720px) and (prefers-reduced-motion: no-preference)';
 
 export function mount(root: HTMLElement): void {
-  const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-  const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
-  if (tabs.length === 0 || tabs.length !== panels.length) {
-    throw new Error(`Showcase needs one tabpanel for every tab, but found ${tabs.length} tabs and ${panels.length} panels`);
+  const pin = root.querySelector<HTMLElement>('.work__pin');
+  const panels = Array.from(root.querySelectorAll<HTMLElement>('.work__panel'));
+  const steps = Array.from(root.querySelectorAll<HTMLButtonElement>('.work__step'));
+  if (!pin || panels.length === 0 || steps.length !== panels.length) {
+    throw new Error(`Showcase needs a pin and one step for every panel, but found ${steps.length} steps and ${panels.length} panels`);
   }
 
-  const select = (index: number, moveFocus: boolean) => {
-    tabs.forEach((tab, position) => {
-      const selected = position === index;
-      tab.setAttribute('aria-selected', String(selected));
-      tab.tabIndex = selected ? 0 : -1;
-      panels[position].hidden = !selected;
-    });
-    if (moveFocus) tabs[index].focus();
+  const media = window.matchMedia(SLIDER);
+  let frame = 0;
+
+  const metrics = () => ({ top: pin.getBoundingClientRect().top + window.scrollY, height: pin.offsetHeight });
+
+  const currentProgress = () => {
+    const { top, height } = metrics();
+    return slideProgress(window.scrollY, top, height, window.innerHeight);
   };
 
-  // A hidden panel's lazy cover only starts loading once the panel is shown, leaving an empty frame
-  // for a moment. Pointing at a tab starts the download early. (Keyboard and touch users select a tab
-  // in the same action that reaches it, so there is nothing earlier to hook for them.)
-  const warm = (index: number) => panels[index].querySelector('img')?.setAttribute('loading', 'eager');
+  const update = () => {
+    frame = 0;
+    if (!media.matches) return;
+    const progress = currentProgress();
+    const offset = slideOffset(progress, panels.length);
+    root.style.setProperty('--offset', offset.toFixed(4));
+    root.style.setProperty('--progress', progress.toFixed(4));
+    const active = activeIndex(offset);
+    steps.forEach((step, index) => step.setAttribute('aria-current', String(index === active)));
+  };
 
-  tabs.forEach((tab, index) => {
-    tab.addEventListener('pointerenter', () => warm(index));
-    tab.addEventListener('click', () => select(index, false));
-    tab.addEventListener('keydown', (event) => {
-      // Leave browser and system shortcuts (such as Alt+Left for back) alone.
-      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-      const next = nextTabIndex(event.key, index, tabs.length);
-      if (next === null) return;
-      event.preventDefault();
-      select(next, true);
+  const schedule = () => {
+    if (!frame) frame = requestAnimationFrame(update);
+  };
+
+  const goTo = (index: number, behavior: ScrollBehavior) => {
+    const { top, height } = metrics();
+    window.scrollTo({ top: restingScroll(index, panels.length, top, height, window.innerHeight), behavior });
+  };
+
+  const sync = () => {
+    if (media.matches) {
+      root.dataset.slider = 'on';
+      // The covers sit in a row beside the screen, where lazy loading would only start them as they slide in.
+      panels.forEach((panel) => panel.querySelector('img')?.setAttribute('loading', 'eager'));
+      update();
+    } else {
+      delete root.dataset.slider;
+      root.style.removeProperty('--offset');
+      root.style.removeProperty('--progress');
+    }
+  };
+
+  steps.forEach((step, index) => step.addEventListener('click', () => goTo(index, 'smooth')));
+
+  // Focus can reach a link in a project that is off to the side (the track is clipped, so the browser will not
+  // scroll to it): slide that project into view instead.
+  panels.forEach((panel, index) => {
+    panel.addEventListener('focusin', () => {
+      if (media.matches && activeIndex(slideOffset(currentProgress(), panels.length)) !== index) goTo(index, 'auto');
     });
   });
 
-  select(0, false);
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
+  media.addEventListener('change', sync);
+
+  sync();
   root.dataset.enhanced = 'true';
 }
