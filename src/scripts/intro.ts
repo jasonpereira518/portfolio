@@ -2,7 +2,7 @@ import { MIN_EDGE, traceBlob } from './blob-outline';
 
 /** The reveal starts no sooner than this after navigation began, so the mark has landed (it rises for 0.6 s). */
 const HOLD_MS = 900;
-/** ...and no later than this, even if the portrait is still loading, so the intro always ends well before the
+/** ...and no later than this, even if the hero still is loading, so the intro always ends well before the
     4 s CSS safety in Intro.astro hides it anyway. */
 const LATEST_MS = 2500;
 const REVEAL_MS = 1100;
@@ -42,9 +42,9 @@ export function holeGeometry(width: number, height: number, face?: Box): { x: nu
   return { x, y, reach: (farthest / MIN_EDGE) * 1.05 };
 }
 
-/** Resolves when the hero portrait can be painted, or straight away on pages without one. Never rejects. */
-function portraitReady(): Promise<void> {
-  const image = document.querySelector<HTMLImageElement>('.hero__figure img');
+/** Resolves when the hero's still can be painted, or straight away on pages without one. Never rejects. */
+function stillReady(): Promise<void> {
+  const image = document.querySelector<HTMLImageElement>('.hero__backdrop img');
   if (!image) return Promise.resolve();
   return image.decode().catch(() => undefined);
 }
@@ -52,7 +52,7 @@ function portraitReady(): Promise<void> {
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, Math.max(0, ms)));
 
 /**
- * The first-visit intro: an orange screen with the initials, then a paint-blob hole opens over the face and
+ * The first-visit intro: an orange screen with the initials, then a paint-blob hole opens in the middle and
  * spreads until the page is revealed. Base.astro's head script decides before first paint whether it plays (it
  * adds `has-intro` to <html> and records the visit); this only runs it.
  */
@@ -86,8 +86,8 @@ export function playIntro(): void {
     const height = innerHeight;
     canvas.width = Math.max(1, Math.round(width * RESOLUTION));
     canvas.height = Math.max(1, Math.round(height * RESOLUTION));
-    // Measured now, after the portrait has loaded, so its box is real.
-    const { x, y, reach } = holeGeometry(width, height, document.querySelector('.hero__figure')?.getBoundingClientRect());
+    // The hero has no portrait now (its background is full-screen footage), so the hole opens from the centre.
+    const { x, y, reach } = holeGeometry(width, height);
     root.dataset.origin = `${Math.round(x)},${Math.round(y)}`;
     const began = performance.now();
 
@@ -109,7 +109,7 @@ export function playIntro(): void {
     root.dataset.phase = 'reveal';
   };
 
-  // Open onto the portrait, not onto an empty hero: wait for it, but not past LATEST_MS.
+  // Open onto the hero's still, not onto an empty hero: wait for it, but not past LATEST_MS.
   const elapsed = performance.now();
-  void Promise.all([wait(HOLD_MS - elapsed), Promise.race([portraitReady(), wait(LATEST_MS - elapsed)])]).then(reveal);
+  void Promise.all([wait(HOLD_MS - elapsed), Promise.race([stillReady(), wait(LATEST_MS - elapsed)])]).then(reveal);
 }

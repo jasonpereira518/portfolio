@@ -1,9 +1,8 @@
 import { devices, expect, test, type Page } from './fixtures';
-import sharp from 'sharp';
 
-async function strokeAcrossPortrait(page: Page) {
-  const box = await page.locator('.hero__figure').boundingBox();
-  if (!box) throw new Error('The hero portrait has no layout box');
+async function strokeAcrossHero(page: Page) {
+  const box = await page.locator('.hero').boundingBox();
+  if (!box) throw new Error('The hero has no layout box');
   await page.mouse.move(box.x + box.width * 0.3, box.y + box.height * 0.3);
   await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.5, { steps: 15 });
 }
@@ -17,7 +16,7 @@ const hasPaint = (canvas: HTMLCanvasElement) => {
 };
 
 test.describe('hero', () => {
-  test('shows the pitch, the calls to action, the tags and the portrait', async ({ page }) => {
+  test('shows the pitch, the calls to action, the tags and the stage backdrop', async ({ page }) => {
     await page.goto('/');
     const hero = page.locator('.hero');
     await expect(hero.getByText('AI engineer who ships.')).toBeVisible();
@@ -25,7 +24,38 @@ test.describe('hero', () => {
     await expect(hero.getByRole('link', { name: 'See the work' })).toHaveAttribute('href', '#work');
     await expect(hero.getByRole('link', { name: 'Resume' })).toHaveAttribute('href', '/resume');
     await expect(hero.getByText('Open to Summer 2027 internships')).toBeVisible();
-    await expect(hero.getByRole('img', { name: 'Portrait of Jason Pereira' })).toBeVisible();
+    // The backdrop is decorative: a still, with the looping footage over it.
+    await expect(hero.locator('.hero__backdrop img')).toBeVisible();
+    await expect(hero.locator('.hero__backdrop')).toHaveAttribute('aria-hidden', 'true');
+    const video = hero.locator('.hero__video');
+    await expect(video.locator('source')).toHaveAttribute('src', '/hero/stage.mp4');
+    expect(await video.evaluate((el: HTMLVideoElement) => [el.muted, el.loop, el.playsInline])).toEqual([true, true, true]);
+  });
+
+  test('the backdrop covers the whole hero, under a dark scrim', async ({ page }) => {
+    await page.goto('/');
+    const hero = (await page.locator('.hero').boundingBox())!;
+    const backdrop = (await page.locator('.hero__backdrop').boundingBox())!;
+    expect(backdrop).toEqual(hero);
+    const scrim = await page.locator('.hero__backdrop').evaluate((el) => getComputedStyle(el, '::after').backgroundImage);
+    expect(scrim).toContain('linear-gradient');
+  });
+
+  test('the footage is requested with scripts and motion allowed', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero__video')).toHaveJSProperty('preload', 'auto');
+  });
+
+  test('with reduced motion the footage is never fetched, leaving the still', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveClass(/\bjs\b/);
+    await page.waitForTimeout(400);
+    const video = page.locator('.hero__video');
+    await expect(video).toHaveJSProperty('preload', 'none');
+    await expect(video).toHaveJSProperty('paused', true);
+    await expect(video).toHaveCSS('opacity', '0');
+    await expect(page.locator('.hero__backdrop img')).toBeVisible();
   });
 
   test('the wordmark is fitted to the full width of the hero', async ({ page }) => {
@@ -40,50 +70,21 @@ test.describe('hero', () => {
     expect(ratio).toBeLessThan(1.01);
   });
 
-  test('the wordmark renders as exact ink where it sits over the paper', async ({ page }) => {
+  test('the wordmark is plain paper over the dark backdrop, with no blending', async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => document.fonts.ready);
-    const wordmark = page.locator('.hero__wordmark');
-    await expect
-      .poll(() =>
-        wordmark.evaluate((el) => {
-          const inner = el.firstElementChild;
-          return inner ? inner.getBoundingClientRect().width / el.clientWidth : 0;
-        }),
-      )
-      .toBeGreaterThan(0.98);
-    const box = await wordmark.boundingBox();
-    if (!box) throw new Error('The wordmark has no layout box');
-
-    // The far left of the wordmark (the J and the A) is well clear of the silhouette, so it sits over bare paper.
-    const clip = { x: box.x, y: box.y, width: box.width * 0.15, height: box.height };
-    const { data, info } = await sharp(await page.screenshot({ clip }))
-      .removeAlpha()
-      .raw()
-      .toBuffer({ resolveWithObject: true });
-    // The letter fill is the most common dark colour. (The single darkest pixel is not used: where a contour line
-    // crosses a letter, difference blending darkens a few pixels below ink.)
-    const counts = new Map<string, number>();
-    for (let index = 0; index < data.length; index += info.channels) {
-      if (data[index] + data[index + 1] + data[index + 2] >= 150) continue;
-      const key = `${data[index]},${data[index + 1]},${data[index + 2]}`;
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    }
-    const [fill] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? ['none'];
-    const ink = [18, 18, 16];
-    const channels = fill.split(',').map(Number);
-    expect(channels).toHaveLength(3);
-    channels.forEach((channel, index) => expect(Math.abs(channel - ink[index])).toBeLessThanOrEqual(3));
+    const foot = page.locator('.hero__foot');
+    await expect(foot).toHaveCSS('mix-blend-mode', 'normal');
+    await expect(page.locator('.hero__wordmark')).toHaveCSS('color', 'rgb(236, 231, 220)');
   });
 
   test('moving the pointer over the portrait draws an ink line on the canvas', async ({ page }) => {
     await page.goto('/');
     const canvas = page.locator('.hero__ink');
     await expect(canvas).toHaveAttribute('data-ready', 'true');
-    await strokeAcrossPortrait(page);
+    await strokeAcrossHero(page);
     await expect.poll(() => canvas.evaluate(hasPaint)).toBe(true);
 
-    // The ink is the exact paper orange, #F0440F: the head of the line is wide enough to hold fully opaque pixels.
+    // The ink is the exact orange, #FF5A26: the head of the line is wide enough to hold fully opaque pixels.
     const solid = await canvas.evaluate((el: HTMLCanvasElement) => {
       const context = el.getContext('2d');
       if (!context) return null;
@@ -93,28 +94,28 @@ test.describe('hero', () => {
       }
       return null;
     });
-    expect(solid).toEqual([0xf0, 0x44, 0x0f]);
+    expect(solid).toEqual([0xff, 0x5a, 0x26]);
 
-    // The ink takes its orange from the hero's theme (the paper orange), not from a hard-coded value.
+    // The ink takes its orange from the hero's theme (the ink theme's orange), not from a hard-coded value.
     const colours = await page.evaluate(() => {
       const hero = document.querySelector('.hero');
       if (!hero) throw new Error('The hero is missing');
       return {
         accent: getComputedStyle(hero).getPropertyValue('--accent').trim(),
-        orangeDeep: getComputedStyle(document.documentElement).getPropertyValue('--orange-deep').trim(),
+        orange: getComputedStyle(document.documentElement).getPropertyValue('--orange').trim(),
       };
     });
-    expect(colours.orangeDeep).not.toBe('');
-    expect(colours.accent).toBe(colours.orangeDeep);
+    expect(colours.orange).not.toBe('');
+    expect(colours.accent).toBe(colours.orange);
   });
 
-  test('the ink line fades away shortly after the pointer stops, leaving the portrait clear', async ({ page }) => {
+  test('the ink line fades away shortly after the pointer stops, leaving the hero clear', async ({ page }) => {
     await page.goto('/');
     const canvas = page.locator('.hero__ink');
     await expect(canvas).toHaveAttribute('data-ready', 'true');
-    await strokeAcrossPortrait(page);
+    await strokeAcrossHero(page);
     await expect.poll(() => canvas.evaluate(hasPaint)).toBe(true);
-    // The line lives about 0.8 s. The pointer now rests on the portrait, so nothing new is drawn.
+    // The line lives about 0.8 s. The pointer now rests on the hero, so nothing new is drawn.
     await expect.poll(() => canvas.evaluate(hasPaint), { timeout: 2500 }).toBe(false);
   });
 
@@ -122,7 +123,7 @@ test.describe('hero', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     await expect(page.locator('html')).toHaveClass(/\bjs\b/);
-    await strokeAcrossPortrait(page);
+    await strokeAcrossHero(page);
     await page.waitForTimeout(400);
     const canvas = page.locator('.hero__ink');
     await expect(canvas).not.toHaveAttribute('data-ready', 'true');
@@ -136,20 +137,19 @@ const { defaultBrowserType: _browser, ...pixel7 } = devices['Pixel 7'];
 test.describe('hero on a touch device', () => {
   test.use(pixel7);
 
-  test('the ambient paint keeps drifting after a swipe on the portrait is cancelled', async ({ page }) => {
+  test('the ambient paint keeps drifting after a swipe on the hero is cancelled', async ({ page }) => {
     await page.goto('/');
     const canvas = page.locator('.hero__ink');
     await expect(canvas).toHaveAttribute('data-ready', 'true');
     // With no input at all, a slow stroke paints by itself.
     await expect.poll(() => canvas.evaluate(hasPaint)).toBe(true);
 
-    // A swipe that starts on the portrait, then becomes a scroll: one move inside the portrait, then a cancel.
+    // A swipe that starts on the hero, then becomes a scroll: one move inside the hero, then a cancel.
     await page.evaluate(() => {
       const hero = document.querySelector('.hero');
-      const figure = document.querySelector('.hero__figure');
-      if (!hero || !figure) throw new Error('The hero is missing');
-      const box = figure.getBoundingClientRect();
-      figure.dispatchEvent(
+      if (!hero) throw new Error('The hero is missing');
+      const box = hero.getBoundingClientRect();
+      hero.dispatchEvent(
         new PointerEvent('pointermove', {
           bubbles: true,
           clientX: box.left + box.width / 2,
@@ -163,15 +163,4 @@ test.describe('hero on a touch device', () => {
     await page.waitForTimeout(6000);
     expect(await canvas.evaluate(hasPaint)).toBe(true);
   });
-});
-
-test('the portrait stays still when the pointer moves over the hero', async ({ page }) => {
-  await page.goto('/');
-  const figure = page.locator('.hero__figure');
-  const before = await figure.evaluate((el) => getComputedStyle(el).transform);
-  const hero = (await page.locator('.hero').boundingBox())!;
-  await page.mouse.move(hero.x + hero.width * 0.95, hero.y + hero.height * 0.2, { steps: 5 });
-  await page.waitForTimeout(400);
-  expect(await figure.evaluate((el) => getComputedStyle(el).transform)).toBe(before);
-  await expect(figure).not.toHaveAttribute('data-island');
 });

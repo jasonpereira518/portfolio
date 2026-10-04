@@ -1,15 +1,29 @@
 ---
 import { Picture } from 'astro:assets';
 import Button from '../Button.astro';
-import ContourBg from '../ContourBg.astro';
 import { asset } from '../../lib/assets';
 import { getSite } from '../../lib/content';
 
 const site = await getSite();
-const portrait = asset('portrait.png');
+const poster = asset('hero-stage.jpg');
 ---
-<section class="hero theme-paper" id="top" data-island="hero-ink">
-  <ContourBg />
+<section class="hero theme-ink" id="top" data-island="hero-ink">
+  <div class="hero__backdrop" aria-hidden="true">
+    <!-- The still shows until the video is playing, and stays when it cannot play (no script, reduced motion, an
+         error). The video is started by scripts/hero-ink.ts, so it is never fetched when it will not be shown. -->
+    <Picture
+      class="hero__poster"
+      src={poster}
+      formats={['avif', 'webp']}
+      widths={[720, 1080, 1440, 2000]}
+      sizes="100vw"
+      alt=""
+      priority
+    />
+    <video class="hero__video" muted loop playsinline preload="none" disablepictureinpicture>
+      <source src="/hero/stage.mp4" type="video/mp4" />
+    </video>
+  </div>
   <div class="hero__foot">
     <div class="hero__tags label">
       <p>{site.availability}</p>
@@ -26,21 +40,11 @@ const portrait = asset('portrait.png');
       <Button href="/resume">Resume</Button>
     </div>
   </div>
-  <figure class="hero__figure">
-    <Picture
-      src={portrait}
-      formats={['avif', 'webp']}
-      widths={[540, 720, 960, 1200, 1440, 1840]}
-      sizes="(max-width: 720px) 164vw, min(75.5vw, 1017px)"
-      alt={`Portrait of ${site.name}`}
-      priority
-    />
-  </figure>
   <canvas class="hero__ink" aria-hidden="true"></canvas>
 </section>
 
 <style>
-  /* Layers, back to front: contour lines, portrait and paint (1, paint drawn over the portrait), tags and wordmark (2), copy and buttons (4). */
+  /* Layers, back to front: video under its dark scrim (0), paint (1), tags and wordmark (2), copy and buttons (4). */
   .hero {
     position: relative;
     isolation: isolate;
@@ -81,35 +85,56 @@ const portrait = asset('portrait.png');
     gap: 0.6rem;
   }
 
-  .hero__figure {
+  .hero__backdrop {
     position: absolute;
-    bottom: 0;
-    left: 50%;
-    z-index: 1;
-    /* The portrait was widened 1.64 times for its shoulders (scripts/portrait/outpaint.py); the head stays the size
-       it was at min(46vw, 620px). */
-    width: min(75.5vw, 1017px);
-    translate: -50% 0;
-    touch-action: pan-y;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: var(--ink);
+    pointer-events: none;
   }
 
-  .hero__figure :global(img) {
+  .hero__backdrop :global(img),
+  .hero__video {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: auto;
-    max-height: 82svh;
-    object-fit: contain;
-    object-position: bottom;
+    height: 100%;
+    object-fit: cover;
   }
 
-  /* Paper plus ink with difference blending: exact ink over the paper, exact paper over the dark suit. */
+  /* Hidden until its first frame is up, so it never flashes black over the still. */
+  .hero__video {
+    opacity: 0;
+    transition: opacity 0.8s var(--ease);
+  }
+
+  .hero__video.is-playing {
+    opacity: 1;
+  }
+
+  /* Darkens the footage so the text reads: heaviest at the top (pitch, buttons) and bottom (wordmark). */
+  .hero__backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to bottom,
+        rgb(18 18 16 / 0.82) 0%,
+        rgb(18 18 16 / 0.5) 34%,
+        rgb(18 18 16 / 0.5) 58%,
+        rgb(18 18 16 / 0.9) 100%
+      ),
+      rgb(18 18 16 / 0.2);
+  }
+
   .hero__foot {
     position: absolute;
     right: var(--gutter);
     bottom: clamp(0.5rem, 1.2vw, 1.25rem);
     left: var(--gutter);
     z-index: 2;
-    color: var(--blend-ink);
-    mix-blend-mode: difference;
     pointer-events: none;
   }
 
@@ -147,15 +172,6 @@ const portrait = asset('portrait.png');
     .hero__tags {
       flex-direction: column;
       gap: 0.15rem;
-    }
-
-    /* As wide as the head needs to stay the size it was; the shoulders fit within the screen's height limit. */
-    .hero__figure {
-      width: 164%;
-    }
-
-    .hero__figure :global(img) {
-      max-height: 58svh;
     }
   }
 </style>

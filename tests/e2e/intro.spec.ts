@@ -11,7 +11,7 @@ test('the first page of a visit opens with the intro, which then clears to revea
   await expect(page.locator('html')).not.toHaveClass(/\bhas-intro\b/);
 });
 
-test('during the reveal the page shows through a hole that opens over the face', async ({ page }) => {
+test('during the reveal the page shows through a hole that opens in the middle', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   const intro = page.locator('.intro');
   await expect(intro).toHaveAttribute('data-phase', 'reveal', { timeout: 3000 });
@@ -22,7 +22,7 @@ test('during the reveal the page shows through a hole that opens over the face',
   }));
   expect(background).toEqual({ playing: true, colour: 'rgba(0, 0, 0, 0)' }); // the canvas now paints the orange
 
-  // Partway through the reveal, the canvas is see-through at the face and still orange at a far corner.
+  // Partway through the reveal, the canvas is see-through at its middle and still orange at a far corner.
   // Retried, so a slow machine only needs one such frame before the intro ends.
   const snapshot = () => page.evaluate(() => {
     const element = document.querySelector<HTMLCanvasElement>('.intro__canvas')!;
@@ -31,15 +31,14 @@ test('during the reveal the page shows through a hole that opens over the face',
     const [x, y] = element.closest<HTMLElement>('.intro')!.dataset.origin!.split(',').map(Number);
     const scale = element.width / innerWidth;
     const alpha = (px: number, py: number) => ctx.getImageData(Math.round(px * scale), Math.round(py * scale), 1, 1).data[3];
-    const face = document.querySelector('.hero__figure')!.getBoundingClientRect();
     return {
       playing: document.documentElement.classList.contains('has-intro'),
-      overFace: x > face.left && x < face.right,
-      face: alpha(x, y),
+      centred: Math.abs(x - innerWidth / 2) <= 1 && Math.abs(y - innerHeight / 2) <= 1,
+      middle: alpha(x, y),
       corner: alpha(2, 2),
     };
   });
-  await expect.poll(snapshot, { intervals: [50] }).toEqual({ playing: true, overFace: true, face: 0, corner: 255 });
+  await expect.poll(snapshot, { intervals: [50] }).toEqual({ playing: true, centred: true, middle: 0, corner: 255 });
 });
 
 test('the intro never blocks the page beneath it', async ({ page }) => {
