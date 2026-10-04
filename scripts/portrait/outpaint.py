@@ -28,7 +28,7 @@ from pathlib import Path
 import numpy as np
 import torch
 from diffusers import AutoencoderKL, AutoPipelineForInpainting
-from PIL import Image
+from PIL import Image, ImageDraw, ImageOps
 from rembg import new_session, remove
 from scipy.ndimage import distance_transform_edt
 
@@ -36,7 +36,10 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "scripts" / "portrait" / "cutout.png"
 
 # Added to each side, as a share of the original width: enough for the shoulders to round off into the arms.
-EXTEND = 0.27
+EXTEND = 0.32
+# How far the shoulder outline reaches past the original's side, as a share of its width: a natural shoulder is about
+# three heads wide, and the original is cut off before its shoulders end.
+REACH = 0.21
 # How far the painted area reaches into the original, in pixels, so the seam can be blended.
 OVERLAP = 12
 # Each side is painted in its own crop this tall (from the bottom) and this much wider than the new strip.
@@ -64,9 +67,42 @@ def decontaminate(rgba: np.ndarray) -> np.ndarray:
     return out
 
 
+def shoulder_guide(cutout: Image.Image, pad: int, wide: tuple[int, int], reach: int) -> tuple[Image.Image, tuple]:
+    """
+    Draws the left shoulder as a flat suit-coloured shape on the wide canvas, for the painting to refine, and returns
+    it as an RGBA layer with its jacket colour. The outline carries on from the original's slope, flattens over the
+    shoulder, rounds off and drops straight down the arm; SDXL alone tends to stop after a few pixels.
+    """
+    width, height = cutout.size
+    rgba = np.asarray(cutout)
+    solid = rgba[..., 3] > 200
+    top = lambda c: int(np.argmax(solid[:, c]))
+    y0 = np.mean([top(c) for c in range(4)])
+    slope = max(0.0, (y0 - np.mean([top(c) for c in range(56, 60)])) / 57)
+
+    # Cubic Bezier from the original's edge to the outermost point of the shoulder, which leaves going straight down.
+    p0 = np.array([pad, y0])
+    p3 = np.array([pad - reach, y0 + reach * (slope * 0.55 + 0.42)])
+    p1 = p0 + np.array([-reach * 0.5, reach * 0.5 * slope * 0.55])
+    p2 = np.array([p3[0], p3[1] - reach * 0.42])
+    t = np.linspace(0, 1, 80)[:, None]
+    curve = (1 - t) ** 3 * p0 + 3 * (1 - t) ** 2 * t * p1 + 3 * (1 - t) * t**2 * p2 + t**3 * p3
+    outline = [*map(tuple, curve), (p3[0], height), (pad + OVERLAP, height), (pad + OVERLAP, y0)]
+
+    edge = rgba[int(y0) + 80 :, :30]
+    colour = tuple(int(v) for v in np.median(edge[edge[..., 3] > 250][:, :3], axis=0))
+    layer = Image.new("RGBA", wide, (0, 0, 0, 0))
+    shape = Image.new("L", wide, 0)
+    ImageDraw.Draw(shape).polygon(outline, fill=255)
+    layer.paste(Image.new("RGBA", wide, colour + (255,)), (0, 0), shape)
+    return layer, colour
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument("--strength", type=float, default=0.85, help="how far the painting may depart from the guide")
+    parser.add_argument("--reach", type=float, default=REACH, help="shoulder reach past the original, share of width")
     parser.add_argument("--extend", type=float, default=EXTEND, help="added to each side, as a share of the width")
     parser.add_argument("--out", type=Path, default=ROOT / "src" / "assets" / "portrait.png")
     args = parser.parse_args()
@@ -78,6 +114,10 @@ def main() -> None:
 
     # The original on its backdrop, centred on the wider canvas; the mask is everything new, plus the overlap.
     canvas = Image.new("RGB", wide, BACKDROP)
+    reach = round(width * args.reach)
+    # Only the right shoulder is painted; the left is its mirror image (see below), so the two always match.
+    guide, _ = shoulder_guide(ImageOps.mirror(cutout), pad, wide, reach)
+    canvas.paste(ImageOps.mirror(guide), (0, 0), ImageOps.mirror(guide))
     canvas.paste(cutout, (pad, 0), cutout)
     mask = Image.new("L", wide, 255)
     mask.paste(0, (pad + OVERLAP, 0, pad + width - OVERLAP, height))
@@ -90,7 +130,7 @@ def main() -> None:
 
     crop_h = round(height * CROP_HEIGHT)
     crop_w = pad + round(width * CROP_INSET)
-    for side, left in (("left", 0), ("right", wide[0] - crop_w)):
+    for side, left in (("right", wide[0] - crop_w),):
         box = (left, height - crop_h, left + crop_w, height)
         # SDXL works best at about a megapixel, in multiples of 8.
         scale = (1024 * 1024 / (crop_w * crop_h)) ** 0.5
@@ -102,13 +142,21 @@ def main() -> None:
             mask_image=mask.crop(box).resize(size, Image.NEAREST),
             width=size[0],
             height=size[1],
-            strength=0.99,
+            strength=args.strength,
             guidance_scale=7.0,
             num_inference_steps=40,
             generator=torch.Generator("cpu").manual_seed(args.seed + (side == "right")),
         ).images[0]
         canvas.paste(painted.resize((crop_w, crop_h), Image.LANCZOS), box[:2])
         print(f"Painted the {side} shoulder")
+
+    # Mirror it onto the left, moved up or down so its top meets the original's left edge at the same height.
+    alpha_in = np.asarray(cutout)[..., 3] > 200
+    seam = OVERLAP + 4
+    dy = int(np.argmax(alpha_in[:, seam])) - int(np.argmax(alpha_in[:, width - 1 - seam]))
+    strip = ImageOps.mirror(canvas).crop((0, 0, pad + OVERLAP, height))
+    rows = np.clip(np.arange(height) - dy, 0, height - 1)  # the edge rows repeat rather than wrapping round
+    canvas.paste(Image.fromarray(np.asarray(strip)[rows]), (0, 0))
 
     # Cut the painted parts out of their backdrop.
     session = new_session("birefnet-portrait")
@@ -124,6 +172,11 @@ def main() -> None:
     rgb = np.asarray(canvas, dtype=np.float32) / 255
     out_rgb = rgb * (1 - keep[..., None]) + orig[..., :3] * keep[..., None]
     out_a = alpha * (1 - keep) + orig[..., 3] * keep
+    # The cut-out frays along the bottom edge, where the suit runs out of the frame: repeat the last good row there.
+    new = np.ones(wide[0], dtype=bool)
+    new[pad + OVERLAP : pad + width - OVERLAP] = False
+    out_rgb[-12:, new] = out_rgb[-13, new]
+    out_a[-12:, new] = out_a[-13, new]
     # Above the shoulders, the new strips are backdrop: make sure nothing faint is left there.
     out_a = np.where(out_a < 0.02, 0, out_a)
     result = Image.fromarray(

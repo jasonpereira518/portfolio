@@ -30,8 +30,8 @@ const portrait = asset('portrait.png');
     <Picture
       src={portrait}
       formats={['avif', 'webp']}
-      widths={[540, 720, 960, 1200, 1440, 1728]}
-      sizes="(max-width: 720px) 154vw, min(71vw, 955px)"
+      widths={[540, 720, 960, 1200, 1440, 1840]}
+      sizes="(max-width: 720px) 164vw, min(75.5vw, 1017px)"
       alt={`Portrait of ${site.name}`}
       priority
     />
@@ -86,9 +86,9 @@ const portrait = asset('portrait.png');
     bottom: 0;
     left: 50%;
     z-index: 1;
-    /* The portrait was widened 1.54 times for its shoulders (scripts/portrait/outpaint.py); the head stays the size
+    /* The portrait was widened 1.64 times for its shoulders (scripts/portrait/outpaint.py); the head stays the size
        it was at min(46vw, 620px). */
-    width: min(71vw, 955px);
+    width: min(75.5vw, 1017px);
     translate: -50% 0;
     touch-action: pan-y;
   }
@@ -151,7 +151,7 @@ const portrait = asset('portrait.png');
 
     /* As wide as the head needs to stay the size it was; the shoulders fit within the screen's height limit. */
     .hero__figure {
-      width: 154%;
+      width: 164%;
     }
 
     .hero__figure :global(img) {
