@@ -154,7 +154,7 @@ button {
   display: inline-block;
 }
 
-/* Reveal on scroll. Only applies once main.ts has added .js, so content is never hidden without scripts. */
+/* Reveal on scroll. Only applies on a scripted page (the .js class), so content is never hidden without scripts. */
 @media (prefers-reduced-motion: no-preference) {
   .js [data-reveal] {
     opacity: 0;

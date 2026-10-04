@@ -124,9 +124,10 @@ const projects = await getFlagship();
 
   .work__title {
     font-size: clamp(2.2rem, 1.2rem + 4.6vw, 5.25rem);
-    /* 12.5% of the column: the widest single word in a title, "STREETLAB", is 7.9em, so it fits on one line.
-       Browsers without container units keep the size above, and overflow-wrap stops any overflow. */
-    font-size: clamp(2.2rem, 12.5cqi, 5.25rem);
+    /* 12% of the column: the widest single word in a title, "STREETLAB", is 7.9em, so it fills about 94%
+       of the column and stays on one line. Browsers without container units keep the size above, and
+       overflow-wrap stops any overflow. */
+    font-size: clamp(2.2rem, 12cqi, 5.25rem);
     overflow-wrap: anywhere;
   }
 

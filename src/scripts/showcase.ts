@@ -17,13 +17,13 @@ export function mount(root: HTMLElement): void {
     if (moveFocus) tabs[index].focus();
   };
 
-  // A hidden panel's lazy cover would only start loading once shown, leaving an empty frame.
-  // Pointing at or focusing a tab starts the download early.
+  // A hidden panel's lazy cover only starts loading once the panel is shown, leaving an empty frame
+  // for a moment. Pointing at a tab starts the download early. (Keyboard and touch users select a tab
+  // in the same action that reaches it, so there is nothing earlier to hook for them.)
   const warm = (index: number) => panels[index].querySelector('img')?.setAttribute('loading', 'eager');
 
   tabs.forEach((tab, index) => {
     tab.addEventListener('pointerenter', () => warm(index));
-    tab.addEventListener('focus', () => warm(index));
     tab.addEventListener('click', () => select(index, false));
     tab.addEventListener('keydown', (event) => {
       // Leave browser and system shortcuts (such as Alt+Left for back) alone.

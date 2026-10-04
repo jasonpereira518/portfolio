@@ -16,6 +16,29 @@ test.describe('without JavaScript', () => {
     await expect(page.locator('.numbers__numeral').first()).toHaveText('220+');
     await expect(page.getByRole('link', { name: 'jasonpereira518@gmail.com' })).toBeVisible();
   });
+
+  test('no stacked project title breaks inside a word', async ({ page }) => {
+    await page.goto('/');
+    const overflowing = await page.locator('#work .work__title').evaluateAll((titles: HTMLElement[]) =>
+      titles
+        .filter((title) => {
+          title.style.overflowWrap = 'normal'; // without the safety net, a word that does not fit overflows its column
+          return title.scrollWidth > title.parentElement!.clientWidth;
+        })
+        .map((title) => title.textContent),
+    );
+    expect(overflowing).toEqual([]);
+  });
+});
+
+test('if the page script fails to load, the page goes back to its no-script layout', async ({ page }) => {
+  await page.route('**/_astro/Base.astro_astro_type_script*', (route) => route.abort());
+  await page.goto('/');
+  await expect(page.locator('html')).not.toHaveClass(/\bjs\b/);
+  for (const title of ['Case Closed', 'Orbit', 'StreetLab', 'GPU Portfolio & Risk Decision Engine']) {
+    await expect(page.locator('#work').getByRole('heading', { name: title })).toBeVisible();
+  }
+  await expect(page.locator('#work [role="tablist"]')).toBeHidden();
 });
 
 test.describe('layout', () => {

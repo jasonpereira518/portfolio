@@ -46,7 +46,7 @@ test.describe('selected work', () => {
     expect(alts).toHaveLength(4);
     for (const alt of alts) {
       expect(alt.length, alt).toBeGreaterThan(40);
-      expect(alt).not.toMatch(/screenshot$/i);
+      expect(alt).not.toMatch(/screenshot\.?$/i);
     }
     expect(new Set(alts).size).toBe(4);
   });
@@ -58,13 +58,24 @@ test.describe('selected work', () => {
     expect(await fit('panel-streetlab')).toBe('cover');
   });
 
+  test('the covers of projects that are not shown are not downloaded up front', async ({ page }) => {
+    // The page is marked as scripted before first paint, so the hidden panels are never laid out
+    // and their lazy covers are never requested.
+    const loaded = await page
+      .locator('#work .work__panel[hidden] .work__stage img')
+      .evaluateAll((images: HTMLImageElement[]) => images.map((image) => image.complete && image.naturalWidth > 0));
+    expect(loaded).toEqual([false, false, false]);
+  });
+
   test('pointing at a tab starts loading its cover before the project is shown', async ({ page }) => {
     const section = page.locator('#work');
     const cover = section.locator('#panel-orbit .work__stage img');
-    const loaded = () => cover.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0);
-    expect(await loaded()).toBe(false);
+    await expect(cover).toHaveAttribute('loading', 'lazy');
     await section.getByRole('tab', { name: /Orbit/ }).hover();
-    await expect.poll(loaded).toBe(true);
+    await expect(cover).toHaveAttribute('loading', 'eager');
+    await expect
+      .poll(() => cover.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0))
+      .toBe(true);
     await expect(section.getByRole('heading', { name: 'Orbit' })).toBeHidden();
   });
 
@@ -75,7 +86,7 @@ test.describe('selected work', () => {
   });
 });
 
-for (const width of [375, 1024, 1440]) {
+for (const width of [320, 375, 820, 1024, 1440]) {
   test(`no project title breaks inside a word at ${width}px wide`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');

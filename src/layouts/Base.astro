@@ -32,6 +32,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="theme-color" content="#ECE7DC" />
     <Font cssVariable="--font-archivo" preload />
     <Font cssVariable="--font-instrument" />
+    <script is:inline>
+      /* Mark the page as scripted before first paint, so nothing the page script will hide is laid out or downloaded first. */
+      document.documentElement.classList.add('js');
+      /* If the page script never ran (blocked, or it failed to load), go back to the no-script layout. */
+      addEventListener('load', function () {
+        if (!document.documentElement.dataset.scripted) document.documentElement.classList.remove('js');
+      });
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

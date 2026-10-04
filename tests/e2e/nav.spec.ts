@@ -18,6 +18,7 @@ test('the nav text is paper plus ink, so difference blending shows exact ink ove
 test('the page script marks the document as scripted', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('html')).toHaveClass(/\bjs\b/);
+  await expect(page.locator('html')).toHaveAttribute('data-scripted', 'true');
 });
 
 test('the self-hosted Archivo font loads', async ({ page }) => {

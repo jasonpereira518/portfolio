@@ -9,7 +9,10 @@ const islands: Partial<Record<string, () => Promise<Island>>> = {
   numbers: () => import('./numbers'),
 };
 
+// Base.astro adds the `js` class in <head>, before first paint. The marker tells its fallback that this
+// script really ran; without the marker the class is removed again and the page shows its no-script layout.
 document.documentElement.classList.add('js');
+document.documentElement.dataset.scripted = 'true';
 
 // Live clock in the nav.
 const clock = document.querySelector<HTMLElement>('[data-clock]');

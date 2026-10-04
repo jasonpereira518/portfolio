@@ -27,7 +27,7 @@ links:
   - label: Repo
     href: https://github.com/jasonpereira518/streetlab
 cover: streetlab.png
-coverAlt: "StreetLab running its Nob Hill Loop scenario. A simulated car waits at a signalised junction while a cut-in vehicle is boxed in orange, with the scenario list on the left, planner settings on the right and speed, lane, radar and steering gauges below."
+coverAlt: "StreetLab running its Nob Hill Loop scenario. A simulated car yields at a junction with traffic signals while a cut-in vehicle is boxed in orange, with the scenario list on the left, the parameter panel on the right and speed, lane, radar and steering gauges below."
 problem: "I wanted to go deep on real-time graphics, deterministic simulation and applied ML as a system rather than a notebook, and to treat every performance claim as something to measure. It is a portfolio and learning project, not a production AV system."
 result: "1,100+ automated tests, all green (910 backend, 205 frontend, 12 end-to-end). 30–60 FPS in the WebGPU viewport. Built in five cycles, each added without touching the earlier ones."
 ---
