@@ -6,7 +6,7 @@ type Island = { mount: (el: HTMLElement) => void };
 
 // Script modules loaded only when their section nears the viewport. One line per module.
 const islands: Partial<Record<string, () => Promise<Island>>> = {
-  'hero-wash': () => import('./hero-wash'),
+  'hero-ink': () => import('./hero-ink'),
   showcase: () => import('./showcase'),
   numbers: () => import('./numbers'),
   contours: () => import('./contours-live'),

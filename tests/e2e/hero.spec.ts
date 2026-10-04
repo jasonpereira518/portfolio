@@ -76,14 +76,26 @@ test.describe('hero', () => {
     channels.forEach((channel, index) => expect(Math.abs(channel - ink[index])).toBeLessThanOrEqual(3));
   });
 
-  test('moving the pointer over the portrait lays paint on the canvas', async ({ page }) => {
+  test('moving the pointer over the portrait draws an ink line on the canvas', async ({ page }) => {
     await page.goto('/');
-    const canvas = page.locator('.hero__wash');
+    const canvas = page.locator('.hero__ink');
     await expect(canvas).toHaveAttribute('data-ready', 'true');
     await strokeAcrossPortrait(page);
     await expect.poll(() => canvas.evaluate(hasPaint)).toBe(true);
 
-    // The paint takes its orange from the hero's theme (the paper orange), not from a hard-coded value.
+    // The ink is the exact paper orange, #F0440F: the head of the line is wide enough to hold fully opaque pixels.
+    const solid = await canvas.evaluate((el: HTMLCanvasElement) => {
+      const context = el.getContext('2d');
+      if (!context) return null;
+      const pixels = context.getImageData(0, 0, el.width, el.height).data;
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index + 3] === 255) return [pixels[index], pixels[index + 1], pixels[index + 2]];
+      }
+      return null;
+    });
+    expect(solid).toEqual([0xf0, 0x44, 0x0f]);
+
+    // The ink takes its orange from the hero's theme (the paper orange), not from a hard-coded value.
     const colours = await page.evaluate(() => {
       const hero = document.querySelector('.hero');
       if (!hero) throw new Error('The hero is missing');
@@ -96,13 +108,23 @@ test.describe('hero', () => {
     expect(colours.accent).toBe(colours.orangeDeep);
   });
 
+  test('the ink line fades away shortly after the pointer stops, leaving the portrait clear', async ({ page }) => {
+    await page.goto('/');
+    const canvas = page.locator('.hero__ink');
+    await expect(canvas).toHaveAttribute('data-ready', 'true');
+    await strokeAcrossPortrait(page);
+    await expect.poll(() => canvas.evaluate(hasPaint)).toBe(true);
+    // The line lives about 0.8 s. The pointer now rests on the portrait, so nothing new is drawn.
+    await expect.poll(() => canvas.evaluate(hasPaint), { timeout: 2500 }).toBe(false);
+  });
+
   test('with reduced motion the canvas is never painted', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     await expect(page.locator('html')).toHaveClass(/\bjs\b/);
     await strokeAcrossPortrait(page);
     await page.waitForTimeout(400);
-    const canvas = page.locator('.hero__wash');
+    const canvas = page.locator('.hero__ink');
     await expect(canvas).not.toHaveAttribute('data-ready', 'true');
     expect(await canvas.evaluate(hasPaint)).toBe(false);
   });
@@ -116,7 +138,7 @@ test.describe('hero on a touch device', () => {
 
   test('the ambient paint keeps drifting after a swipe on the portrait is cancelled', async ({ page }) => {
     await page.goto('/');
-    const canvas = page.locator('.hero__wash');
+    const canvas = page.locator('.hero__ink');
     await expect(canvas).toHaveAttribute('data-ready', 'true');
     // With no input at all, a slow stroke paints by itself.
     await expect.poll(() => canvas.evaluate(hasPaint)).toBe(true);
