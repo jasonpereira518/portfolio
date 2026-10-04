@@ -61,6 +61,16 @@ export function playIntro(): void {
   if (!html.classList.contains('has-intro')) return;
   const finish = () => html.classList.remove('has-intro');
 
+  // A page out of sight gets no animation frames, so the reveal would stall half-way: end the intro at once if the
+  // page is hidden now or becomes hidden while it plays.
+  if (document.hidden) {
+    finish();
+    return;
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) finish();
+  });
+
   const root = document.querySelector<HTMLElement>('.intro');
   const canvas = root?.querySelector('canvas');
   const ctx = canvas?.getContext('2d');
@@ -71,6 +81,7 @@ export function playIntro(): void {
   const colour = getComputedStyle(root).backgroundColor;
 
   const reveal = () => {
+    if (!html.classList.contains('has-intro')) return; // already ended (the page was hidden)
     const width = innerWidth;
     const height = innerHeight;
     canvas.width = Math.max(1, Math.round(width * RESOLUTION));

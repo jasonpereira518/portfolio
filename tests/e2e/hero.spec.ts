@@ -142,3 +142,49 @@ test.describe('hero on a touch device', () => {
     expect(await canvas.evaluate(hasPaint)).toBe(true);
   });
 });
+
+const tiltOf = (page: Page) =>
+  page.locator('.hero__figure').evaluate((figure: HTMLElement) => ({
+    x: parseFloat(figure.style.getPropertyValue('--tilt-x')) || 0,
+    y: parseFloat(figure.style.getPropertyValue('--tilt-y')) || 0,
+  }));
+
+test.describe('portrait tilt', () => {
+  test('the portrait turns towards the pointer in 3D, and settles back when the pointer leaves', async ({ page }) => {
+    await page.goto('/');
+    const figure = page.locator('.hero__figure');
+    await expect(figure).toHaveAttribute('data-tilt', 'ready');
+    const hero = (await page.locator('.hero').boundingBox())!;
+
+    await page.mouse.move(hero.x + hero.width * 0.95, hero.y + hero.height * 0.2);
+    await expect.poll(async () => (await tiltOf(page)).y).toBeGreaterThan(5); // turned towards the right
+    expect((await tiltOf(page)).x).toBeGreaterThan(1); // and tipped up
+    expect(await figure.evaluate((el) => getComputedStyle(el).transform)).toMatch(/^matrix3d/); // with perspective
+
+    await page.mouse.move(hero.x + hero.width * 0.05, hero.y + hero.height * 0.5);
+    await expect.poll(async () => (await tiltOf(page)).y).toBeLessThan(-5); // and towards the left
+
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Work' }).hover(); // off the hero
+    await expect.poll(async () => Math.abs((await tiltOf(page)).y)).toBeLessThan(0.05);
+  });
+
+  test('the turn pivots on the bottom edge, so the portrait stays on the floor of the hero', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero__figure')).toHaveCSS('transform-origin', /^\S+ \S+$/);
+    const origin = await page.locator('.hero__figure').evaluate((el) => {
+      const [, y] = getComputedStyle(el).transformOrigin.split(' ');
+      return { y: parseFloat(y), height: el.getBoundingClientRect().height };
+    });
+    expect(Math.abs(origin.y - origin.height)).toBeLessThan(2);
+  });
+
+  test('with reduced motion the portrait does not turn', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    const hero = (await page.locator('.hero').boundingBox())!;
+    await page.mouse.move(hero.x + hero.width * 0.95, hero.y + hero.height * 0.2);
+    await page.waitForTimeout(400);
+    expect(await tiltOf(page)).toEqual({ x: 0, y: 0 });
+    await expect(page.locator('.hero__figure')).not.toHaveAttribute('data-tilt', 'ready');
+  });
+});

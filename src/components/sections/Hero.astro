@@ -26,7 +26,7 @@ const portrait = asset('portrait.png');
       <Button href="/resume">Resume</Button>
     </div>
   </div>
-  <figure class="hero__figure">
+  <figure class="hero__figure" data-island="hero-tilt">
     <Picture
       src={portrait}
       formats={['avif', 'webp']}
@@ -88,7 +88,15 @@ const portrait = asset('portrait.png');
     z-index: 1;
     width: min(46vw, 620px);
     translate: -50% 0;
+    transform-origin: 50% 100%;
     touch-action: pan-y;
+  }
+
+  /* Turned towards the mouse by src/scripts/hero-tilt.ts. The perspective is part of the transform, so its vanishing
+     point is the transform origin, the middle of the bottom edge: that edge stays on the floor of the hero while the
+     head turns. */
+  .hero__figure[data-tilt='ready'] {
+    transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
   }
 
   .hero__figure :global(img) {

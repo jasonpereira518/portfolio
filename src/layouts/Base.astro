@@ -42,9 +42,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <script is:inline>
       /* Mark the page as scripted before first paint, so nothing the page script will hide is laid out or downloaded first. */
       document.documentElement.classList.add('js');
-      /* The first page of a visit opens with the intro (src/scripts/intro.ts), unless motion is reduced. */
+      /* The site opens with the intro (src/scripts/intro.ts) on the first page of a visit and on every reload, but not
+         when moving between its pages, when motion is reduced, or when the page loads out of sight (a hidden page
+         gets no animation frames, so the intro would stall). */
       try {
-        if (!sessionStorage.getItem('jp-intro-seen') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        var navigation = performance.getEntriesByType('navigation')[0];
+        var reloaded = navigation !== undefined && navigation.type === 'reload';
+        if (
+          (reloaded || !sessionStorage.getItem('jp-intro-seen')) &&
+          !document.hidden &&
+          !matchMedia('(prefers-reduced-motion: reduce)').matches
+        ) {
           /* Recorded here, before it plays, so it never replays even if the page script fails. */
           sessionStorage.setItem('jp-intro-seen', '1');
           document.documentElement.classList.add('has-intro');

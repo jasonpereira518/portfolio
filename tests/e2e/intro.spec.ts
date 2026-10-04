@@ -50,7 +50,35 @@ test('the intro never blocks the page beneath it', async ({ page }) => {
   await expect(page).toHaveURL(/\/work\/?$/);
 });
 
-test('the intro plays once per visit', async ({ page }) => {
+test('reloading the page plays the intro again', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('html')).not.toHaveClass(/\bhas-intro\b/, { timeout: 5000 });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('html')).toHaveClass(/\bhas-intro\b/);
+  await expect(page.locator('html')).not.toHaveClass(/\bhas-intro\b/, { timeout: 5000 });
+});
+
+test('a page opened out of sight skips the intro instead of stalling in it', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+  });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  // One reading, straight after load: a retried assertion would also pass once a stalled intro timed out.
+  expect(await page.evaluate(() => document.documentElement.classList.contains('has-intro'))).toBe(false);
+});
+
+test('hiding the page during the intro ends it at once', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('html')).toHaveClass(/\bhas-intro\b/);
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(page.locator('html')).not.toHaveClass(/\bhas-intro\b/, { timeout: 300 });
+});
+
+test('moving between pages does not replay the intro', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.intro')).toBeHidden({ timeout: 5000 });
   await page.goto('/work', { waitUntil: 'domcontentloaded' });
