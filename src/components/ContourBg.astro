@@ -12,6 +12,9 @@
      one tile, so the drift never ends; a slower sway on top makes the path wander instead of running straight. */
   .contours {
     --tile-w: clamp(1200px, 120vw, 2000px);
+    /* Whole pixels (a multiple of 8, so the height is whole too): a fractional tile makes the lines hop
+       by a pixel each time the loop restarts. Browsers without round() keep the line above. */
+    --tile-w: round(clamp(1200px, 120vw, 2000px), 8px);
     --tile-h: calc(var(--tile-w) * 0.625); /* the artwork is 1600 by 1000 */
     --sway: 90px;
 
@@ -24,7 +27,7 @@
 
   .contours__sway {
     position: absolute;
-    inset: calc(var(--sway) * -1);
+    inset: calc(var(--sway) * -1.1); /* a little beyond the sway's reach, so no edge is ever left bare */
   }
 
   .contours__lines {
