@@ -109,3 +109,12 @@ test.describe('without JavaScript', () => {
     await expect(page.locator('.intro')).toBeHidden();
   });
 });
+
+test('the head script leaves the global scope alone', async ({ page }) => {
+  await page.goto('/');
+  const leaked = await page.evaluate(() => ({
+    navigationReplaced: (window as { navigation?: unknown }).navigation instanceof PerformanceNavigationTiming,
+    globals: ['entry', 'reloaded', 'seen'].filter((name) => name in window),
+  }));
+  expect(leaked).toEqual({ navigationReplaced: false, globals: [] });
+});

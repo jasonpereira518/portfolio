@@ -92,11 +92,14 @@ const portrait = asset('portrait.png');
     touch-action: pan-y;
   }
 
-  /* Turned towards the mouse by src/scripts/hero-tilt.ts. The perspective is part of the transform, so its vanishing
-     point is the transform origin, the middle of the bottom edge: that edge stays on the floor of the hero while the
-     head turns. */
-  .hero__figure[data-tilt='ready'] {
-    transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  /* Turned towards the mouse by src/scripts/hero-tilt.ts. The bottom edge stays on the floor of the hero: the
+     perspective's vanishing point is the transform origin (the middle of the bottom edge), and the tip (rotateX)
+     is applied first, about that edge, so the turn (rotateY) only moves the edge in depth, never up. Not where the
+     portrait fills the screen's width (720px and narrower): there a turn would pull its far edge in from the side. */
+  @media (min-width: 721px) {
+    .hero__figure[data-tilt='ready'] {
+      transform: perspective(1000px) rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg));
+    }
   }
 
   .hero__figure :global(img) {

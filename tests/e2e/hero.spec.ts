@@ -168,19 +168,35 @@ test.describe('portrait tilt', () => {
     await expect.poll(async () => Math.abs((await tiltOf(page)).y)).toBeLessThan(0.05);
   });
 
-  test('the turn pivots on the bottom edge, so the portrait stays on the floor of the hero', async ({ page }) => {
+  test('even at a full diagonal turn, the bottom edge stays on the floor of the hero', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.hero__figure')).toHaveCSS('transform-origin', /^\S+ \S+$/);
-    const origin = await page.locator('.hero__figure').evaluate((el) => {
-      const [, y] = getComputedStyle(el).transformOrigin.split(' ');
-      return { y: parseFloat(y), height: el.getBoundingClientRect().height };
-    });
-    expect(Math.abs(origin.y - origin.height)).toBeLessThan(2);
+    const figure = page.locator('.hero__figure');
+    await expect(figure).toHaveAttribute('data-tilt', 'ready');
+    for (const [x, y] of [
+      [-6, 11],
+      [6, 11],
+      [6, -11],
+      [-6, -11],
+    ]) {
+      const gap = await figure.evaluate(
+        (element: HTMLElement, [tx, ty]) => {
+          element.style.setProperty('--tilt-x', `${tx}deg`);
+          element.style.setProperty('--tilt-y', `${ty}deg`);
+          return Math.abs(element.getBoundingClientRect().bottom - element.closest('.hero')!.getBoundingClientRect().bottom);
+        },
+        [x, y],
+      );
+      expect(gap, `tilt ${x}, ${y}`).toBeLessThan(0.5);
+    }
   });
 
   test('with reduced motion the portrait does not turn', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    // Wait for the tilt script itself, so a missing data-tilt below means it chose not to start, not that it had
+    // not loaded yet. Listening starts before the page loads, so the download cannot be missed.
+    const loaded = page.waitForResponse(/hero-tilt/);
     await page.goto('/');
+    await loaded;
     const hero = (await page.locator('.hero').boundingBox())!;
     await page.mouse.move(hero.x + hero.width * 0.95, hero.y + hero.height * 0.2);
     await page.waitForTimeout(400);
