@@ -22,3 +22,8 @@ test('about shows the bio, four numbered facts, interests and six collage images
   await expect(section.getByText('Hip-hop and playlist curation')).toBeVisible();
   await expect(section.locator('.about__photo img')).toHaveCount(6);
 });
+
+test('a collage photo is described by its own alt text', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#about .about__photo img').first()).toHaveAttribute('alt', /^Four people/);
+});

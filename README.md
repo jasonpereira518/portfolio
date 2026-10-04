@@ -10,6 +10,7 @@ Static site built with Astro. Design and content specs are in `docs/superpowers/
 | `npm run verify` | Type check, unit tests, build, end-to-end tests |
 | `npm run placeholders` | Create placeholder images for any that are missing |
 | `npm run check:assets` | Fail if any placeholder image is still in use |
+| `npm run check:links` | Request every external link in the built site and list the ones that do not load (run after `npm run build`) |
 
 ## Changing the copy
 

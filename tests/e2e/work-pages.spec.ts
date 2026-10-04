@@ -18,6 +18,22 @@ test('the work index lists all 17 projects in their groups', async ({ page }) =>
   await expect(page.getByRole('heading', { name: 'CAT-45' })).toBeVisible();
 });
 
+test('on the work index the benchmark chart is shown whole, not cropped', async ({ page }) => {
+  await page.goto('/work');
+  const fit = (name: string) =>
+    page
+      .locator('.feature', { hasText: name })
+      .locator('img')
+      .evaluate((image) => getComputedStyle(image).objectFit);
+  expect(await fit('GPU Portfolio')).toBe('contain');
+  expect(await fit('StreetLab')).toBe('cover');
+});
+
+test('a case study cover carries alt text that describes the image', async ({ page }) => {
+  await page.goto('/work/gpu-portfolio-engine');
+  await expect(page.locator('.case__cover img')).toHaveAttribute('alt', /^Bar chart of QP solve time/);
+});
+
 test('a flagship card on the index opens its case study', async ({ page }) => {
   await page.goto('/work');
   await page.locator('.feature', { hasText: 'Orbit' }).click();

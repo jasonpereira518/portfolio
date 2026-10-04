@@ -32,6 +32,7 @@ links:
   - label: Repo
     href: https://github.com/jasonpereira518/orbit
 cover: orbit.png
+coverAlt: "The Orbit home page. Tagline: “Keep your connections in Orbit.” Planets circle a sun on a dark starfield."
 problem: "After events and coffee chats I couldn't remember who I'd met or what we'd discussed, so warm connections went cold before they turned into anything."
 result: "466 commits. A working prototype in use by me and a small group of pilot testers, demoed at a UNC CS Founded showcase table, with end-to-end tests, per-page performance budgets, CI and error monitoring."
 ---

@@ -19,6 +19,9 @@ const projects = defineCollection({
     stack: z.array(z.string()).default([]),
     links: z.array(z.object({ label: z.string(), href: z.url() })).default([]),
     cover: z.string().optional(),
+    coverAlt: z.string().optional(),
+    // 'contain' shows the whole image on a white ground (for charts); 'cover' crops it to fill the frame.
+    coverFit: z.enum(['cover', 'contain']).default('cover'),
     problem: z.string().optional(),
     result: z.string().optional(),
   }),
@@ -71,7 +74,10 @@ const about = defineCollection({
     bio: z.string(),
     facts: z.array(z.string()).length(4),
     interests: z.array(z.string()).min(1),
-    collage: z.array(z.object({ file: z.string(), caption: z.string().optional() })).min(1),
+    // `alt` describes the photo for people who cannot see it; `caption` is the visible place and year.
+    collage: z
+      .array(z.object({ file: z.string(), alt: z.string().optional(), caption: z.string().optional() }))
+      .min(1),
   }),
 });
 

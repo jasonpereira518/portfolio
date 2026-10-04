@@ -28,4 +28,5 @@ main:
     - Eagle Scout (Oct 2024)
   publication:
     citation: "Adala, V., Jun, T., Pereira, J., Sandwar, V., & Fernandes, A. (2026). Analyzing Real Traffic Stop Data for Racial Bias. Teaching for Excellence and Equity in Mathematics, 17(1), 32–43."
-    url: https://doi.org/10.63966/teem.v17i1.2265
+    # The DOI (10.63966/teem.v17i1.2265) did not resolve when checked on 2026-10-03, so this links to the journal's page.
+    url: https://journals.charlotte.edu/teem/article/view/2265

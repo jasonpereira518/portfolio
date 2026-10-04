@@ -39,12 +39,62 @@ test.describe('selected work', () => {
     await expect(section.getByRole('tab', { name: /Orbit/ })).toHaveAttribute('aria-selected', 'false');
   });
 
+  test('every cover has alt text that describes the image, not a generic label', async ({ page }) => {
+    const alts = await page
+      .locator('#work .work__stage img')
+      .evaluateAll((images) => images.map((image) => image.getAttribute('alt') ?? ''));
+    expect(alts).toHaveLength(4);
+    for (const alt of alts) {
+      expect(alt.length, alt).toBeGreaterThan(40);
+      expect(alt).not.toMatch(/screenshot$/i);
+    }
+    expect(new Set(alts).size).toBe(4);
+  });
+
+  test('the benchmark chart is shown whole, while screenshots fill their frame', async ({ page }) => {
+    const fit = (panel: string) =>
+      page.locator(`#${panel} .work__stage img`).evaluate((image) => getComputedStyle(image).objectFit);
+    expect(await fit('panel-gpu-portfolio-engine')).toBe('contain');
+    expect(await fit('panel-streetlab')).toBe('cover');
+  });
+
+  test('pointing at a tab starts loading its cover before the project is shown', async ({ page }) => {
+    const section = page.locator('#work');
+    const cover = section.locator('#panel-orbit .work__stage img');
+    const loaded = () => cover.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0);
+    expect(await loaded()).toBe(false);
+    await section.getByRole('tab', { name: /Orbit/ }).hover();
+    await expect.poll(loaded).toBe(true);
+    await expect(section.getByRole('heading', { name: 'Orbit' })).toBeHidden();
+  });
+
   test('the visible project links to its case study, and the section links to all work', async ({ page }) => {
     const section = page.locator('#work');
     await expect(section.getByRole('link', { name: 'Read the case study' })).toHaveAttribute('href', '/work/case-closed');
     await expect(section.getByRole('link', { name: 'All work' })).toHaveAttribute('href', '/work');
   });
 });
+
+for (const width of [375, 1024, 1440]) {
+  test(`no project title breaks inside a word at ${width}px wide`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const section = page.locator('#work');
+    await section.scrollIntoViewIfNeeded();
+    await expect(section).toHaveAttribute('data-enhanced', 'true');
+
+    for (const name of [/Case Closed/, /Orbit/, /StreetLab/, /GPU Portfolio Engine/]) {
+      await section.getByRole('tab', { name }).click();
+      const overflows = await section
+        .locator('.work__panel:not([hidden]) .work__title')
+        .evaluate((title: HTMLElement) => {
+          title.style.overflowWrap = 'normal'; // without the safety net, a word that does not fit overflows its column
+          return title.scrollWidth > title.parentElement!.clientWidth;
+        });
+      expect(overflows, `${name} at ${width}px`).toBe(false);
+    }
+  });
+}
 
 test('if the showcase script fails to load, all four projects are shown stacked without tabs', async ({ page }) => {
   // A stale cached page can point at a hashed chunk that no longer exists; simulate that by aborting it.

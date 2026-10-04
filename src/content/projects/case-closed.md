@@ -32,6 +32,7 @@ links:
   - label: Repo
     href: https://github.com/jasonpereira518/caseclosed
 cover: case-closed.png
+coverAlt: "The Case Closed home page. Headline: “From case file to first draft, faster.” Below it, a demonstration matter open in the workspace with record, chronology, authority and draft tabs."
 problem: "Solo and small-firm litigators spread a case across six tools, so the record, research, analysis and first draft never stay connected."
 result: "Built in 36 hours and placed 1st of 220+ competitors at the Duke AI Hackathon (Nov 2025), judged by 34+ professors and industry judges. Accepted into UNC's 1789 Student Venture Fund in March 2026. Now live in early access."
 ---

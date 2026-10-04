@@ -11,7 +11,7 @@ const [site, resume, roles, schools, flagship] = await Promise.all([
   getEducation(),
   getFlagship(),
 ]);
-const doiLabel = resume.publication.url.replace(/^https?:\/\//, '');
+const publicationLabel = resume.publication.url.replace(/^https?:\/\//, '');
 ---
 <Base title="Resume" description={`Resume of ${site.name}: experience, education, projects, skills and awards.`}>
   <article class="resume section theme-paper">
@@ -97,7 +97,7 @@ const doiLabel = resume.publication.url.replace(/^https?:\/\//, '');
       <h2 class="label">Publication</h2>
       <div class="resume__row">
         <p>{resume.publication.citation}</p>
-        <p><a href={resume.publication.url} target="_blank" rel="noopener">{doiLabel}</a></p>
+        <p><a href={resume.publication.url} target="_blank" rel="noopener">{publicationLabel}</a></p>
       </div>
     </section>
   </article>

@@ -11,9 +11,9 @@ test('the resume page shows every section from the content spec', async ({ page 
   }
   await expect(page.getByText('AWS Certified Solutions Architect – Associate')).toBeVisible();
   await expect(page.getByText('Selected for Y Combinator Startup School 2026 (San Francisco, Jul 25–26)')).toBeVisible();
-  await expect(page.getByRole('link', { name: /doi\.org/ })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: /journals\.charlotte\.edu/ })).toHaveAttribute(
     'href',
-    'https://doi.org/10.63966/teem.v17i1.2265',
+    'https://journals.charlotte.edu/teem/article/view/2265',
   );
 });
 

@@ -3,7 +3,7 @@ import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 type Project = CollectionEntry<'projects'>;
 
 /** A flagship project is guaranteed to carry everything its case-study page needs. */
-export type Flagship = Project & { data: { cover: string; problem: string; result: string } };
+export type Flagship = Project & { data: { cover: string; coverAlt: string; problem: string; result: string } };
 
 export const GROUP_LABELS = {
   quant: 'Quant and fintech',
@@ -52,8 +52,8 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 function isFlagship(project: Project): project is Flagship {
-  const { kind, cover, problem, result } = project.data;
-  return kind === 'flagship' && Boolean(cover && problem && result);
+  const { kind, cover, coverAlt, problem, result } = project.data;
+  return kind === 'flagship' && Boolean(cover && coverAlt && problem && result);
 }
 
 export async function getFlagship(): Promise<Flagship[]> {
@@ -61,7 +61,7 @@ export async function getFlagship(): Promise<Flagship[]> {
   const incomplete = candidates.filter((project) => !isFlagship(project));
   if (incomplete.length > 0) {
     const ids = incomplete.map((project) => project.id).join(', ');
-    throw new Error(`Flagship projects need cover, problem and result in their frontmatter: ${ids}`);
+    throw new Error(`Flagship projects need cover, coverAlt, problem and result in their frontmatter: ${ids}`);
   }
   return candidates.filter(isFlagship);
 }
