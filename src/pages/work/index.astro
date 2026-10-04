@@ -28,7 +28,7 @@ const [flagship, groups] = await Promise.all([getFlagship(), getCardsByGroup()])
                 loading={index < 2 ? 'eager' : 'lazy'}
               />
             </div>
-            <h2 class="feature__title display">{project.data.title}</h2>
+            <h2 class="feature__title display" data-title-lines="2" style={project.data.color ? `--project:${project.data.color}` : undefined}>{project.data.title}</h2>
             <p class="feature__tagline">{project.data.tagline}</p>
             <p class="feature__meta label">{project.data.dates}</p>
           </a>
@@ -110,6 +110,7 @@ const [flagship, groups] = await Promise.all([getFlagship(), getCardsByGroup()])
   .feature__title {
     font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.75rem);
     overflow-wrap: anywhere;
+    color: var(--project, inherit); /* the project's own colour, from its frontmatter */
   }
 
   .feature__tagline,

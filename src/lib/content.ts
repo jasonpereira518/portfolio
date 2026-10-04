@@ -56,6 +56,11 @@ function isFlagship(project: Project): project is Flagship {
   return kind === 'flagship' && Boolean(cover && coverAlt && problem && result);
 }
 
+/** Where a project can be seen running: its link labelled "Live site" or "Live preview". Undefined if it has none. */
+export function liveUrl(project: Project): string | undefined {
+  return project.data.links.find((link) => /^live\b/i.test(link.label))?.href;
+}
+
 export async function getFlagship(): Promise<Flagship[]> {
   const candidates = (await getProjects()).filter((project) => project.data.kind === 'flagship');
   const incomplete = candidates.filter((project) => !isFlagship(project));

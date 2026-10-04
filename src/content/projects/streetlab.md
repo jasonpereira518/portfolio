@@ -3,6 +3,7 @@ title: StreetLab
 short: StreetLab
 tagline: Self-driving simulator
 kind: flagship
+color: "#12BFD3"
 group: flagship
 order: 3
 role: Solo build

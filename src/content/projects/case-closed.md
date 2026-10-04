@@ -3,6 +3,7 @@ title: Case Closed
 short: Case Closed
 tagline: AI litigation workspace
 kind: flagship
+color: "#B8805F"
 group: flagship
 order: 1
 role: "Co-founder. Front end and UI/UX, contributing across backend and AI; customer discovery and fundraising."

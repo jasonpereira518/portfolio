@@ -3,6 +3,7 @@ title: Orbit
 short: Orbit
 tagline: Networking intelligence platform
 kind: flagship
+color: "#3445BD"
 group: flagship
 order: 2
 role: Solo build
