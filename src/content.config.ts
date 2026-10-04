@@ -71,7 +71,15 @@ const experience = defineCollection({
 
 const education = defineCollection({
   loader: file('src/content/education.yaml'),
-  schema: z.object({ order: z.number().int(), school: z.string(), detail: z.string(), dates: z.string() }),
+  schema: z.object({
+    order: z.number().int(),
+    school: z.string(),
+    detail: z.string(),
+    dates: z.string(),
+    // The school's logo, as a path under src/assets/ (like logos/unc.png): a transparent image, shown at the far
+    // right of the row. Without one the row is text only.
+    logo: z.string().optional(),
+  }),
 });
 
 const about = defineCollection({

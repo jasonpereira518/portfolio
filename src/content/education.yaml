@@ -1,6 +1,7 @@
 - id: unc
   order: 1
   school: University of North Carolina at Chapel Hill
+  logo: logos/unc.png
   detail: "B.S. Computer Science · B.S. Statistics & Analytics · Minor in Business · Honors Carolina"
   dates: Graduating May 2028
 - id: cpcc
