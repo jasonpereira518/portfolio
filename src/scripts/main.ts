@@ -16,8 +16,14 @@ const islands: Partial<Record<string, () => Promise<Island>>> = {
 document.documentElement.classList.add('js');
 document.documentElement.dataset.scripted = 'true';
 
-// The first-visit intro (only when Base.astro's head script chose to show it).
-playIntro();
+// The first-visit intro (only when Base.astro's head script chose to show it). A failure must not stop the rest
+// of this script, and must not leave the overlay up.
+try {
+  playIntro();
+} catch (error: unknown) {
+  console.error('Intro failed', error);
+  document.documentElement.classList.remove('has-intro');
+}
 
 // Live clock in the nav.
 const clock = document.querySelector<HTMLElement>('[data-clock]');

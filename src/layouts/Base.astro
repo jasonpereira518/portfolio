@@ -45,10 +45,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       /* The first page of a visit opens with the intro (src/scripts/intro.ts), unless motion is reduced. */
       try {
         if (!sessionStorage.getItem('jp-intro-seen') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          /* Recorded here, before it plays, so it never replays even if the page script fails. */
+          sessionStorage.setItem('jp-intro-seen', '1');
           document.documentElement.classList.add('has-intro');
         }
       } catch (error) {
-        /* Storage is blocked: skip the intro rather than replay it on every page. */
+        /* Storage is blocked (reading or writing): skip the intro rather than replay it on every page. */
       }
       /* If the page script never ran (blocked, or it failed to load), go back to the no-script layout. */
       addEventListener('load', function () {

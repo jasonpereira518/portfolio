@@ -1,16 +1,24 @@
-import { traceBlob } from './blob-outline';
+import { MIN_EDGE, traceBlob } from './blob-outline';
 
-/** sessionStorage key: set once the intro has played, so it plays once per visit. Base.astro reads it too. */
-const SEEN_KEY = 'jp-intro-seen';
-/** The reveal starts no sooner than this after navigation began, so the mark has time to land. */
-const HOLD_MS = 750;
+/** The reveal starts no sooner than this after navigation began, so the mark has landed (it rises for 0.6 s). */
+const HOLD_MS = 900;
+/** ...and no later than this, even if the portrait is still loading, so the intro always ends well before the
+    4 s CSS safety in Intro.astro hides it anyway. */
+const LATEST_MS = 2500;
 const REVEAL_MS = 1100;
 /** The canvas holds a quarter of the pixels it covers; the soft edge suits paint. */
 const RESOLUTION = 0.5;
 
+interface Box {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 /**
- * Size of the hole at fraction `t` of the reveal, as a fraction of the distance it must cover: it opens quickly
- * into a window around the face, then floods out to the screen's edges.
+ * Size of the hole at fraction `t` of the reveal, as a fraction of its full reach: it opens quickly into a window
+ * around the face (16% of the reach by 35% of the time), then floods out to the screen's edges.
  */
 export function opening(t: number): number {
   if (t <= 0) return 0;
@@ -22,19 +30,36 @@ export function opening(t: number): number {
 }
 
 /**
+ * Where the hole opens and how far it must grow. It opens over the face (the middle of the portrait, 30% of the
+ * way down it), kept between a quarter and 60% of the way down the screen; without a portrait, from the centre.
+ * Fully open, even its innermost wobble clears the farthest corner, with 5% to spare.
+ */
+export function holeGeometry(width: number, height: number, face?: Box): { x: number; y: number; reach: number } {
+  const hasFace = face !== undefined && face.width > 0 && face.height > 0;
+  const x = hasFace ? face.left + face.width / 2 : width / 2;
+  const y = hasFace ? Math.min(height * 0.6, Math.max(height * 0.25, face.top + face.height * 0.3)) : height / 2;
+  const farthest = Math.hypot(Math.max(x, width - x), Math.max(y, height - y));
+  return { x, y, reach: (farthest / MIN_EDGE) * 1.05 };
+}
+
+/** Resolves when the hero portrait can be painted, or straight away on pages without one. Never rejects. */
+function portraitReady(): Promise<void> {
+  const image = document.querySelector<HTMLImageElement>('.hero__figure img');
+  if (!image) return Promise.resolve();
+  return image.decode().catch(() => undefined);
+}
+
+const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, Math.max(0, ms)));
+
+/**
  * The first-visit intro: an orange screen with the initials, then a paint-blob hole opens over the face and
- * spreads until the page is revealed. Base.astro decides before first paint whether it plays (the `has-intro`
- * class on <html>); this only runs it.
+ * spreads until the page is revealed. Base.astro's head script decides before first paint whether it plays (it
+ * adds `has-intro` to <html> and records the visit); this only runs it.
  */
 export function playIntro(): void {
   const html = document.documentElement;
   if (!html.classList.contains('has-intro')) return;
   const finish = () => html.classList.remove('has-intro');
-  try {
-    sessionStorage.setItem(SEEN_KEY, '1');
-  } catch {
-    // Storage became unavailable after the head script read it; nothing to do.
-  }
 
   const root = document.querySelector<HTMLElement>('.intro');
   const canvas = root?.querySelector('canvas');
@@ -50,13 +75,9 @@ export function playIntro(): void {
     const height = innerHeight;
     canvas.width = Math.max(1, Math.round(width * RESOLUTION));
     canvas.height = Math.max(1, Math.round(height * RESOLUTION));
-
-    // Open over the face when there is a portrait on screen, otherwise from the centre.
-    const face = document.querySelector('.hero__figure')?.getBoundingClientRect();
-    const x = face && face.width > 0 ? face.left + face.width / 2 : width / 2;
-    const y = face && face.height > 0 ? Math.min(height * 0.6, Math.max(height * 0.25, face.top + face.height * 0.3)) : height / 2;
-    // Far enough to clear the farthest corner even where the wobbling edge dips in.
-    const reach = Math.hypot(Math.max(x, width - x), Math.max(y, height - y)) * 1.25;
+    // Measured now, after the portrait has loaded, so its box is real.
+    const { x, y, reach } = holeGeometry(width, height, document.querySelector('.hero__figure')?.getBoundingClientRect());
+    root.dataset.origin = `${Math.round(x)},${Math.round(y)}`;
     const began = performance.now();
 
     const paint = (now: number) => {
@@ -77,5 +98,7 @@ export function playIntro(): void {
     root.dataset.phase = 'reveal';
   };
 
-  setTimeout(reveal, Math.max(0, HOLD_MS - performance.now()));
+  // Open onto the portrait, not onto an empty hero: wait for it, but not past LATEST_MS.
+  const elapsed = performance.now();
+  void Promise.all([wait(HOLD_MS - elapsed), Promise.race([portraitReady(), wait(LATEST_MS - elapsed)])]).then(reveal);
 }

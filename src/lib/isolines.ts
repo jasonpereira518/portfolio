@@ -1,6 +1,7 @@
 // Marching squares. Edges of a cell: 0 top, 1 right, 2 bottom, 3 left. For each of the 16 ways a cell's four
 // corners can sit above or below the level, the pairs of edges its line segments join. Corner bits:
-// top-left 8, top-right 4, bottom-right 2, bottom-left 1. The two saddle cases (5 and 10) split the corners apart.
+// top-left 8, top-right 4, bottom-right 2, bottom-left 1. The two saddle cases (5 and 10, diagonal corners above)
+// always cut off the two corners below, without checking the cell's centre; at this grid size the choice cannot be seen.
 const CASES: readonly (readonly number[])[] = [
   [],
   [3, 2],

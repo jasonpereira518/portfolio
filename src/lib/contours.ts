@@ -27,7 +27,6 @@ const DEFAULTS: ContourOptions = {
   margin: 2,
 };
 
-export { mulberry32 };
 
 /** Turns a closed ring of points into an SVG path of smooth curves through the midpoints of its sides. */
 export function ringToPath(

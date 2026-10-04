@@ -57,7 +57,11 @@ export function mount(root: HTMLElement): void {
     values = new Float32Array(cols * rows);
     // One noise unit spans about half the screen width, a little more on phones.
     scale = Math.min(900, Math.max(520, innerWidth * 0.5));
-    last = -Infinity;
+    // Resizing a canvas clears it, and the static artwork is hidden by now: redraw at once, or the lines blink out.
+    if (onScreen) {
+      last = performance.now();
+      render(last / 1000);
+    }
   };
 
   const render = (seconds: number) => {
@@ -68,6 +72,7 @@ export function mount(root: HTMLElement): void {
       const y = (top + j * CELL) / scale + oy;
       for (let i = 0; i < cols; i++) {
         const x = (i * CELL) / scale + ox;
+        // Broad hills plus a finer, weaker layer (offset so the two do not line up) that wrinkles their outlines.
         values[j * cols + i] = noise(x, y, z) + 0.35 * noise(x * 2.1 + 11.3, y * 2.1 + 4.1, z * 1.4);
       }
     }
@@ -91,6 +96,7 @@ export function mount(root: HTMLElement): void {
 
   const draw = (now: number) => {
     frame = 0;
+    // 4 ms of slack, so a 60 Hz display reliably draws every second frame instead of slipping to every third.
     if (now - last >= FRAME_MS - 4) {
       last = now;
       render(now / 1000);
@@ -104,10 +110,11 @@ export function mount(root: HTMLElement): void {
   };
 
   new ResizeObserver(resize).observe(root);
-  new IntersectionObserver(([entry]) => {
-    onScreen = entry.isIntersecting;
+  new IntersectionObserver((entries) => {
+    onScreen = entries[entries.length - 1].isIntersecting; // the latest entry, if several are queued
     schedule();
   }).observe(root);
+  // The observers and listener live as long as the page; each page load starts afresh.
   document.addEventListener('visibilitychange', schedule);
   resize();
 }

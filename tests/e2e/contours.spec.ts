@@ -40,6 +40,28 @@ test.describe('with scripts', () => {
     expect(await snapshot()).not.toBe(first); // and they moved
   });
 
+  test('the live lines are redrawn at once when the section changes size, so they never blink out', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero .contours')).toHaveAttribute('data-live', 'true');
+    await page.setViewportSize({ width: 1100, height: 760 });
+    // Read the canvas in the same task that the resize is handled in, before any later frame can redraw it.
+    const blankAfterResize = await page.evaluate(
+      () =>
+        new Promise<boolean>((resolve) => {
+          const root = document.querySelector<HTMLElement>('.hero .contours')!;
+          new ResizeObserver(() => {
+            const canvas = root.querySelector('canvas')!;
+            const pixels = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height).data;
+            let drawn = false;
+            for (let index = 3; index < pixels.length; index += 4) if (pixels[index] !== 0) { drawn = true; break; }
+            resolve(!drawn);
+          }).observe(root);
+          root.style.height = `${root.getBoundingClientRect().height - 40}px`;
+        }),
+    );
+    expect(blankAfterResize).toBe(false);
+  });
+
   test('once the live lines are drawn, the static artwork is hidden and stops moving', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.hero .contours')).toHaveAttribute('data-live', 'true');

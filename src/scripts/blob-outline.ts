@@ -1,6 +1,13 @@
 /**
+ * The closest the traced edge ever comes to the centre, as a fraction of `radius`. The wobble moves the outline's
+ * control points by at most 15% (so they sit at 0.85 or more), and each curve runs through the midpoints of the
+ * outline's sides, which with 16 points lie at least cos(11.25°) of that again: about 0.818. Rounded down.
+ */
+export const MIN_EDGE = 0.8;
+
+/**
  * Traces (but does not fill) a closed blob whose edge wobbles, so paint looks liquid. Advance `phase` over
- * time to make the edge move. The edge stays within 15% of `radius`.
+ * time to make the edge move. The edge stays between MIN_EDGE and 1.15 times `radius` (for the default 16 points).
  */
 export function traceBlob(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, phase: number, points = 16): void {
   const outline: [number, number][] = [];

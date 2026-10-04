@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { contourSvg, createHeightField, mulberry32, ringToPath } from '../../src/lib/contours';
+import { contourSvg, createHeightField, ringToPath } from '../../src/lib/contours';
+import { mulberry32 } from '../../src/lib/random';
 
 describe('createHeightField', () => {
   const cols = 56;
