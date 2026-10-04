@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('nav shows the name, the location with a live clock, and four links', async ({ page }) => {
   await page.goto('/');

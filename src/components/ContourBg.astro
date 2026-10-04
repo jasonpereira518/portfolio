@@ -1,7 +1,7 @@
 ---
 // The URL is passed as an inline custom property so the bundler does not try to resolve it at build time.
 ---
-<div class="contours" aria-hidden="true">
+<div class="contours" aria-hidden="true" data-island="contours">
   <div class="contours__sway">
     <div class="contours__lines" style="--contour-url: url('/contours.svg')"></div>
   </div>
@@ -39,6 +39,34 @@
     background: var(--line);
     -webkit-mask: var(--contour-url) 0 0 / var(--tile-w) var(--tile-h) repeat;
     mask: var(--contour-url) 0 0 / var(--tile-w) var(--tile-h) repeat;
+  }
+
+  /* With scripts, src/scripts/contours-live.ts draws lines that change shape on a canvas. Once its first frame
+     is drawn (data-live), it fades in and the static, CSS-drifted artwork fades out and stops. */
+  .contours :global(.contours__canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s var(--ease);
+  }
+
+  .contours[data-live] :global(.contours__canvas) {
+    opacity: 1;
+  }
+
+  .contours[data-live] .contours__sway {
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity 0.8s var(--ease),
+      visibility 0s 0.8s;
+  }
+
+  .contours[data-live] .contours__sway,
+  .contours[data-live] .contours__lines {
+    animation-play-state: paused;
   }
 
   @media (prefers-reduced-motion: no-preference) {

@@ -1,4 +1,4 @@
-import { devices, expect, test, type Page } from '@playwright/test';
+import { devices, expect, test, type Page } from './fixtures';
 import sharp from 'sharp';
 
 async function strokeAcrossPortrait(page: Page) {

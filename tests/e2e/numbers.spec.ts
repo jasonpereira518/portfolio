@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('each numeral counts up to its final text and has a caption', async ({ page }) => {
   await page.goto('/');

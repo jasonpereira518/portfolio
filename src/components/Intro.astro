@@ -1,0 +1,86 @@
+---
+// First-visit intro. Shown only when Base.astro's head script adds `has-intro` to <html>; run by src/scripts/intro.ts.
+---
+<div class="intro" aria-hidden="true">
+  <canvas class="intro__canvas"></canvas>
+  <div class="intro__clip">
+    <p class="intro__mark display">JP</p>
+  </div>
+  <p class="intro__name label">Jason Pereira</p>
+</div>
+
+<style>
+  .intro {
+    display: none;
+  }
+
+  /* Needs both classes: if the page script never runs, Base.astro drops `js` on load and this disappears.
+     The safety animation hides it after 4 s whatever happens. */
+  :global(.js.has-intro) .intro {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    background: var(--orange);
+    color: var(--ink);
+    pointer-events: none;
+    animation: intro-safety 0.01s linear 4s forwards;
+  }
+
+  /* More specific than the rule above, so it wins: from here the canvas paints the orange, with its hole. */
+  :global(.js.has-intro) .intro[data-phase='reveal'] {
+    background: transparent;
+  }
+
+  .intro__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .intro__clip {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .intro__mark {
+    font-size: clamp(4.5rem, 14vw, 11rem);
+    line-height: 0.9;
+    animation: intro-rise 0.6s var(--ease) both;
+  }
+
+  .intro__name {
+    position: absolute;
+    right: 0;
+    bottom: clamp(1.25rem, 3vw, 2rem);
+    left: 0;
+    text-align: center;
+    animation: intro-fade 0.5s 0.15s both;
+  }
+
+  .intro[data-phase='reveal'] .intro__mark,
+  .intro[data-phase='reveal'] .intro__name {
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  @keyframes intro-rise {
+    from {
+      transform: translateY(105%);
+    }
+  }
+
+  @keyframes intro-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes intro-safety {
+    to {
+      visibility: hidden;
+    }
+  }
+</style>

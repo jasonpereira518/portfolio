@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 const flagship = [
   { slug: 'case-closed', title: 'Case Closed', next: 'orbit' },

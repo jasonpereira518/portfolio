@@ -1,4 +1,5 @@
 import { formatClock } from '../lib/clock';
+import { playIntro } from './intro';
 
 type Island = { mount: (el: HTMLElement) => void };
 
@@ -7,12 +8,16 @@ const islands: Partial<Record<string, () => Promise<Island>>> = {
   'hero-wash': () => import('./hero-wash'),
   showcase: () => import('./showcase'),
   numbers: () => import('./numbers'),
+  contours: () => import('./contours-live'),
 };
 
 // Base.astro adds the `js` class in <head>, before first paint. The marker tells its fallback that this
 // script really ran; without the marker the class is removed again and the page shows its no-script layout.
 document.documentElement.classList.add('js');
 document.documentElement.dataset.scripted = 'true';
+
+// The first-visit intro (only when Base.astro's head script chose to show it).
+playIntro();
 
 // Live clock in the nav.
 const clock = document.querySelector<HTMLElement>('[data-clock]');

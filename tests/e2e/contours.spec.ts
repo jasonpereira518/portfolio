@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('the contour artwork is served as an SVG image', async ({ request }) => {
   const response = await request.get('/contours.svg');
@@ -19,8 +19,49 @@ test('a section can show the contour lines behind its content', async ({ page })
   expect(mask).toContain('contours.svg');
 });
 
-test('the contour lines repeat as tiles and keep moving across the section', async ({ page }) => {
-  await page.goto('/');
+test.describe('with scripts', () => {
+  test('the contour lines are redrawn as they change shape', async ({ page }) => {
+    await page.goto('/');
+    const root = page.locator('.hero .contours');
+    await expect(root).toHaveAttribute('data-live', 'true');
+    const canvas = root.locator('canvas');
+    await expect(canvas).toHaveCount(1);
+    const snapshot = () => canvas.evaluate((el: HTMLCanvasElement) => el.toDataURL());
+    const blank = await page.evaluate(() => {
+      const empty = document.createElement('canvas');
+      const live = document.querySelector<HTMLCanvasElement>('.hero .contours canvas')!;
+      empty.width = live.width;
+      empty.height = live.height;
+      return empty.toDataURL();
+    });
+    const first = await snapshot();
+    expect(first).not.toBe(blank); // lines were drawn
+    await page.waitForTimeout(700);
+    expect(await snapshot()).not.toBe(first); // and they moved
+  });
+
+  test('once the live lines are drawn, the static artwork is hidden and stops moving', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero .contours')).toHaveAttribute('data-live', 'true');
+    await expect(page.locator('.hero .contours__sway')).toBeHidden();
+  });
+
+  test('with reduced motion no live lines are drawn', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await page.locator('#contact').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+    await expect(page.locator('.contours canvas')).toHaveCount(0);
+    await expect(page.locator('.contours[data-live]')).toHaveCount(0);
+  });
+});
+
+// Without scripts (and before they start) the static artwork drifts with CSS alone.
+test.describe('without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('the contour lines repeat as tiles and keep moving across the section', async ({ page }) => {
+    await page.goto('/');
   const lines = page.locator('.hero .contours__lines');
   const repeat = await lines.evaluate((el) => {
     const style = getComputedStyle(el);
@@ -34,6 +75,7 @@ test('the contour lines repeat as tiles and keep moving across the section', asy
   await page.waitForTimeout(600);
   expect(await drift()).toBeLessThan(before - 3);
   await expect.poll(() => page.locator('.hero .contours__sway').evaluate((el) => el.getAnimations().length)).toBe(1);
+  });
 });
 
 // A fractional tile would make the lines hop by a pixel each time the loop restarts.

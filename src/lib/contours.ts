@@ -1,5 +1,6 @@
 import { contours } from 'd3-contour';
 import { createNoise4D } from 'simplex-noise';
+import { mulberry32 } from './random';
 
 type Point = [number, number];
 
@@ -26,17 +27,7 @@ const DEFAULTS: ContourOptions = {
   margin: 2,
 };
 
-/** Small seeded random generator, so the artwork is identical on every build. */
-export function mulberry32(seed: number): () => number {
-  let state = seed >>> 0;
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+export { mulberry32 };
 
 /** Turns a closed ring of points into an SVG path of smooth curves through the midpoints of its sides. */
 export function ringToPath(

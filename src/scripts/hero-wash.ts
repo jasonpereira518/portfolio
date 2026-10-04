@@ -1,8 +1,8 @@
 import { blobScale, createWash, type Blob, type Tone } from '../lib/wash';
+import { traceBlob } from './blob-outline';
 
 /** The canvas holds half as many pixels as it covers: cheaper to fill, and the upscale softens every edge. */
 const RESOLUTION = 0.5;
-const OUTLINE_POINTS = 16;
 /** On touch screens, a slow automatic stroke starts this long after the last touch. */
 const DRIFT_AFTER_MS = 2500;
 
@@ -11,23 +11,7 @@ function paintBlob(ctx: CanvasRenderingContext2D, blob: Blob, now: number, colou
   if (radius < 0.5) return;
 
   // A circle whose edge wobbles slowly, so the paint looks liquid.
-  const phase = blob.seed * Math.PI * 2 + now * 0.0012;
-  const outline: [number, number][] = [];
-  for (let index = 0; index < OUTLINE_POINTS; index++) {
-    const angle = (index / OUTLINE_POINTS) * Math.PI * 2;
-    const wobble = 1 + 0.1 * Math.sin(angle * 3 + phase) + 0.05 * Math.sin(angle * 5 - phase * 1.7);
-    outline.push([blob.x + Math.cos(angle) * radius * wobble, blob.y + Math.sin(angle) * radius * wobble]);
-  }
-
-  ctx.beginPath();
-  const last = outline[OUTLINE_POINTS - 1];
-  ctx.moveTo((last[0] + outline[0][0]) / 2, (last[1] + outline[0][1]) / 2);
-  for (let index = 0; index < OUTLINE_POINTS; index++) {
-    const point = outline[index];
-    const next = outline[(index + 1) % OUTLINE_POINTS];
-    ctx.quadraticCurveTo(point[0], point[1], (point[0] + next[0]) / 2, (point[1] + next[1]) / 2);
-  }
-  ctx.closePath();
+  traceBlob(ctx, blob.x, blob.y, radius, blob.seed * Math.PI * 2 + now * 0.0012);
   ctx.fillStyle = colours[blob.tone];
   ctx.fill();
 }

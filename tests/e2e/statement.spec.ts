@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('the statement reads as one sentence with its accent words emphasised', async ({ page }) => {
   await page.goto('/');

@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import Intro from '../components/Intro.astro';
 import Nav from '../components/Nav.astro';
 import Contact from '../components/sections/Contact.astro';
 import { getSite } from '../lib/content';
@@ -41,6 +42,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <script is:inline>
       /* Mark the page as scripted before first paint, so nothing the page script will hide is laid out or downloaded first. */
       document.documentElement.classList.add('js');
+      /* The first page of a visit opens with the intro (src/scripts/intro.ts), unless motion is reduced. */
+      try {
+        if (!sessionStorage.getItem('jp-intro-seen') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('has-intro');
+        }
+      } catch (error) {
+        /* Storage is blocked: skip the intro rather than replay it on every page. */
+      }
       /* If the page script never ran (blocked, or it failed to load), go back to the no-script layout. */
       addEventListener('load', function () {
         if (!document.documentElement.dataset.scripted) document.documentElement.classList.remove('js');
@@ -48,6 +57,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     </script>
   </head>
   <body>
+    <Intro />
     <a class="skip-link" href="#main">Skip to content</a>
     <Nav />
     <main id="main">

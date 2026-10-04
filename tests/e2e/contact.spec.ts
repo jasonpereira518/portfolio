@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('the footer shows the email as a mail link, the profile buttons and the copyright', async ({ page }) => {
   await page.goto('/');

@@ -1,5 +1,5 @@
 import { gzipSync } from 'node:zlib';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 const KB = 1024;
 
