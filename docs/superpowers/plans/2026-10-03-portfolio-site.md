@@ -32,6 +32,7 @@ Small, deliberate simplifications. Nothing visible changes.
 - The self-drawing signature beside the marquee is left out until Jason supplies a signature file (see "Not in this plan").
 - Case-study galleries render whatever images exist in `src/assets/work/<slug>/`; with none, the gallery is omitted.
 - The first "number" is `220+` with a caption naming the 1st-place finish, so every giant numeral is short enough to be giant (the content spec was updated to match).
+- The design spec's "sticky screenshot stage" in Selected work is not built: only one project panel is visible at a time, so there is nothing for a sticky stage to scroll against.
 
 ## File Structure
 

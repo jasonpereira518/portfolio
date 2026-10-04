@@ -23,7 +23,7 @@ const links = [
 </header>
 
 <style>
-  /* White text with difference blending reads as ink over paper and as paper over ink. */
+  /* Paper-plus-ink text with difference blending reads as exact ink over paper and exact paper over ink. */
   .nav {
     position: fixed;
     inset: 0 0 auto;
@@ -34,7 +34,7 @@ const links = [
     gap: 1rem;
     height: var(--nav-height);
     padding: 0 var(--gutter);
-    color: #fff;
+    color: var(--blend-ink);
     mix-blend-mode: difference;
     pointer-events: none;
   }
@@ -48,9 +48,9 @@ const links = [
     text-decoration: underline;
   }
 
-  /* The header is difference-blended, so a white ring blends to ink on paper and paper on ink. */
+  /* The header is difference-blended, so a ring in the blend colour shows as ink on paper and paper on ink. */
   .nav a:focus-visible {
-    outline-color: #fff;
+    outline-color: var(--blend-ink);
   }
 
   .nav__name {

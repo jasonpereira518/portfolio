@@ -1,14 +1,12 @@
 import { blobScale, createWash, type Blob, type Tone } from '../lib/wash';
 
-const COLOURS: Record<Tone, string> = { orange: '#FF5A26', ink: '#121210', paper: '#ECE7DC' };
-
 /** The canvas holds half as many pixels as it covers: cheaper to fill, and the upscale softens every edge. */
 const RESOLUTION = 0.5;
 const OUTLINE_POINTS = 16;
 /** On touch screens, a slow automatic stroke starts this long after the last touch. */
 const DRIFT_AFTER_MS = 2500;
 
-function paintBlob(ctx: CanvasRenderingContext2D, blob: Blob, now: number): void {
+function paintBlob(ctx: CanvasRenderingContext2D, blob: Blob, now: number, colours: Record<Tone, string>): void {
   const radius = blob.r * blobScale((now - blob.born) / blob.life);
   if (radius < 0.5) return;
 
@@ -30,7 +28,7 @@ function paintBlob(ctx: CanvasRenderingContext2D, blob: Blob, now: number): void
     ctx.quadraticCurveTo(point[0], point[1], (point[0] + next[0]) / 2, (point[1] + next[1]) / 2);
   }
   ctx.closePath();
-  ctx.fillStyle = COLOURS[blob.tone];
+  ctx.fillStyle = colours[blob.tone];
   ctx.fill();
 }
 
@@ -41,6 +39,14 @@ export function mount(hero: HTMLElement): void {
   const zone = hero.querySelector<HTMLElement>('.hero__figure');
   const ctx = canvas?.getContext('2d');
   if (!canvas || !zone || !ctx) return;
+
+  // The paint uses the hero's own theme colours (the paper orange on the paper hero).
+  const theme = getComputedStyle(hero);
+  const colours: Record<Tone, string> = {
+    orange: theme.getPropertyValue('--accent').trim(),
+    ink: theme.getPropertyValue('--ink').trim(),
+    paper: theme.getPropertyValue('--paper').trim(),
+  };
 
   const sim = createWash();
   const drift = matchMedia('(pointer: coarse)').matches;
@@ -71,7 +77,7 @@ export function mount(hero: HTMLElement): void {
     const blobs = sim.step(now);
     ctx.setTransform(RESOLUTION, 0, 0, RESOLUTION, 0, 0);
     ctx.clearRect(0, 0, width, height);
-    for (const blob of blobs) paintBlob(ctx, blob, now);
+    for (const blob of blobs) paintBlob(ctx, blob, now, colours);
     // In drift mode keep looping even when the sim is idle, so the ambient stroke can restart after a cancelled touch.
     if (sim.active || drift) schedule();
   };

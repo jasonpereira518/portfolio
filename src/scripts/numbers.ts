@@ -27,5 +27,11 @@ export function mount(root: HTMLElement): void {
     },
     { threshold: 0.6 },
   );
-  root.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => observer.observe(el));
+  root.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+    // Show the zero state now, so the final value does not flash and then jump to zero when the count starts.
+    // A numeral that cannot be parsed keeps its text.
+    const parsed = parseNumeral(el.dataset.count ?? '');
+    if (parsed) el.textContent = formatNumeral(parsed, 0);
+    observer.observe(el);
+  });
 }

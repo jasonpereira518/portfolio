@@ -27,6 +27,12 @@ const numbers = await getNumbers();
     border-top: 1px solid var(--line);
   }
 
+  /* The section head already draws a rule above the first item. */
+  .numbers__item:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
   .numbers__numeral {
     font-size: clamp(3.5rem, 1rem + 12.5vw, 13rem);
     font-variant-numeric: tabular-nums;

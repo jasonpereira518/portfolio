@@ -20,6 +20,8 @@ export function mount(root: HTMLElement): void {
   tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => select(index, false));
     tab.addEventListener('keydown', (event) => {
+      // Leave browser and system shortcuts (such as Alt+Left for back) alone.
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
       const next = nextTabIndex(event.key, index, tabs.length);
       if (next === null) return;
       event.preventDefault();

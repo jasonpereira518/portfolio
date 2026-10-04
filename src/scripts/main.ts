@@ -16,11 +16,17 @@ const clock = document.querySelector<HTMLElement>('[data-clock]');
 if (clock) {
   const zone = clock.dataset.tz ?? 'America/New_York';
   const label = clock.dataset.tzLabel ?? 'ET';
+  // An invalid time zone makes Intl throw. Log it and stop the clock so the rest of the page still starts.
+  const timer = setInterval(() => tick(), 30_000);
   const tick = () => {
-    clock.textContent = formatClock(new Date(), zone, label);
+    try {
+      clock.textContent = formatClock(new Date(), zone, label);
+    } catch (error: unknown) {
+      console.error('Nav clock failed', error);
+      clearInterval(timer);
+    }
   };
   tick();
-  setInterval(tick, 30_000);
 }
 
 // Scale each [data-fit] line so its text exactly fills its box.

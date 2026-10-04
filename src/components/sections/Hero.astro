@@ -10,6 +10,13 @@ const portrait = asset('portrait.png');
 ---
 <section class="hero theme-paper" id="top" data-island="hero-wash">
   <ContourBg />
+  <div class="hero__foot">
+    <div class="hero__tags label">
+      <p>{site.availability}</p>
+      <p>{site.location}</p>
+    </div>
+    <h1 class="hero__wordmark display" data-fit><span>{site.name}</span></h1>
+  </div>
   <div class="hero__copy">
     <p class="hero__pitch">
       {site.pitch.map((line) => <span>{line}</span>)}
@@ -29,13 +36,6 @@ const portrait = asset('portrait.png');
       priority
     />
   </figure>
-  <div class="hero__foot">
-    <div class="hero__tags label">
-      <p>{site.availability}</p>
-      <p>{site.location}</p>
-    </div>
-    <h1 class="hero__wordmark display" data-fit><span>{site.name}</span></h1>
-  </div>
   <canvas class="hero__wash" aria-hidden="true"></canvas>
 </section>
 
@@ -70,6 +70,10 @@ const portrait = asset('portrait.png');
     text-transform: uppercase;
   }
 
+  .hero__pitch span {
+    text-wrap: balance;
+  }
+
   .hero__cta {
     display: flex;
     flex-direction: column;
@@ -95,7 +99,7 @@ const portrait = asset('portrait.png');
     object-position: bottom;
   }
 
-  /* Paper minus ink with difference blending: exact ink over the paper, a light grey over the dark suit. */
+  /* Paper plus ink with difference blending: exact ink over the paper, exact paper over the dark suit. */
   .hero__foot {
     position: absolute;
     right: var(--gutter);
@@ -136,6 +140,11 @@ const portrait = asset('portrait.png');
     .hero__cta {
       flex-direction: row;
       align-items: center;
+    }
+
+    .hero__tags {
+      flex-direction: column;
+      gap: 0.15rem;
     }
 
     .hero__figure {

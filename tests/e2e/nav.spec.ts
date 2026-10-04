@@ -10,6 +10,11 @@ test('nav shows the name, the location with a live clock, and four links', async
   await expect(links).toHaveText(['Work', 'About', 'Resume', 'Contact']);
 });
 
+test('the nav text is paper plus ink, so difference blending shows exact ink over paper and exact paper over ink', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('header.nav')).toHaveCSS('color', 'rgb(254, 249, 236)');
+});
+
 test('the page script marks the document as scripted', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('html')).toHaveClass(/\bjs\b/);

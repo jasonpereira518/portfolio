@@ -29,6 +29,16 @@ test.describe('selected work', () => {
     await expect(section.getByRole('tab', { name: /GPU Portfolio Engine/ })).toHaveAttribute('aria-selected', 'true');
   });
 
+  test('arrow keys held with a modifier leave the selected tab alone, so browser shortcuts still work', async ({ page }) => {
+    const section = page.locator('#work');
+    const first = section.getByRole('tab', { name: /Case Closed/ });
+    await first.focus();
+    await page.keyboard.press('Alt+ArrowRight');
+    await expect(first).toHaveAttribute('aria-selected', 'true');
+    await expect(first).toBeFocused();
+    await expect(section.getByRole('tab', { name: /Orbit/ })).toHaveAttribute('aria-selected', 'false');
+  });
+
   test('the visible project links to its case study, and the section links to all work', async ({ page }) => {
     const section = page.locator('#work');
     await expect(section.getByRole('link', { name: 'Read the case study' })).toHaveAttribute('href', '/work/case-closed');

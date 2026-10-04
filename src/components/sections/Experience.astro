@@ -43,6 +43,12 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
     border-top: 1px solid var(--line);
   }
 
+  /* The section head already draws a rule above the first role. */
+  .xp__list--roles .xp__row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
   .xp__org {
     font-size: clamp(1.25rem, 1rem + 1.4vw, 2.25rem);
     overflow-wrap: anywhere;
@@ -69,6 +75,7 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
   @media (min-width: 900px) {
     .xp__row {
       grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) minmax(0, 5fr);
+      grid-template-rows: auto 1fr;
       grid-template-areas:
         'org role summary'
         'org meta summary';
@@ -80,6 +87,10 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
 
     .xp__role {
       grid-area: role;
+    }
+
+    .xp__list--schools .xp__role {
+      grid-column: 2 / -1;
     }
 
     .xp__meta {

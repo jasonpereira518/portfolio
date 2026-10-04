@@ -82,6 +82,18 @@ test.describe('hero', () => {
     await expect(canvas).toHaveAttribute('data-ready', 'true');
     await strokeAcrossPortrait(page);
     await expect.poll(() => canvas.evaluate(hasPaint)).toBe(true);
+
+    // The paint takes its orange from the hero's theme (the paper orange), not from a hard-coded value.
+    const colours = await page.evaluate(() => {
+      const hero = document.querySelector('.hero');
+      if (!hero) throw new Error('The hero is missing');
+      return {
+        accent: getComputedStyle(hero).getPropertyValue('--accent').trim(),
+        orangeDeep: getComputedStyle(document.documentElement).getPropertyValue('--orange-deep').trim(),
+      };
+    });
+    expect(colours.orangeDeep).not.toBe('');
+    expect(colours.accent).toBe(colours.orangeDeep);
   });
 
   test('with reduced motion the canvas is never painted', async ({ page }) => {
