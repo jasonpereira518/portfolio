@@ -61,15 +61,38 @@ function paintStroke(ctx: CanvasRenderingContext2D, stroke: InkStroke, now: numb
   ctx.fill();
 }
 
+/**
+ * Plays the background footage while the hero is on screen. Until its first frame is up (and whenever it cannot
+ * play: autoplay refused, data saver on, a decode error) the still beneath it shows instead.
+ */
+function startVideo(hero: HTMLElement): void {
+  const video = hero.querySelector<HTMLVideoElement>('.hero__video');
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  if (!video || saveData) return;
+
+  video.addEventListener('playing', () => video.classList.add('is-playing'), { once: true });
+  video.preload = 'auto';
+  const play = () => void video.play().catch(() => undefined);
+  new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting && !document.hidden) play();
+    else video.pause();
+  }).observe(hero);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) video.pause();
+    else if (hero.getBoundingClientRect().bottom > 0) play();
+  });
+}
+
 export function mount(hero: HTMLElement): void {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const canvas = hero.querySelector<HTMLCanvasElement>('.hero__ink');
-  const zone = hero.querySelector<HTMLElement>('.hero__figure');
-  const ctx = canvas?.getContext('2d');
-  if (!canvas || !zone || !ctx) return;
+  startVideo(hero);
 
-  // The ink uses the hero's own accent (the paper orange on the paper hero).
+  const canvas = hero.querySelector<HTMLCanvasElement>('.hero__ink');
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return;
+
+  // The ink uses the hero's own accent.
   const accent = getComputedStyle(hero).getPropertyValue('--accent').trim();
 
   const sim = createInk();
@@ -93,11 +116,9 @@ export function mount(hero: HTMLElement): void {
   const draw = (now: number) => {
     frame = 0;
     if (drift && now - lastInput > DRIFT_AFTER_MS) {
-      const heroBox = hero.getBoundingClientRect();
-      const box = zone.getBoundingClientRect();
       sim.pointerTo(
-        box.left - heroBox.left + box.width * (0.5 + 0.2 * Math.sin(now * 0.00045)),
-        box.top - heroBox.top + box.height * (0.34 + 0.12 * Math.sin(now * 0.0007 + 1.3)),
+        width * (0.5 + 0.2 * Math.sin(now * 0.00045)),
+        height * (0.45 + 0.12 * Math.sin(now * 0.0007 + 1.3)),
       );
     }
     const strokes = sim.step(now);

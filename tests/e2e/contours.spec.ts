@@ -22,14 +22,15 @@ test('a section can show the contour lines behind its content', async ({ page })
 test.describe('with scripts', () => {
   test('the contour lines are redrawn as they change shape', async ({ page }) => {
     await page.goto('/');
-    const root = page.locator('.hero .contours');
+    await page.locator('.numbers').evaluate((el) => el.scrollIntoView());
+    const root = page.locator('.numbers .contours');
     await expect(root).toHaveAttribute('data-live', 'true');
     const canvas = root.locator('canvas');
     await expect(canvas).toHaveCount(1);
     const snapshot = () => canvas.evaluate((el: HTMLCanvasElement) => el.toDataURL());
     const blank = await page.evaluate(() => {
       const empty = document.createElement('canvas');
-      const live = document.querySelector<HTMLCanvasElement>('.hero .contours canvas')!;
+      const live = document.querySelector<HTMLCanvasElement>('.numbers .contours canvas')!;
       empty.width = live.width;
       empty.height = live.height;
       return empty.toDataURL();
@@ -42,13 +43,14 @@ test.describe('with scripts', () => {
 
   test('the live lines are redrawn at once when the section changes size, so they never blink out', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.hero .contours')).toHaveAttribute('data-live', 'true');
+    await page.locator('.numbers').evaluate((el) => el.scrollIntoView());
+    await expect(page.locator('.numbers .contours')).toHaveAttribute('data-live', 'true');
     await page.setViewportSize({ width: 1100, height: 760 });
     // Read the canvas in the same task that the resize is handled in, before any later frame can redraw it.
     const blankAfterResize = await page.evaluate(
       () =>
         new Promise<boolean>((resolve) => {
-          const root = document.querySelector<HTMLElement>('.hero .contours')!;
+          const root = document.querySelector<HTMLElement>('.numbers .contours')!;
           new ResizeObserver(() => {
             const canvas = root.querySelector('canvas')!;
             const pixels = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height).data;
@@ -64,8 +66,9 @@ test.describe('with scripts', () => {
 
   test('once the live lines are drawn, the static artwork is hidden and stops moving', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.hero .contours')).toHaveAttribute('data-live', 'true');
-    await expect(page.locator('.hero .contours__sway')).toBeHidden();
+    await page.locator('.numbers').evaluate((el) => el.scrollIntoView());
+    await expect(page.locator('.numbers .contours')).toHaveAttribute('data-live', 'true');
+    await expect(page.locator('.numbers .contours__sway')).toBeHidden();
   });
 
   test('with reduced motion no live lines are drawn', async ({ page }) => {
@@ -84,7 +87,7 @@ test.describe('without JavaScript', () => {
 
   test('the contour lines repeat as tiles and keep moving across the section', async ({ page }) => {
     await page.goto('/');
-  const lines = page.locator('.hero .contours__lines');
+  const lines = page.locator('.numbers .contours__lines');
   const repeat = await lines.evaluate((el) => {
     const style = getComputedStyle(el);
     return style.maskRepeat || style.getPropertyValue('-webkit-mask-repeat');
@@ -96,7 +99,7 @@ test.describe('without JavaScript', () => {
   const before = await drift();
   await page.waitForTimeout(600);
   expect(await drift()).toBeLessThan(before - 3);
-  await expect.poll(() => page.locator('.hero .contours__sway').evaluate((el) => el.getAnimations().length)).toBe(1);
+  await expect.poll(() => page.locator('.numbers .contours__sway').evaluate((el) => el.getAnimations().length)).toBe(1);
   });
 });
 
@@ -105,7 +108,7 @@ for (const width of [1024, 1366, 1536]) {
   test(`the contour tile is a whole number of pixels at ${width}px wide, so the loop restarts seamlessly`, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 });
     await page.goto('/');
-    const size = await page.locator('.hero .contours__lines').evaluate((el) => {
+    const size = await page.locator('.numbers .contours__lines').evaluate((el) => {
       const style = getComputedStyle(el);
       return (style.maskSize || style.getPropertyValue('-webkit-mask-size')).split(' ').map(parseFloat);
     });
@@ -117,7 +120,7 @@ for (const width of [1024, 1366, 1536]) {
 test('with reduced motion the contour lines stand still', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  const lines = page.locator('.hero .contours__lines');
+  const lines = page.locator('.numbers .contours__lines');
   const position = () =>
     lines.evaluate((el) => {
       const box = el.getBoundingClientRect();
