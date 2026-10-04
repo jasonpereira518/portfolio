@@ -1,4 +1,5 @@
 import { formatClock } from '../lib/clock';
+import { fitTitles } from './fit-titles';
 import { playIntro } from './intro';
 
 type Island = { mount: (el: HTMLElement) => void };
@@ -68,6 +69,14 @@ if (fitTargets.length > 0) {
     cancelAnimationFrame(queued);
     queued = requestAnimationFrame(fit);
   });
+}
+
+// Shrink a long project name to fit its line budget, rather than letting it wrap and push the layout around.
+// A failure leaves the titles at their stylesheet size and must not stop the rest of this script.
+try {
+  fitTitles();
+} catch (error: unknown) {
+  console.error('Fitting titles failed', error);
 }
 
 // Mark elements as they scroll into view.

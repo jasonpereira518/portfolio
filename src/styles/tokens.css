@@ -6,7 +6,10 @@
   /* Paper plus ink. Under difference blending this renders as exact ink over paper and exact paper over ink. */
   --blend-ink: #fef9ec;
 
+  /* Display type: wide, heavy, uppercase headings, labels, tabs and buttons. */
   --font-sans: var(--font-archivo), system-ui, sans-serif;
+  /* Body text: everything that is read as a sentence. */
+  --font-body: var(--font-dm-sans), system-ui, sans-serif;
   --font-serif: var(--font-instrument), Georgia, serif;
 
   --gutter: clamp(1rem, 0.5rem + 2.2vw, 2.5rem);

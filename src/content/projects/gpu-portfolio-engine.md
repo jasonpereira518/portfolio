@@ -3,6 +3,7 @@ title: GPU Portfolio & Risk Decision Engine
 short: GPU Portfolio Engine
 tagline: Portfolio optimizer, built twice
 kind: flagship
+color: "#1F77B4"
 group: flagship
 order: 4
 role: Solo build

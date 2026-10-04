@@ -25,7 +25,7 @@ const gallery = assetsIn(`work/${project.id}`);
 <Base title={data.title} description={data.summary}>
   <article class="case section theme-paper">
     <p class="case__crumb label"><a href="/work">Work</a> / {data.tagline}</p>
-    <h1 class="case__title display">{data.title}</h1>
+    <h1 class="case__title display" data-title-lines="2" style={data.color ? `--project:${data.color}` : undefined}>{data.title}</h1>
     <p class="case__summary">{data.summary}</p>
 
     <div class="case__cover">
@@ -92,7 +92,7 @@ const gallery = assetsIn(`work/${project.id}`);
 
     <a class="case__next" href={`/work/${next.id}`}>
       <span class="label">Next</span>
-      <span class="case__next-title display">{next.data.title}</span>
+      <span class="case__next-title display" data-title-lines="2" style={next.data.color ? `--project:${next.data.color}` : undefined}>{next.data.title}</span>
     </a>
   </article>
 </Base>
@@ -110,6 +110,7 @@ const gallery = assetsIn(`work/${project.id}`);
   .case__title {
     font-size: clamp(2.2rem, 0.8rem + 7.4vw, 8.5rem);
     overflow-wrap: anywhere;
+    color: var(--project, inherit); /* the project's own colour, from its frontmatter */
   }
 
   .case__summary {
@@ -218,9 +219,11 @@ const gallery = assetsIn(`work/${project.id}`);
   .case__next-title {
     font-size: clamp(1.8rem, 1rem + 4.4vw, 5.5rem);
     overflow-wrap: anywhere;
+    color: var(--project, inherit);
     transition: color 0.25s var(--ease);
   }
 
+  /* Hovering turns the next title orange, the site's accent, as before. */
   .case__next:hover .case__next-title {
     color: var(--accent);
   }

@@ -1,6 +1,8 @@
 - id: aws
   order: 1
   org: Amazon Web Services
+  logo: logos/aws.png
+  color: "#FF9900"
   role: Solutions Architect Intern
   place: Arlington, VA
   dates: May–Aug 2026
@@ -8,6 +10,8 @@
 - id: cig
   order: 2
   org: Carolina Investment Group
+  logo: logos/cig.png
+  color: "#233064"
   role: Director of Technology
   place: Chapel Hill, NC
   dates: Sep 2026–present
@@ -15,6 +19,8 @@
 - id: arthmetis
   order: 3
   org: Arthmetis
+  logo: logos/arthmetis.png
+  color: "#048CAB"
   role: Artificial Intelligence Intern
   place: Charlotte, NC
   dates: Jun–Aug 2025
@@ -22,6 +28,8 @@
 - id: uncc
   order: 4
   org: UNC Charlotte, Dept. of Mathematics & Statistics
+  logo: logos/uncc.png
+  color: "#005035"
   role: Data Science Researcher
   place: Charlotte, NC
   dates: Feb 2024–May 2026
@@ -29,6 +37,8 @@
 - id: inspirit
   order: 5
   org: Inspirit AI
+  logo: logos/inspirit.png
+  color: "#3F4175"
   role: AI Scholar Intern
   dates: May 2023–Dec 2024
   summary: "Fine-tuned BERT to 97.36% test accuracy on financial-news sentiment, and built road-object detection from a perceptron up to YOLOv3."

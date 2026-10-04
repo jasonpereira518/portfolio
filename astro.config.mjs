@@ -23,6 +23,27 @@ export default defineConfig({
       },
     },
     {
+      // Body text. Archivo stays for the wide, uppercase display type: DM Sans has no width axis.
+      provider: fontProviders.local(),
+      name: 'DM Sans',
+      cssVariable: '--font-dm-sans',
+      fallbacks: ['sans-serif'],
+      options: {
+        variants: [
+          {
+            src: ['@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2'],
+            weight: '100 1000',
+            style: 'normal',
+          },
+          {
+            src: ['@fontsource-variable/dm-sans/files/dm-sans-latin-wght-italic.woff2'],
+            weight: '100 1000',
+            style: 'italic',
+          },
+        ],
+      },
+    },
+    {
       provider: fontProviders.local(),
       name: 'Instrument Serif',
       cssVariable: '--font-instrument',

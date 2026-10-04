@@ -13,7 +13,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -79,6 +79,22 @@ button {
   line-height: 0.92;
   letter-spacing: -0.015em;
   text-transform: uppercase;
+}
+
+/* The display voice is Archivo: headings, and every wide, uppercase piece of type (the nav name, project tabs,
+   the hero pitch, the statement, the About facts, the resume name and headings). Everything else is the body font. */
+h1,
+h2,
+h3,
+.label,
+.button,
+.nav__name,
+.work__tab,
+.hero__pitch,
+.about__facts li,
+.statement__text,
+.resume__pitch {
+  font-family: var(--font-sans);
 }
 
 /* Small uppercase labels. */
