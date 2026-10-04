@@ -165,64 +165,13 @@ test.describe('hero on a touch device', () => {
   });
 });
 
-const tiltOf = (page: Page) =>
-  page.locator('.hero__figure').evaluate((figure: HTMLElement) => ({
-    x: parseFloat(figure.style.getPropertyValue('--tilt-x')) || 0,
-    y: parseFloat(figure.style.getPropertyValue('--tilt-y')) || 0,
-  }));
-
-test.describe('portrait tilt', () => {
-  test('the portrait turns towards the pointer in 3D, and settles back when the pointer leaves', async ({ page }) => {
-    await page.goto('/');
-    const figure = page.locator('.hero__figure');
-    await expect(figure).toHaveAttribute('data-tilt', 'ready');
-    const hero = (await page.locator('.hero').boundingBox())!;
-
-    await page.mouse.move(hero.x + hero.width * 0.95, hero.y + hero.height * 0.2);
-    await expect.poll(async () => (await tiltOf(page)).y).toBeGreaterThan(5); // turned towards the right
-    expect((await tiltOf(page)).x).toBeGreaterThan(1); // and tipped up
-    expect(await figure.evaluate((el) => getComputedStyle(el).transform)).toMatch(/^matrix3d/); // with perspective
-
-    await page.mouse.move(hero.x + hero.width * 0.05, hero.y + hero.height * 0.5);
-    await expect.poll(async () => (await tiltOf(page)).y).toBeLessThan(-5); // and towards the left
-
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Work' }).hover(); // off the hero
-    await expect.poll(async () => Math.abs((await tiltOf(page)).y)).toBeLessThan(0.05);
-  });
-
-  test('even at a full diagonal turn, the bottom edge stays on the floor of the hero', async ({ page }) => {
-    await page.goto('/');
-    const figure = page.locator('.hero__figure');
-    await expect(figure).toHaveAttribute('data-tilt', 'ready');
-    for (const [x, y] of [
-      [-6, 11],
-      [6, 11],
-      [6, -11],
-      [-6, -11],
-    ]) {
-      const gap = await figure.evaluate(
-        (element: HTMLElement, [tx, ty]) => {
-          element.style.setProperty('--tilt-x', `${tx}deg`);
-          element.style.setProperty('--tilt-y', `${ty}deg`);
-          return Math.abs(element.getBoundingClientRect().bottom - element.closest('.hero')!.getBoundingClientRect().bottom);
-        },
-        [x, y],
-      );
-      expect(gap, `tilt ${x}, ${y}`).toBeLessThan(0.5);
-    }
-  });
-
-  test('with reduced motion the portrait does not turn', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    // Wait for the tilt script itself, so a missing data-tilt below means it chose not to start, not that it had
-    // not loaded yet. Listening starts before the page loads, so the download cannot be missed.
-    const loaded = page.waitForResponse(/hero-tilt/);
-    await page.goto('/');
-    await loaded;
-    const hero = (await page.locator('.hero').boundingBox())!;
-    await page.mouse.move(hero.x + hero.width * 0.95, hero.y + hero.height * 0.2);
-    await page.waitForTimeout(400);
-    expect(await tiltOf(page)).toEqual({ x: 0, y: 0 });
-    await expect(page.locator('.hero__figure')).not.toHaveAttribute('data-tilt', 'ready');
-  });
+test('the portrait stays still when the pointer moves over the hero', async ({ page }) => {
+  await page.goto('/');
+  const figure = page.locator('.hero__figure');
+  const before = await figure.evaluate((el) => getComputedStyle(el).transform);
+  const hero = (await page.locator('.hero').boundingBox())!;
+  await page.mouse.move(hero.x + hero.width * 0.95, hero.y + hero.height * 0.2, { steps: 5 });
+  await page.waitForTimeout(400);
+  expect(await figure.evaluate((el) => getComputedStyle(el).transform)).toBe(before);
+  await expect(figure).not.toHaveAttribute('data-island');
 });

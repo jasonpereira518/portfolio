@@ -26,12 +26,12 @@ const portrait = asset('portrait.png');
       <Button href="/resume">Resume</Button>
     </div>
   </div>
-  <figure class="hero__figure" data-island="hero-tilt">
+  <figure class="hero__figure">
     <Picture
       src={portrait}
       formats={['avif', 'webp']}
-      widths={[360, 540, 720, 800, 960, 1200]}
-      sizes="(max-width: 720px) 100vw, min(46vw, 620px)"
+      widths={[540, 720, 960, 1200, 1440, 1728]}
+      sizes="(max-width: 720px) 154vw, min(71vw, 955px)"
       alt={`Portrait of ${site.name}`}
       priority
     />
@@ -86,20 +86,11 @@ const portrait = asset('portrait.png');
     bottom: 0;
     left: 50%;
     z-index: 1;
-    width: min(46vw, 620px);
+    /* The portrait was widened 1.54 times for its shoulders (scripts/portrait/outpaint.py); the head stays the size
+       it was at min(46vw, 620px). */
+    width: min(71vw, 955px);
     translate: -50% 0;
-    transform-origin: 50% 100%;
     touch-action: pan-y;
-  }
-
-  /* Turned towards the mouse by src/scripts/hero-tilt.ts. The bottom edge stays on the floor of the hero: the
-     perspective's vanishing point is the transform origin (the middle of the bottom edge), and the tip (rotateX)
-     is applied first, about that edge, so the turn (rotateY) only moves the edge in depth, never up. Not where the
-     portrait fills the screen's width (720px and narrower): there a turn would pull its far edge in from the side. */
-  @media (min-width: 721px) {
-    .hero__figure[data-tilt='ready'] {
-      transform: perspective(1000px) rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg));
-    }
   }
 
   .hero__figure :global(img) {
@@ -158,9 +149,9 @@ const portrait = asset('portrait.png');
       gap: 0.15rem;
     }
 
-    /* Full width, so the portrait's cropped shoulders run off both edges of the screen. */
+    /* As wide as the head needs to stay the size it was; the shoulders fit within the screen's height limit. */
     .hero__figure {
-      width: 100%;
+      width: 154%;
     }
 
     .hero__figure :global(img) {

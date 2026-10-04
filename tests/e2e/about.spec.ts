@@ -116,3 +116,18 @@ test('a collage photo is described by its own alt text', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#about .about__photo img').first()).toHaveAttribute('alt', /^Four people/);
 });
+
+test('a school with a logo shows it at the far right of its row', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  const rows = page.locator('#experience .xp__list--schools .xp__row');
+  const unc = rows.filter({ hasText: 'University of North Carolina at Chapel Hill' });
+  const logo = unc.locator('img.xp__logo');
+  await expect(logo).toHaveAttribute('alt', '');
+  await logo.scrollIntoViewIfNeeded();
+  const [row, mark] = await Promise.all([unc.boundingBox(), logo.boundingBox()]);
+  expect(Math.abs(row!.x + row!.width - (mark!.x + mark!.width))).toBeLessThan(1); // flush with the right edge
+  // A school without a logo keeps its details in line with the others.
+  const lefts = await rows.locator('.xp__role').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().left));
+  expect(new Set(lefts.map(Math.round)).size).toBe(1);
+});

@@ -37,6 +37,7 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
         <h3 class="xp__org display">{item.data.school}</h3>
         <p class="xp__role">{item.data.detail}</p>
         <p class="xp__meta label">{item.data.dates}</p>
+        {item.data.logo && <Image class="xp__logo" src={asset(item.data.logo)} alt="" width={160} loading="lazy" />}
       </li>
     ))}
   </ul>
@@ -106,6 +107,31 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
     max-width: 62ch;
   }
 
+  /* A school's logo sits at the far right of its row, the same size as the roles' logos, beside all its lines. */
+  .xp__list--schools {
+    --logo: clamp(2.5rem, 2rem + 1.6vw, 3.5rem);
+  }
+
+  .xp__list--schools .xp__row {
+    grid-template-columns: minmax(0, 1fr) var(--logo);
+  }
+
+  /* Narrow screens: the lines stack in the first column, the logo beside them (wide screens place both by area). */
+  @media (max-width: 899px) {
+    .xp__list--schools .xp__row > :not(:global(.xp__logo)) {
+      grid-column: 1;
+    }
+  }
+
+  .xp__list--schools :global(.xp__logo) {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+    width: var(--logo);
+    height: var(--logo);
+    object-fit: contain;
+  }
+
   .xp__sub {
     margin: clamp(2.5rem, 5vw, 4.5rem) 0 1rem;
     color: var(--muted);
@@ -137,8 +163,16 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
       grid-area: role;
     }
 
-    .xp__list--schools .xp__role {
-      grid-column: 2 / -1;
+    /* Every school row has the logo column, so the details line up whether or not a school has a logo. */
+    .xp__list--schools .xp__row {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr) var(--logo);
+      grid-template-areas:
+        'org role logo'
+        'org meta logo';
+    }
+
+    .xp__list--schools :global(.xp__logo) {
+      grid-area: logo;
     }
 
     .xp__meta {

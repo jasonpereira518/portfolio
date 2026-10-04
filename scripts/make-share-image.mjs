@@ -31,7 +31,8 @@ const serif = dataUri(
   require.resolve('@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2'),
   'font/woff2',
 );
-const portrait = dataUri(join(ROOT, 'src', 'assets', 'portrait.png'), 'image/png');
+// The original cut-out, not the site's widened one (scripts/portrait/outpaint.py): the card is laid out for it.
+const portrait = dataUri(join(ROOT, 'scripts', 'portrait', 'cutout.png'), 'image/png');
 const lines = dataUri(contours, 'image/svg+xml');
 
 const escape = (text) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
