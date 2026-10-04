@@ -40,7 +40,7 @@ const portrait = asset('portrait.png');
 </section>
 
 <style>
-  /* Layers, back to front: contour lines, portrait (1), tags and wordmark (2), paint (3), copy and buttons (4). */
+  /* Layers, back to front: contour lines, portrait and paint (1, paint drawn over the portrait), tags and wordmark (2), copy and buttons (4). */
   .hero {
     position: relative;
     isolation: isolate;
@@ -136,7 +136,7 @@ const portrait = asset('portrait.png');
   .hero__wash {
     position: absolute;
     inset: 0;
-    z-index: 3;
+    z-index: 1;
     width: 100%;
     height: 100%;
     opacity: 0.8;

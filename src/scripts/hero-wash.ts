@@ -72,13 +72,6 @@ export function mount(hero: HTMLElement): void {
   };
 
   hero.addEventListener('pointermove', (event) => {
-    const box = zone.getBoundingClientRect();
-    const inside =
-      event.clientX >= box.left && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
-    if (!inside) {
-      sim.release();
-      return;
-    }
     const heroBox = hero.getBoundingClientRect();
     lastInput = performance.now();
     sim.pointerTo(event.clientX - heroBox.left, event.clientY - heroBox.top);

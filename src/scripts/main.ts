@@ -10,6 +10,7 @@ const islands: Partial<Record<string, () => Promise<Island>>> = {
   numbers: () => import('./numbers'),
   contours: () => import('./contours-live'),
   'hero-tilt': () => import('./hero-tilt'),
+  statement: () => import('./statement'),
 };
 
 // Base.astro adds the `js` class in <head>, before first paint. The marker tells its fallback that this
@@ -25,6 +26,11 @@ try {
   console.error('Intro failed', error);
   document.documentElement.classList.remove('has-intro');
 }
+
+// Images cannot be dragged out of the page (CSS covers Chromium and Safari; Firefox needs the event stopped).
+addEventListener('dragstart', (event) => {
+  if (event.target instanceof HTMLImageElement) event.preventDefault();
+});
 
 // Live clock in the nav.
 const clock = document.querySelector<HTMLElement>('[data-clock]');

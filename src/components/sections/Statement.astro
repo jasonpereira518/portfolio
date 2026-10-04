@@ -7,8 +7,8 @@ const words = parseStatement(site.statement);
 const marquee = parseStatement(site.marquee);
 const marqueeText = marquee.map((word) => word.text + word.tail).join(' ');
 ---
-<section class="statement section theme-ink">
-  <p class="statement__text" data-inview>
+<section class="statement section theme-ink" data-island="statement">
+  <p class="statement__text">
     {words.map((word, index) => (
       <Fragment>
         <span class="statement__word" style={`--i:${index}`}>
@@ -54,15 +54,16 @@ const marqueeText = marquee.map((word) => word.text + word.tail).join(' ');
     line-height: 0.9;
   }
 
-  /* Words start dim and light up in order when the paragraph scrolls into view. */
+  /* Words are dim until src/scripts/statement.ts lights them in order as the paragraph scrolls up the screen,
+     and dims them again, last first, as it scrolls back down. */
   @media (prefers-reduced-motion: no-preference) {
     :global(.js) .statement__word {
       opacity: 0.14;
-      transition: opacity 0.6s var(--ease);
-      transition-delay: calc(var(--i) * 45ms);
+      transition: opacity 0.25s var(--ease);
     }
 
-    :global(.js) .statement__text.is-in .statement__word {
+    :global(.js) .statement[data-island-failed] .statement__word,
+    :global(.js) .statement__word.is-lit {
       opacity: 1;
     }
   }
