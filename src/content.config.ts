@@ -22,6 +22,8 @@ const projects = defineCollection({
     coverAlt: z.string().optional(),
     // 'contain' shows the whole image on a white ground (for charts); 'cover' crops it to fill the frame.
     coverFit: z.enum(['cover', 'contain']).default('cover'),
+    // The project's own main colour, as a hex like #B8805F. Its title is set in it. Without one the title stays ink.
+    color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
     problem: z.string().optional(),
     result: z.string().optional(),
   }),
@@ -59,6 +61,11 @@ const experience = defineCollection({
     place: z.string().optional(),
     dates: z.string(),
     summary: z.string(),
+    // The organisation's logo, as a path under src/assets/ (like logos/aws.png): a transparent image, shown left
+    // of the name. Without one the row is text only.
+    logo: z.string().optional(),
+    // The organisation's main colour, as a hex like #FF9900. Its name is set in it. Without one the name stays ink.
+    color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   }),
 });
 

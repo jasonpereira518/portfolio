@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import { asset } from '../../lib/assets';
 import { getEducation, getExperience } from '../../lib/content';
 
 const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
@@ -11,7 +13,16 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
   <ol class="xp__list xp__list--roles">
     {roles.map((item, index) => (
       <li class="xp__row" data-reveal style={`--i:${index % 3}`}>
-        <h3 class="xp__org display">{item.data.org}</h3>
+        <div class="xp__who">
+          {item.data.logo && <Image class="xp__logo" src={asset(item.data.logo)} alt="" width={160} loading="lazy" />}
+          <h3
+            class="xp__org display"
+            data-title-lines="6"
+            style={item.data.color ? `--org:${item.data.color}` : undefined}
+          >
+            {item.data.org}
+          </h3>
+        </div>
         <p class="xp__role">{item.data.role}</p>
         <p class="xp__meta label">{[item.data.place, item.data.dates].filter(Boolean).join(' · ')}</p>
         <p class="xp__summary">{item.data.summary}</p>
@@ -49,6 +60,33 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
     padding-top: 0;
   }
 
+  /* The logo is a transparent image to the left of the name, decorative (the name says who it is), so it has no
+     alt text. Every logo gets the same square box, so all the names start at the same place; a row without a
+     logo is just the name. */
+  .xp__who {
+    --logo: clamp(2.5rem, 2rem + 1.6vw, 3.5rem);
+
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 0.5rem + 1vw, 1.25rem);
+    min-width: 0;
+  }
+
+  .xp__who :global(.xp__logo) {
+    flex: none;
+    width: var(--logo);
+    height: var(--logo);
+    object-fit: contain;
+  }
+
+  /* The name takes what the logo leaves, in the organisation's own colour. A word is never broken to fit:
+     src/scripts/fit-titles.ts makes the name smaller instead. */
+  .xp__who .xp__org {
+    min-width: 0;
+    overflow-wrap: normal;
+    color: var(--org, inherit);
+  }
+
   .xp__org {
     font-size: clamp(1.25rem, 1rem + 1.4vw, 2.25rem);
     overflow-wrap: anywhere;
@@ -81,8 +119,17 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
         'org meta summary';
     }
 
-    .xp__org {
+    .xp__org,
+    .xp__who {
       grid-area: org;
+    }
+
+    .xp__who {
+      align-self: start;
+    }
+
+    .xp__list--roles .xp__row {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 4fr); /* wider names: the logo takes some of it */
     }
 
     .xp__role {

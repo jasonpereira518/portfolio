@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import Button from '../Button.astro';
 import { asset } from '../../lib/assets';
-import { getFlagship } from '../../lib/content';
+import { getFlagship, liveUrl } from '../../lib/content';
 
 const projects = await getFlagship();
 ---
@@ -31,14 +31,19 @@ const projects = await getFlagship();
   {projects.map((project) => (
     <article class="work__panel" role="tabpanel" id={`panel-${project.id}`} aria-labelledby={`tab-${project.id}`}>
       <div class="work__info">
-        <h3 class="work__title display">{project.data.title}</h3>
+        <h3 class="work__title display" data-title-lines="2" style={project.data.color ? `--project:${project.data.color}` : undefined}>{project.data.title}</h3>
         <p class="work__tagline serif">{project.data.tagline}</p>
         <p class="work__summary">{project.data.summary}</p>
         <ul class="work__proof">
           {project.data.proof.map((point) => <li>{point}</li>)}
         </ul>
         <p class="work__status label">{project.data.status}</p>
-        <Button href={`/work/${project.id}`}>Read the case study</Button>
+        <div class="work__actions">
+          <Button href={`/work/${project.id}`}>Read the case study</Button>
+          {liveUrl(project) && (
+            <Button href={liveUrl(project)!} variant="solid" external>See it live</Button>
+          )}
+        </div>
       </div>
       <div class:list={['work__stage', { 'work__stage--whole': project.data.coverFit === 'contain' }]}>
         <Image
@@ -129,6 +134,7 @@ const projects = await getFlagship();
        overflow-wrap stops any overflow. */
     font-size: clamp(2.2rem, 12cqi, 5.25rem);
     overflow-wrap: anywhere;
+    color: var(--project, inherit); /* the project's own colour, from its frontmatter */
   }
 
   .work__tagline {
@@ -153,6 +159,13 @@ const projects = await getFlagship();
 
   .work__status {
     color: var(--muted);
+  }
+
+  /* The case study, and (for a project that is online) a button to see it live. */
+  .work__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
   }
 
   .work__stage {
