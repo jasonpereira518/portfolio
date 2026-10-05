@@ -9,7 +9,6 @@ test('experience lists five roles and two schools', async ({ page }) => {
   await expect(section.getByText('Arlington, VA · May–Aug 2026')).toBeVisible();
   await expect(section.locator('.xp__list--schools .xp__row')).toHaveCount(2);
   await expect(section.getByText('Graduating May 2028')).toBeVisible();
-  await expect(section.getByRole('link', { name: 'Full resume' })).toHaveAttribute('href', '/resume');
 });
 
 test('body text is set in DM Sans and loads it, while the display type stays Archivo', async ({ page }) => {

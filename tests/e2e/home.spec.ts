@@ -16,7 +16,7 @@ test('home page sections appear in the designed order', async ({ page }) => {
 });
 
 test('every page names a 1200×630 share image that exists', async ({ page, request }) => {
-  for (const path of ['/', '/work', '/work/streetlab', '/resume']) {
+  for (const path of ['/', '/work', '/work/streetlab', '/achievements']) {
     await page.goto(path);
     const image = page.locator('meta[property="og:image"]');
     await expect(image).toHaveAttribute('content', 'https://jasonpereira.live/og.jpg');

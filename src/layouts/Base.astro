@@ -10,10 +10,12 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  /** Keeps the page out of search results, for pages reachable only by their URL (like /resume). */
+  noindex?: boolean;
 }
 
 const site = await getSite();
-const { title, description = site.description } = Astro.props;
+const { title, description = site.description, noindex = false } = Astro.props;
 const fullTitle = title ? `${title} / ${site.name}` : site.name;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -24,6 +26,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical.href} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:type" content="website" />

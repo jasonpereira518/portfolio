@@ -96,6 +96,48 @@ const about = defineCollection({
   }),
 });
 
+const certification = z.object({
+  name: z.string(),
+  // A short code shown large beside the name, like SAA. Only the AWS certifications have one.
+  code: z.string().optional(),
+  issuer: z.string(),
+  issued: z.string(),
+  // Month and year the certification lapses, like Jun 2029. Without one it does not expire.
+  expires: z.string().optional(),
+  id: z.string(),
+});
+
+const achievements = defineCollection({
+  loader: file('src/content/achievements.yaml'),
+  schema: z.object({
+    // The headline awards: `result` is the placing (1st of 220+), `meta` the date and place, and `link`/`href` the
+    // project it was for, when there is one.
+    featured: z
+      .array(
+        z.object({
+          title: z.string(),
+          result: z.string(),
+          meta: z.string(),
+          context: z.string(),
+          link: z.string().optional(),
+          href: z.string().optional(),
+        }),
+      )
+      .length(6),
+    more: z.array(z.object({ title: z.string(), detail: z.string().optional(), href: z.string().optional() })),
+    certifications: z.object({ note: z.string(), aws: z.array(certification), other: z.array(certification) }),
+    publication: z.object({
+      title: z.string(),
+      authors: z.array(z.string()).min(1),
+      venue: z.string(),
+      note: z.string(),
+      url: z.url(),
+    }),
+    talks: z.array(z.object({ title: z.string(), event: z.string(), date: z.string(), note: z.string() })),
+  }),
+});
+
+// The unlisted /resume page.
 const resume = defineCollection({
   loader: file('src/content/resume.yaml'),
   schema: z.object({
@@ -106,4 +148,4 @@ const resume = defineCollection({
   }),
 });
 
-export const collections = { projects, site, numbers, experience, education, about, resume };
+export const collections = { projects, site, numbers, experience, education, about, achievements, resume };

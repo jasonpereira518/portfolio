@@ -50,7 +50,7 @@ Rules carried over from the recruiting spec and applied to all site copy:
   - CS + Statistics at UNC-Chapel Hill.
   - Former AWS Solutions Architect intern.
   - Co-founder of Case Closed.
-- **Buttons:** See the work · Resume
+- **Buttons:** See the work · Achievements
 - **Tag:** Open to Summer 2027 internships
 
 ### 2. Statement
@@ -109,7 +109,7 @@ Rules carried over from the recruiting spec and applied to all site copy:
 ### 7. Contact
 
 - **Giant line:** jasonpereira518@gmail.com
-- **Buttons:** Email · LinkedIn · GitHub · Google Scholar · Resume
+- **Buttons:** Email · LinkedIn · GitHub · Google Scholar · Achievements
 
 ## Work index (`/work`)
 
@@ -197,29 +197,14 @@ Four pages. Each has the credits table and three short blocks.
 - **What I built:** A mean-variance optimizer built twice, once on CPU and once on GPU, sharing one interface. A parity suite proves both paths give the same answer before any timing is trusted, and a benchmark harness times each stage separately. It includes three risk models, lot rounding with transaction costs, and a backtest with no lookahead.
 - **Result:** The QP solve is 2.48–2.66× faster on GPU at 3,000 assets (5.96 s to 2.41 s), with the crossover between 500 and 3,000 assets and parity to 1e-6. Lot rounding beat the greedy baseline in 18 of 18 cases. Only the solve stage wins on GPU; I don't claim an end-to-end speedup.
 
-## Resume page (`/resume`)
+## Achievements page (`/achievements`)
 
-- **Experience and education:** as in section 5 above.
-- **Projects:** the four flagship projects, one line each.
-- **Skills:**
-  - Languages: Python, TypeScript, JavaScript, Java, C++, C, Rust, OCaml, Swift, SQL, Bash
-  - Frameworks: React, Next.js, Node.js, FastAPI, Flask, SwiftUI, Tauri, Three.js, Tailwind CSS
-  - AI and ML: PyTorch, TensorFlow/Keras, Hugging Face, scikit-learn, XGBoost, Amazon Bedrock (AgentCore, Knowledge Bases, Guardrails), Vertex AI, LangChain, RAG, FAISS, pgvector, MCP
-  - Data and infrastructure: PostgreSQL, DynamoDB, MongoDB, Firebase/Firestore, Supabase, AWS, GCP, Docker, Kubernetes, CI/CD, Git, Linux
-- **Certifications:** AWS Certified Solutions Architect – Associate · AWS Certified Machine Learning Engineer – Associate · AWS Certified AI Practitioner · AWS Certified Cloud Practitioner · Google Generative AI Leader · Duke Machine Learning Foundations for Product Managers
-- **Awards and recognition:**
-  - 1st place, Duke AI Hackathon (Nov 2025)
-  - 1st place, Anthropic Claude AI Hackathon (Nov 2025)
-  - 1st place, Tminus0 Startup Challenge
-  - Final showcase invite, AWS Global AI Expo Challenge (2026)
-  - UNC 1789 Student Venture Fund recipient (Mar 2026)
-  - Robert E. Bryan Fellow
-  - Selected for Y Combinator Startup School 2026 (San Francisco, Jul 25–26)
-  - Charlotte's 20 Under 20 (Jan 2026)
-  - TEDxUNC speaker (Feb 2026)
-  - Eagle Scout (Oct 2024)
-- **Publication:** Adala, V., Jun, T., Pereira, J., Sandwar, V., & Fernandes, A. (2026). Analyzing Real Traffic Stop Data for Racial Bias. *Teaching for Excellence and Equity in Mathematics*, 17(1), 32–43. https://doi.org/10.63966/teem.v17i1.2265
-- **PDF download:** file to come from Jason.
+Replaced the resume page on 2026-10-04. There is no `/resume` and no PDF download; experience, education and projects live on the home page, and the skills list was dropped. The copy is in `src/content/achievements.yaml`, drawn from the recruiting spec (sections 6, 8 and 9).
+
+- **Header:** "2× first place · 4 AWS certifications · 1 published paper", then jump links to the three sections.
+- **Awards and recognition:** six featured rows (Duke AI Hackathon, Anthropic Claude AI Hackathon, AWS Global AI Expo Challenge final showcase, Y Combinator Startup School, Charlotte's 20 Under 20, Eagle Scout), then "More recognition": Tminus0, 1789 Venture Fund, Bryan Fellowship, Wells Fargo Scholarship, FBLA national and state results, TSA, Good Citizenship Award, Honors Carolina · Dean's List · Buckley Scholars.
+- **Certifications:** the four AWS certifications first, then Google, Anthropic (×2), Duke, Coursera and DeepLearning.AI. Every one shows its issue date and credential ID.
+- **Publications and talks:** the TEEM 2026 paper (links to the journal page, since the DOI does not resolve yet), then TEDxUNC "The Velocity Paradox" and the NCCTM workshop. TEDx moved here from the awards list.
 
 ## Assets
 
@@ -227,7 +212,6 @@ Four pages. Each has the credits table and three short blocks.
 |---|---|
 | Portrait with transparent background | Needed from Jason (the version sent in chat has contour lines baked into the background) |
 | Collage photos (4–8) | Needed from Jason |
-| Resume PDF | Needed from Jason |
 | Signature for the marquee line | Optional, from Jason |
 | Case Closed and Orbit screenshots | To capture from the live sites during the build |
 | StreetLab screenshots | To take from its repo |

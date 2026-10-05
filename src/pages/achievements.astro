@@ -1,0 +1,287 @@
+---
+import Base from '../layouts/Base.astro';
+import { getAchievements, getSite } from '../lib/content';
+
+const [site, achievements] = await Promise.all([getSite(), getAchievements()]);
+const { featured, more, certifications, publication, talks } = achievements;
+const certs = [
+  { list: certifications.aws, label: undefined },
+  { list: certifications.other, label: 'Also certified' },
+];
+const lastAuthor = publication.authors.length - 1;
+---
+<Base
+  title="Achievements"
+  description={`Awards, certifications, publications and talks from ${site.name}: hackathon wins, four AWS certifications and a peer-reviewed paper.`}
+>
+  <article class="ach section theme-paper">
+    <header class="ach__head">
+      <p class="ach__label label">2× first place · 4 AWS certifications · 1 published paper</p>
+      <h1 class="ach__title display">Achievements</h1>
+      <nav class="ach__jump label" aria-label="On this page">
+        <a href="#awards">Awards</a>
+        <a href="#certifications">Certifications</a>
+        <a href="#publications">Publications and talks</a>
+      </nav>
+    </header>
+
+    <section class="ach__block" id="awards" aria-labelledby="awards-title">
+      <header class="section__head">
+        <h2 class="label" id="awards-title">Awards and recognition</h2>
+      </header>
+      <ol class="ach__featured">
+        {featured.map((award, index) => (
+          <li class="ach__row" data-reveal style={`--i:${index % 3}`}>
+            <h3 class="ach__name display" data-title-lines="3">{award.title}</h3>
+            <p class="ach__result">{award.result}</p>
+            <p class="ach__meta label">{award.meta}</p>
+            <p class="ach__context">
+              {award.context}
+              {award.href && <a class="ach__link" href={award.href}>{award.link} →</a>}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+      <h3 class="ach__sub label">More recognition</h3>
+      <ul class="ach__list">
+        {more.map((item) => (
+          <li class="ach__item" data-reveal>
+            {item.href ? <a class="ach__item-title" href={item.href}>{item.title}</a> : <span class="ach__item-title">{item.title}</span>}
+            {item.detail && <span class="ach__item-detail">{item.detail}</span>}
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="ach__block" id="certifications" aria-labelledby="certifications-title">
+      <header class="section__head">
+        <h2 class="label" id="certifications-title">Certifications</h2>
+        <p class="label">{certifications.note}</p>
+      </header>
+      {certs.map(({ list, label }) => (
+        <>
+          {label && <h3 class="ach__sub label">{label}</h3>}
+          <ul class="ach__list">
+            {list.map((cert, index) => (
+              <li class="ach__cert" data-reveal style={`--i:${index % 3}`}>
+                {cert.code ? <p class="ach__code display" aria-hidden="true">{cert.code}</p> : <p class="ach__issuer label">{cert.issuer}</p>}
+                <p class="ach__cert-name">{cert.name}</p>
+                <p class="ach__cert-dates label">
+                  Issued {cert.issued}{cert.expires && ` · Valid through ${cert.expires}`}
+                </p>
+                <p class="ach__id label">Credential ID <span class="ach__id-value">{cert.id}</span></p>
+              </li>
+            ))}
+          </ul>
+        </>
+      ))}
+    </section>
+
+    <section class="ach__block" id="publications" aria-labelledby="publications-title">
+      <header class="section__head">
+        <h2 class="label" id="publications-title">Publications and talks</h2>
+        <a class="label" href={site.links.scholar} target="_blank" rel="noopener">Google Scholar ↗</a>
+      </header>
+      <div class="ach__row ach__paper" data-reveal>
+        <h3 class="ach__name display" data-title-lines="4">{publication.title}</h3>
+        <p class="ach__authors">
+          {publication.authors.map((author, index) => [
+            index === lastAuthor ? '& ' : '',
+            author === 'Pereira, J.' ? <strong>{author}</strong> : author,
+            index < lastAuthor ? ', ' : '',
+          ])}
+        </p>
+        <p class="ach__meta label">{publication.venue}</p>
+        <p class="ach__context">
+          {publication.note}
+          <a class="ach__link" href={publication.url} target="_blank" rel="noopener">Read the paper ↗</a>
+        </p>
+      </div>
+
+      <h3 class="ach__sub label">Talks</h3>
+      <ul class="ach__list">
+        {talks.map((talk) => (
+          <li class="ach__item ach__talk" data-reveal>
+            <span class="ach__item-title">{talk.title}</span>
+            <span class="ach__item-detail label">{talk.event} · {talk.date}</span>
+            <span class="ach__item-note">{talk.note}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .ach {
+    padding-top: calc(var(--nav-height) + clamp(2.5rem, 6vw, 6rem));
+  }
+
+  .ach__label {
+    margin-bottom: 1rem;
+    color: var(--muted);
+  }
+
+  /* One word, never broken: on a phone it is capped so ACHIEVEMENTS fits the width (it is about 10.5em wide). */
+  .ach__title {
+    font-size: min(clamp(1.9rem, 0.5rem + 7.4vw, 8rem), calc((100vw - 2 * var(--gutter)) / 10.5));
+    white-space: nowrap;
+  }
+
+  .ach__jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-top: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .ach__block {
+    margin-top: clamp(3.5rem, 2rem + 6vw, 8rem);
+    scroll-margin-top: calc(var(--nav-height) + 1.5rem);
+  }
+
+  /* Featured awards and the paper: the same ruled rows as the home page's Experience section. */
+  .ach__featured {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ach__row {
+    display: grid;
+    gap: 0.35rem 2rem;
+    padding-block: clamp(1.1rem, 2.2vw, 1.9rem);
+    border-top: 1px solid var(--line);
+  }
+
+  /* The section head already draws a rule above the first row. */
+  .ach__featured .ach__row:first-child,
+  .section__head + .ach__list > :first-child,
+  .ach__paper {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .ach__name {
+    font-size: clamp(1.25rem, 1rem + 1.4vw, 2.25rem);
+    overflow-wrap: normal; /* fit-titles shrinks a long name instead of breaking a word */
+  }
+
+  .ach__result {
+    font-weight: 700;
+  }
+
+  .ach__meta,
+  .ach__context,
+  .ach__authors {
+    color: var(--muted);
+  }
+
+  .ach__context {
+    max-width: 62ch;
+  }
+
+  .ach__link {
+    display: inline-block;
+    margin-left: 0.4em;
+    color: var(--fg);
+    font-weight: 700;
+  }
+
+  .ach__authors strong {
+    color: var(--fg);
+  }
+
+  @media (min-width: 900px) {
+    .ach__row {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) minmax(0, 5fr);
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        'name result context'
+        'name meta context';
+    }
+
+    .ach__name {
+      grid-area: name;
+    }
+
+    .ach__result,
+    .ach__authors {
+      grid-area: result;
+    }
+
+    .ach__meta {
+      grid-area: meta;
+    }
+
+    .ach__context {
+      grid-area: context;
+    }
+  }
+
+  .ach__sub {
+    margin: clamp(2.5rem, 5vw, 4.5rem) 0 0;
+    padding-bottom: 1rem;
+    color: var(--muted);
+  }
+
+  /* Compact rows: more recognition, certifications and talks. */
+  .ach__list {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ach__item,
+  .ach__cert {
+    display: grid;
+    gap: 0.25rem 2rem;
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .ach__item-title,
+  .ach__cert-name {
+    font-weight: 700;
+  }
+
+  .ach__item-detail,
+  .ach__item-note,
+  .ach__issuer,
+  .ach__cert-dates,
+  .ach__id {
+    color: var(--muted);
+  }
+
+  @media (min-width: 700px) {
+    .ach__item {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: baseline;
+    }
+
+    .ach__talk {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) minmax(0, 5fr);
+    }
+  }
+
+  .ach__code {
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  /* A credential ID is case-sensitive: the label is uppercase, the ID is shown exactly as issued. It is selected
+     whole on click, so it can be copied in one go. */
+  .ach__id-value {
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+    user-select: all;
+    color: var(--fg);
+  }
+
+  @media (min-width: 900px) {
+    .ach__cert {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 4.5fr) minmax(0, 3.5fr) minmax(0, 4fr);
+      align-items: baseline;
+    }
+  }
+</style>

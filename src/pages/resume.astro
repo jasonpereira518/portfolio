@@ -2,7 +2,6 @@
 import Base from '../layouts/Base.astro';
 import Button from '../components/Button.astro';
 import { getEducation, getExperience, getFlagship, getResume, getSite } from '../lib/content';
-import { resumePdfUrl } from '../lib/resume-pdf';
 
 const [site, resume, roles, schools, flagship] = await Promise.all([
   getSite(),
@@ -13,14 +12,14 @@ const [site, resume, roles, schools, flagship] = await Promise.all([
 ]);
 const publicationLabel = resume.publication.url.replace(/^https?:\/\//, '');
 ---
-<Base title="Resume" description={`Resume of ${site.name}: experience, education, projects, skills and awards.`}>
+{/* Unlisted: nothing on the site links here, and search engines are asked to skip it. Reach it by its URL. */}
+<Base title="Resume" description={`Resume of ${site.name}: experience, education, projects, skills and awards.`} noindex>
   <article class="resume section theme-paper">
     <header class="resume__head">
       <p class="label">Resume, {new Date().getFullYear()}</p>
       <h1 class="resume__name display">{site.name}</h1>
       <p class="resume__pitch">{site.pitch.join(' ')}</p>
       <div class="resume__actions">
-        {resumePdfUrl && <Button href={resumePdfUrl} variant="solid">Download PDF</Button>}
         <Button href={`mailto:${site.email}`}>Email</Button>
         <Button href={site.links.linkedin} external>LinkedIn</Button>
         <Button href={site.links.github} external>GitHub</Button>

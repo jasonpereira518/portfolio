@@ -8,7 +8,6 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
 <section class="xp section theme-paper" id="experience">
   <header class="section__head">
     <h2 class="label">Experience</h2>
-    <a class="label" href="/resume">Full resume</a>
   </header>
   <ol class="xp__list xp__list--roles">
     {roles.map((item, index) => (

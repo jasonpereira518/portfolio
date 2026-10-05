@@ -7,7 +7,17 @@ test('nav shows the name, the location with a live clock, and four links', async
   await expect(nav.getByText('Chapel Hill, NC')).toBeVisible();
   await expect(nav.locator('[data-clock]')).toHaveText(/^\d{2}:\d{2} ET$/);
   const links = nav.getByRole('navigation', { name: 'Primary' }).getByRole('link');
-  await expect(links).toHaveText(['Work', 'About', 'Resume', 'Contact']);
+  // innerText leaves out the hidden short label, and is uppercase like the nav, so match without case.
+  await expect(links).toHaveText([/^work$/i, /^about$/i, /^achievements$/i, /^contact$/i], { useInnerText: true });
+});
+
+test('on a phone the nav shortens Achievements to Awards so every link fits on screen', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/');
+  const links = page.locator('header.nav').getByRole('navigation', { name: 'Primary' }).getByRole('link');
+  await expect(links).toHaveText([/^work$/i, /^awards$/i, /^contact$/i], { useInnerText: true });
+  const contact = await links.last().boundingBox();
+  expect(contact!.x + contact!.width).toBeLessThanOrEqual(375);
 });
 
 test('the nav text is paper plus ink, so difference blending shows exact ink over paper and exact paper over ink', async ({ page }) => {

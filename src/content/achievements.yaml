@@ -1,0 +1,127 @@
+# Every figure, date and credential ID here comes from the recruiting spec (sections 6, 8 and 9).
+main:
+  featured:
+    - title: Duke AI Hackathon
+      result: 1st of 220+
+      meta: Nov 2025 · Productivity & Enterprise Tools track
+      context: Built in 36 hours and judged by a panel of 34+.
+      link: Case Closed
+      href: /work/case-closed
+    - title: Anthropic Claude AI Hackathon
+      result: 1st place, team of 2
+      meta: Nov 17, 2025
+      context: A gamified stress-relief study app.
+      link: Brain Bubble Pop
+      href: /work#brain-bubble-pop
+    - title: AWS Global AI Expo Challenge
+      result: Final showcase
+      meta: "2026"
+      context: Quick Sprint Demo Packs, an enablement initiative for AWS Solutions Architects.
+    - title: Y Combinator Startup School
+      result: Selected
+      meta: Chase Center, San Francisco · Jul 25–26, 2026
+      context: YC's invitation-only, hand-selected summit for technical builders.
+    - title: Charlotte's 20 Under 20
+      result: Honoree
+      meta: The Dean's List · Jan 2026
+      context: Nomination-based. Twenty of Charlotte's most influential leaders aged 14–19, giving back to the city.
+    - title: Eagle Scout
+      result: Highest rank
+      meta: Scouting America · Oct 2024
+      context: Gold and Bronze Eagle Palms, Order of the Arrow (elected by peers) and 32 merit badges, after 11 years in Scouting.
+  more:
+    - title: 1st place, Tminus0 Startup Challenge
+      detail: Raised $3,635 in 4 hours against a $1,000 goal
+    - title: UNC 1789 Student Venture Fund
+      detail: Mar 2026 · Seed funding and mentorship for Case Closed
+      href: /work/case-closed
+    - title: Robert E. Bryan Fellow, UNC APPLES
+      detail: $1,500 grant for Carolina Corner
+      href: /work#carolina-corner
+    - title: Wells Fargo Scholarship
+      detail: Oct 2025
+    - title: 4th place, FBLA National Leadership Conference
+      detail: Website Design · Anaheim, CA · Jul 2025
+    - title: 2× FBLA North Carolina state champion
+      detail: Website Design (Mar 2025) · Social Media Strategies (Mar 2024)
+    - title: 2nd place, TSA North Carolina
+      detail: Structural Design & Engineering · Mar 2024
+    - title: Good Citizenship Award
+      detail: "Marine Corps League Detachment #750"
+    - title: Honors Carolina · Dean's List · Buckley Public Service Scholars
+      detail: UNC-Chapel Hill
+  certifications:
+    note: Six earned in six weeks, alongside a full-time AWS internship in Summer 2026.
+    aws:
+      - name: AWS Certified Solutions Architect – Associate
+        code: SAA
+        issuer: Amazon Web Services
+        issued: Jun 18, 2026
+        expires: Jun 2029
+        id: 3e4dcf30-deae-4ca1-aa70-1bca45640904
+      - name: AWS Certified Machine Learning Engineer – Associate
+        code: MLA
+        issuer: Amazon Web Services
+        issued: Jul 30, 2026
+        expires: Jul 2029
+        id: d7073b7e-d08a-4146-8b72-b048668084a2
+      - name: AWS Certified AI Practitioner
+        code: AIF
+        issuer: Amazon Web Services
+        issued: Jun 29, 2026
+        expires: Jul 2029
+        id: b3d8285e-db08-4cd8-a5e0-342321f14848
+      - name: AWS Certified Cloud Practitioner
+        code: CLF
+        issuer: Amazon Web Services
+        issued: Jul 31, 2026
+        expires: Jul 2029
+        id: b7964872-ba45-4acc-ab7d-482efd10a216
+    other:
+      - name: Generative AI Leader
+        issuer: Google
+        issued: Jan 2, 2026
+        id: VWBDWEQMAOM4
+      - name: Claude 101
+        issuer: Anthropic
+        issued: Jul 17, 2026
+        id: r5dnjy8rh8fn
+      - name: "AI Fluency: Framework & Foundations"
+        issuer: Anthropic
+        issued: Jul 3, 2026
+        id: ub7i4frjwei2
+      - name: Machine Learning Foundations for Product Managers
+        issuer: Duke University
+        issued: Jan 28, 2026
+        id: FKWCLNDK35C1
+      - name: "Dynamic Dashboards with Tableau: Advanced Sales Analysis"
+        issuer: Coursera
+        issued: Jan 2, 2026
+        id: 81BHF67SZSOJ
+      - name: Open Source Models with Hugging Face
+        issuer: DeepLearning.AI
+        issued: Jun 13, 2024
+        id: d15812e1-b7b8-4033-b283-13d0ad7fa30c
+  publication:
+    title: Analyzing Real Traffic Stop Data for Racial Bias
+    authors:
+      - "Adala, V."
+      - "Jun, T."
+      - "Pereira, J."
+      - "Sandwar, V."
+      - "Fernandes, A."
+    venue: Teaching for Excellence and Equity in Mathematics, 17(1), 32–43 · 2026
+    note: >-
+      Co-author, 3rd of 5. A 5,000-stop random sample of ~124,000 Charlotte traffic stops, tested with
+      simulation-based inference. Supported by NSF Grant No. 2121364.
+    # The DOI (10.63966/teem.v17i1.2265) still did not resolve on 2026-10-04, so this links to the journal's page.
+    url: https://journals.charlotte.edu/teem/article/view/2265
+  talks:
+    - title: The Velocity Paradox
+      event: TEDxUNC talk
+      date: Feb 14, 2026
+      note: On the tension between speed and direction, and why direction comes first.
+    - title: NCCTM State Conference
+      event: Interactive workshop
+      date: Nov 2024
+      note: Co-presented the NSF-supported traffic-stop research to math educators, who analyzed the dataset in groups.

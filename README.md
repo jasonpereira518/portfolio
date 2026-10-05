@@ -27,6 +27,5 @@ Save the real file over the placeholder at the same path, with the same name and
 | Project covers | `src/assets/work/<slug>.png` |
 | Extra case-study images | `src/assets/work/<slug>/01.png`, `02.png`, … |
 | Collage photos | `src/assets/collage/01.jpg` … `06.jpg` |
-| Resume PDF | `public/jason-pereira-resume.pdf` |
 
 Then run `npm run placeholders` (it stops tracking replaced files) and `npm run check:assets`.

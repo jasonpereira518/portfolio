@@ -1,26 +1,60 @@
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import { expect, test } from './fixtures';
 
-test('the resume page shows every section from the content spec', async ({ page }) => {
-  await page.goto('/resume');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Jason Pereira');
-  const sections = ['Education', 'Experience', 'Projects', 'Skills', 'Certifications', 'Awards and recognition', 'Publication'];
-  for (const heading of sections) {
-    await expect(page.locator('.resume').getByRole('heading', { name: heading, exact: true })).toBeVisible();
+test('the achievements page has awards, certifications, and publications and talks', async ({ page }) => {
+  await page.goto('/achievements');
+  const article = page.locator('.ach');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Achievements');
+  for (const heading of ['Awards and recognition', 'Certifications', 'Publications and talks']) {
+    await expect(article.getByRole('heading', { level: 2, name: heading, exact: true })).toBeVisible();
   }
-  await expect(page.getByText('AWS Certified Solutions Architect – Associate')).toBeVisible();
-  await expect(page.getByText('Selected for Y Combinator Startup School 2026 (San Francisco, Jul 25–26)')).toBeVisible();
-  await expect(page.getByRole('link', { name: /journals\.charlotte\.edu/ })).toHaveAttribute(
+  await expect(article.locator('.ach__featured > li')).toHaveCount(6);
+  await expect(article.getByRole('link', { name: /Case Closed/ }).first()).toHaveAttribute('href', '/work/case-closed');
+  // A bare # in YAML starts a comment; this detail must keep its number.
+  await expect(article.getByText('Marine Corps League Detachment #750')).toBeVisible();
+  await expect(article.locator('.ach__authors')).toHaveText('Adala, V., Jun, T., Pereira, J., Sandwar, V., & Fernandes, A.');
+});
+
+test('every certification shows its credential ID', async ({ page }) => {
+  await page.goto('/achievements');
+  const certs = page.locator('#certifications .ach__cert');
+  await expect(certs).toHaveCount(10);
+  for (const cert of await certs.all()) await expect(cert.locator('.ach__id')).toHaveText(/^Credential ID \S+$/);
+  await expect(page.getByText('Credential ID 3e4dcf30-deae-4ca1-aa70-1bca45640904')).toBeVisible();
+});
+
+test('the paper links to its journal page', async ({ page }) => {
+  await page.goto('/achievements');
+  await expect(page.locator('#publications').getByRole('link', { name: /Read the paper/ })).toHaveAttribute(
     'href',
     'https://journals.charlotte.edu/teem/article/view/2265',
   );
 });
 
-test('the PDF download is offered only when the file exists', async ({ page }) => {
-  await page.goto('/resume');
-  const hasPdf = existsSync(join(process.cwd(), 'public', 'jason-pereira-resume.pdf'));
-  await expect(page.getByRole('link', { name: 'Download PDF' })).toHaveCount(hasPdf ? 1 : 0);
+test('links to a project card land on that card', async ({ page }) => {
+  await page.goto('/achievements');
+  const hrefs = await page.locator('.ach a[href^="/work#"]').evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+  expect(hrefs.length).toBeGreaterThan(0);
+  for (const href of hrefs) {
+    await page.goto(href!);
+    await expect(page.locator(`#${href!.split('#')[1]}.card`)).toHaveCount(1);
+  }
+});
+
+test('the resume page still works by its URL, but nothing links to it and search engines skip it', async ({ page }) => {
+  const response = await page.goto('/resume');
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Jason Pereira');
+  for (const heading of ['Education', 'Experience', 'Projects', 'Skills', 'Certifications', 'Awards and recognition', 'Publication']) {
+    await expect(page.locator('.resume').getByRole('heading', { name: heading, exact: true })).toBeVisible();
+  }
+  await expect(page.getByRole('link', { name: 'Download PDF' })).toHaveCount(0);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  for (const path of ['/', '/work', '/achievements', '/work/case-closed']) {
+    await page.goto(path);
+    await expect(page.locator('a[href="/resume"]'), path).toHaveCount(0);
+  }
+  await page.goto('/achievements');
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
 });
 
 test('unknown addresses get the 404 page with a way home', async ({ page }) => {

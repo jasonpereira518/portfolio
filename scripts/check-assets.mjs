@@ -13,10 +13,6 @@ const remaining = Object.entries(manifest)
   })
   .map(([file]) => file);
 
-if (!existsSync(join(process.cwd(), 'public', 'jason-pereira-resume.pdf'))) {
-  console.warn('Note: public/jason-pereira-resume.pdf is missing, so the resume page offers no PDF download.');
-}
-
 if (remaining.length > 0) {
   console.error(`${remaining.length} placeholder image(s) still in use:`);
   for (const file of remaining) console.error(`  src/assets/${file}`);

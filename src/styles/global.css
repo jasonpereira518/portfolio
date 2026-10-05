@@ -82,7 +82,7 @@ button {
 }
 
 /* The display voice is Archivo: headings, and every wide, uppercase piece of type (the nav name, project tabs,
-   the hero pitch, the statement, the About facts, the resume name and headings). Everything else is the body font. */
+   the hero pitch, the statement and the About facts). Everything else is the body font. */
 h1,
 h2,
 h3,
@@ -92,8 +92,7 @@ h3,
 .work__tab,
 .hero__pitch,
 .about__facts li,
-.statement__text,
-.resume__pitch {
+.statement__text {
   font-family: var(--font-sans);
 }
 

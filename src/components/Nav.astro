@@ -5,7 +5,8 @@ const site = await getSite();
 const links = [
   { href: '/work', label: 'Work', optional: false },
   { href: '/#about', label: 'About', optional: true },
-  { href: '/resume', label: 'Resume', optional: false },
+  // `short` replaces the label on phones, where the full one would push Contact off the screen.
+  { href: '/achievements', label: 'Achievements', short: 'Awards', optional: false },
   { href: '#contact', label: 'Contact', optional: false },
 ];
 ---
@@ -17,7 +18,9 @@ const links = [
   </p>
   <nav class="nav__links label" aria-label="Primary">
     {links.map((link) => (
-      <a href={link.href} data-optional={link.optional ? '' : undefined}>{link.label}</a>
+      <a href={link.href} data-optional={link.optional ? '' : undefined}>
+        {link.short ? [<span class="nav__long">{link.label}</span>, <span class="nav__short">{link.short}</span>] : link.label}
+      </a>
     ))}
   </nav>
 </header>
@@ -86,6 +89,20 @@ const links = [
 
     .nav__links {
       letter-spacing: 0.04em;
+    }
+  }
+
+  .nav__short {
+    display: none;
+  }
+
+  @media (max-width: 480px) {
+    .nav__long {
+      display: none;
+    }
+
+    .nav__short {
+      display: inline;
     }
   }
 
