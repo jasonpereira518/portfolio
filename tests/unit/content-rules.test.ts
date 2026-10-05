@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest';
 
 const CONTENT = join(process.cwd(), 'src', 'content');
 const read = (...parts: string[]) => readFileSync(join(CONTENT, ...parts), 'utf8');
-const dataFiles = ['site.yaml', 'numbers.yaml', 'experience.yaml', 'education.yaml', 'about.yaml', 'achievements.yaml'];
+const dataFiles = ['site.yaml', 'numbers.yaml', 'experience.yaml', 'education.yaml', 'about.yaml', 'achievements.yaml', 'resume.yaml'];
 const projectFiles = readdirSync(join(CONTENT, 'projects')).filter((file) => file.endsWith('.md'));
 const everything: [string, string][] = [
   ...dataFiles.map((file): [string, string] => [file, read(file)]),

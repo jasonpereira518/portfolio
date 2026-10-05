@@ -40,9 +40,21 @@ test('links to a project card land on that card', async ({ page }) => {
   }
 });
 
-test('the resume page is gone', async ({ page }) => {
+test('the resume page still works by its URL, but nothing links to it and search engines skip it', async ({ page }) => {
   const response = await page.goto('/resume');
-  expect(response?.status()).toBe(404);
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Jason Pereira');
+  for (const heading of ['Education', 'Experience', 'Projects', 'Skills', 'Certifications', 'Awards and recognition', 'Publication']) {
+    await expect(page.locator('.resume').getByRole('heading', { name: heading, exact: true })).toBeVisible();
+  }
+  await expect(page.getByRole('link', { name: 'Download PDF' })).toHaveCount(0);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  for (const path of ['/', '/work', '/achievements', '/work/case-closed']) {
+    await page.goto(path);
+    await expect(page.locator('a[href="/resume"]'), path).toHaveCount(0);
+  }
+  await page.goto('/achievements');
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
 });
 
 test('unknown addresses get the 404 page with a way home', async ({ page }) => {

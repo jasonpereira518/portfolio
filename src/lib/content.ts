@@ -35,6 +35,12 @@ export async function getAchievements() {
   return entry.data;
 }
 
+export async function getResume() {
+  const entry = await getEntry('resume', 'main');
+  if (!entry) throw new Error('src/content/resume.yaml must contain a "main" entry');
+  return entry.data;
+}
+
 export async function getNumbers() {
   return (await getCollection('numbers')).sort(byOrder);
 }

@@ -137,4 +137,15 @@ const achievements = defineCollection({
   }),
 });
 
-export const collections = { projects, site, numbers, experience, education, about, achievements };
+// The unlisted /resume page.
+const resume = defineCollection({
+  loader: file('src/content/resume.yaml'),
+  schema: z.object({
+    skills: z.array(z.object({ label: z.string(), items: z.string() })),
+    certifications: z.array(z.string()),
+    awards: z.array(z.string()),
+    publication: z.object({ citation: z.string(), url: z.url() }),
+  }),
+});
+
+export const collections = { projects, site, numbers, experience, education, about, achievements, resume };

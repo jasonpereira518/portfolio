@@ -1,0 +1,192 @@
+---
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import { getEducation, getExperience, getFlagship, getResume, getSite } from '../lib/content';
+
+const [site, resume, roles, schools, flagship] = await Promise.all([
+  getSite(),
+  getResume(),
+  getExperience(),
+  getEducation(),
+  getFlagship(),
+]);
+const publicationLabel = resume.publication.url.replace(/^https?:\/\//, '');
+---
+{/* Unlisted: nothing on the site links here, and search engines are asked to skip it. Reach it by its URL. */}
+<Base title="Resume" description={`Resume of ${site.name}: experience, education, projects, skills and awards.`} noindex>
+  <article class="resume section theme-paper">
+    <header class="resume__head">
+      <p class="label">Resume, {new Date().getFullYear()}</p>
+      <h1 class="resume__name display">{site.name}</h1>
+      <p class="resume__pitch">{site.pitch.join(' ')}</p>
+      <div class="resume__actions">
+        <Button href={`mailto:${site.email}`}>Email</Button>
+        <Button href={site.links.linkedin} external>LinkedIn</Button>
+        <Button href={site.links.github} external>GitHub</Button>
+      </div>
+    </header>
+
+    <section class="resume__block">
+      <h2 class="label">Education</h2>
+      <ul>
+        {schools.map((item) => (
+          <li class="resume__row">
+            <h3>{item.data.school}</h3>
+            <p>{item.data.detail}</p>
+            <p class="label">{item.data.dates}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="resume__block">
+      <h2 class="label">Experience</h2>
+      <ul>
+        {roles.map((item) => (
+          <li class="resume__row">
+            <h3>{item.data.org}</h3>
+            <p class="resume__role">{item.data.role}</p>
+            <p class="label">{[item.data.place, item.data.dates].filter(Boolean).join(' · ')}</p>
+            <p>{item.data.summary}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="resume__block">
+      <h2 class="label">Projects</h2>
+      <ul>
+        {flagship.map((project) => (
+          <li class="resume__row">
+            <h3><a href={`/work/${project.id}`}>{project.data.title}</a></h3>
+            <p class="label">{project.data.dates}</p>
+            <p>{project.data.summary}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="resume__block">
+      <h2 class="label">Skills</h2>
+      <dl>
+        {resume.skills.map((group) => (
+          <div class="resume__row resume__row--split">
+            <dt class="label">{group.label}</dt>
+            <dd>{group.items}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+
+    <section class="resume__block">
+      <h2 class="label">Certifications</h2>
+      <ul>
+        {resume.certifications.map((item) => <li class="resume__row">{item}</li>)}
+      </ul>
+    </section>
+
+    <section class="resume__block">
+      <h2 class="label">Awards and recognition</h2>
+      <ul>
+        {resume.awards.map((item) => <li class="resume__row">{item}</li>)}
+      </ul>
+    </section>
+
+    <section class="resume__block">
+      <h2 class="label">Publication</h2>
+      <div class="resume__row">
+        <p>{resume.publication.citation}</p>
+        <p><a href={resume.publication.url} target="_blank" rel="noopener">{publicationLabel}</a></p>
+      </div>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .resume {
+    padding-top: calc(var(--nav-height) + clamp(2.5rem, 6vw, 6rem));
+  }
+
+  .resume__head {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+  }
+
+  .resume__head .label {
+    color: var(--muted);
+  }
+
+  .resume__name {
+    font-size: clamp(2.6rem, 1rem + 8vw, 9rem);
+  }
+
+  .resume__pitch {
+    max-width: 40ch;
+    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.35rem);
+    font-weight: 800;
+    line-height: 1.15;
+    text-transform: uppercase;
+  }
+
+  .resume__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+  }
+
+  .resume__block {
+    display: grid;
+    gap: 0 2rem;
+    margin-top: clamp(2.5rem, 6vw, 5rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .resume__block > h2 {
+    padding-block: 1rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+  }
+
+  @media (min-width: 900px) {
+    .resume__block {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 4fr);
+    }
+  }
+
+  .resume__row {
+    display: grid;
+    gap: 0.3rem;
+    max-width: 78ch;
+    padding-block: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .resume__row h3 {
+    font-size: 1.05rem;
+    font-weight: 900;
+    font-stretch: 125%;
+    line-height: 1.15;
+    text-transform: uppercase;
+  }
+
+  .resume__row .label {
+    color: var(--muted);
+  }
+
+  .resume__role {
+    font-weight: 700;
+  }
+
+  @media (min-width: 600px) {
+    .resume__row--split {
+      grid-template-columns: 11rem minmax(0, 1fr);
+      gap: 1rem;
+    }
+  }
+
+  .resume__row--split dt {
+    padding-top: 0.3em;
+  }
+</style>
