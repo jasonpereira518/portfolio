@@ -7,10 +7,10 @@ import { getSite } from '../../lib/content';
 const site = await getSite();
 const poster = asset('hero-stage.jpg');
 ---
-<section class="hero theme-ink" id="top" data-island="hero-ink">
+<section class="hero theme-ink" id="top" data-island="hero-video">
   <div class="hero__backdrop" aria-hidden="true">
     <!-- The still shows until the video is playing, and stays when it cannot play (no script, reduced motion, an
-         error). The video is started by scripts/hero-ink.ts, so it is never fetched when it will not be shown. -->
+         error). The video is started by scripts/hero-video.ts, so it is never fetched when it will not be shown. -->
     <Picture
       class="hero__poster"
       src={poster}
@@ -37,14 +37,13 @@ const poster = asset('hero-stage.jpg');
     </p>
     <div class="hero__cta">
       <Button href="#work" variant="solid">See the work</Button>
-      <Button href="/resume">Resume</Button>
+      <Button href="/achievements">Achievements</Button>
     </div>
   </div>
-  <canvas class="hero__ink" aria-hidden="true"></canvas>
 </section>
 
 <style>
-  /* Layers, back to front: video under its dark scrim (0), paint (1), tags and wordmark (2), copy and buttons (4). */
+  /* Layers, back to front: video under its dark scrim (0), tags and wordmark (2), copy and buttons (4). */
   .hero {
     position: relative;
     isolation: isolate;
@@ -147,16 +146,6 @@ const poster = asset('hero-stage.jpg');
 
   .hero__wordmark {
     --fit-base: 8.4vw;
-  }
-
-  .hero__ink {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    opacity: 0.65;
-    pointer-events: none;
   }
 
   @media (max-width: 720px) {

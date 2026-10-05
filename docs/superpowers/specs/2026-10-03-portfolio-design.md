@@ -2,7 +2,7 @@
 
 ## Context
 
-Jason wants a portfolio site modeled on cooperdelo.com and landonorris.com: very creative, design and visual heavy, but fast to load. Revised on Jason's instruction: **no computer-science concepts as visual motifs** (no data structures, algorithms, code or terminal styling). The hero borrows Lando's fluid cursor interaction, but instead of revealing a helmet it draws an ink line over the face. The project folder (`/Users/jasonpereira/Jason/Projects/Portfolio`) is empty and not yet a git repo.
+Jason wants a portfolio site modeled on cooperdelo.com and landonorris.com: very creative, design and visual heavy, but fast to load. Revised on Jason's instruction: **no computer-science concepts as visual motifs** (no data structures, algorithms, code or terminal styling). The project folder (`/Users/jasonpereira/Jason/Projects/Portfolio`) is empty and not yet a git repo.
 
 Order of work: (1) design spec — this document, (2) content analysis, (3) implementation plan, (4) build. No code is written until steps 2 and 3 are done.
 
@@ -13,7 +13,7 @@ Order of work: (1) design spec — this document, (2) content analysis, (3) impl
 | Lead style | Hybrid: Cooper's structure, typography and static speed + a few Lando-grade interactive moments |
 | Audience | Recruiters and engineers. Skimmable in 30 seconds |
 | Assets | Portrait photo and project screenshots available. No video |
-| Hero | Lando-style fluid cursor interaction: hovering the face draws an ink line over it (no helmet) |
+| Hero | Full-screen stage footage under a dark scrim, with no cursor interaction |
 | Palette | Paper, ink, signal orange |
 | Stack | Astro + TypeScript, deployed to Vercel as a static site |
 | Removed | The "Under the hood" Render/Source concept and every CS-themed visual |
@@ -28,34 +28,31 @@ Order of work: (1) design spec — this document, (2) content analysis, (3) impl
 - **Colour**: paper `#ECE7DC`, ink `#121210`, accent orange `#FF5A26` on ink and `#F0440F` on paper. Orange for large type, lines and fills only. Sections alternate paper and ink.
 - **Type** (two self-hosted, subset woff2 files): Archivo variable (expanded black for display and wordmark, regular for body and small uppercase labels) and Instrument Serif for accent words inside headlines.
 - **Background**: slow-drifting contour lines, as on Lando's site.
-- **Nav**: name left; live local time + location centre; Work / About / Resume / Contact right.
+- **Nav**: name left; live local time + location centre; Work / About / Achievements / Contact right (Achievements reads "Awards" on phones).
 - **Motion**: Lenis smooth scroll on desktop; scroll reveals; subtle parallax; everything static under `prefers-reduced-motion`.
 
 ## Home page sections
 
 | # | Section | Design | Borrowed from |
 |---|---|---|---|
-| 1 | Hero | Cut-out portrait centred with giant `JASON PEREIRA` wordmark at the bottom, one-line pitch, buttons: See the work / Resume. Moving the cursor over the face draws a tapered ink line over it that trails the cursor and fades. Touch: drag to draw, with a slow auto-drift | Lando hero, Cooper wordmark |
+| 1 | Hero | Cut-out portrait centred with giant `JASON PEREIRA` wordmark at the bottom, one-line pitch, buttons: See the work / Achievements. | Lando hero, Cooper wordmark |
 | 2 | Statement | Large serif-and-grotesk paragraph with orange accent words, resolving word by word on scroll; marquee line with a signature that draws itself | Lando |
 | 3 | Selected work | Tabbed showcase with a sticky screenshot stage; each tab links to its case study | Cooper |
 | 4 | Numbers | Giant numerals that scale and count up on scroll | Lando "49 podiums" |
 | 5 | Experience | Clean dated rows (role, place, dates, one line) | Cooper resume |
 | 6 | About | Short bio, numbered facts, scattered parallax photo collage with captions | Both |
-| 7 | Contact | Giant email on ink inside a rounded panel; buttons for email / LinkedIn / GitHub / resume | Both |
+| 7 | Contact | Giant email on ink inside a rounded panel; buttons for email / LinkedIn / GitHub / Google Scholar / achievements | Both |
 
 ## Other pages
 
 - **`/work`** — card grid of all projects.
 - **`/work/[slug]`** — case study: giant title, credits table (Role / Year / Stack / Link), hero screenshot, three short blocks (Problem / What I built / Result), screenshot gallery, "next project" link.
-- **`/resume`** — designed HTML resume + PDF download.
+- **`/achievements`** — awards and recognition, certifications (with credential IDs), publications and talks. Replaced `/resume` on 2026-10-04.
 - **`404`** — simple designed page with a paint wash and a link home.
 
-## Hero reveal: how it works
+## Hero interaction
 
-- Jason's choice: no helmet. Instead, moving the cursor over the face draws an **ink line** over the portrait. (This replaced the original paint-wash blobs: a thin brush stroke reads lighter and more graphic.)
-- A 2D canvas sits over the portrait; the cursor draws a single tapered line in the signal orange, thickest at the cursor and thinning to a fine point at the tail. It follows with easing and vanishes about 0.8 s after the pointer stops, so the face returns.
-- Same fluid feel as Lando's mask, but only one image is needed.
-- No WebGL; loads after the portrait so the first paint is just the photo.
+- None. The cursor ink line (and the touch auto-drift) was removed on 2026-10-04 at Jason's request; the hero is the looping stage footage under its scrim, with the still in its place when the footage cannot play.
 
 ## Architecture (for the implementation plan)
 
@@ -81,7 +78,7 @@ Blog, CMS, contact form backend, analytics, dark mode, video, command palette.
 
 - Portrait cut-out (transparent background).
 - Project list, order, screenshots, stacks.
-- Numbers to show; experience and education entries; bio, facts, photos, location, links, resume PDF.
+- Numbers to show; experience and education entries; bio, facts, photos, location, links.
 - One-line pitch and statement paragraph.
 
 ## Next steps after approval

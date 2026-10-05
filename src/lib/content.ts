@@ -29,9 +29,9 @@ export async function getAbout() {
   return entry.data;
 }
 
-export async function getResume() {
-  const entry = await getEntry('resume', 'main');
-  if (!entry) throw new Error('src/content/resume.yaml must contain a "main" entry');
+export async function getAchievements() {
+  const entry = await getEntry('achievements', 'main');
+  if (!entry) throw new Error('src/content/achievements.yaml must contain a "main" entry');
   return entry.data;
 }
 

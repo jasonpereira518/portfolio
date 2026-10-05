@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 
-const pages = ['/', '/work', '/work/case-closed', '/resume', '/404'];
+const pages = ['/', '/work', '/work/case-closed', '/achievements', '/404'];
 
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
@@ -114,13 +114,13 @@ test.describe('reduced motion', () => {
       `statement words not fully opaque, of ${wordOpacities.length}: ${wordOpacities.join(', ')}`,
     ).toBe(0);
 
-    // 5. The hero canvas is not painted. The hero script was loaded, so the missing flag is the
+    // 5. The hero footage stays still. The hero script was loaded, so the paused video is the
     // reduced-motion guard at work and not a script that never ran.
     expect.soft(
-      scripts.some((url) => /\/_astro\/hero-ink\./.test(url)),
+      scripts.some((url) => /\/_astro\/hero-video\./.test(url)),
       'the hero script was loaded',
     ).toBe(true);
-    await expect.soft(page.locator('.hero__ink')).not.toHaveAttribute('data-ready', 'true');
+    await expect.soft(page.locator('.hero__video')).toHaveJSProperty('paused', true);
 
     // 4. Numerals show their final text without counting. This one scrolls each numeral into view
     // (after the checks above) so the count-up would have run if it were going to.

@@ -5,9 +5,10 @@ interface Props {
   project: CollectionEntry<'projects'>;
 }
 
-const { data } = Astro.props.project;
+// The card's id is the project's slug, so other pages can link straight to it (/work#brain-bubble-pop).
+const { id, data } = Astro.props.project;
 ---
-<article class="card">
+<article class="card" id={id}>
   <h3 class="card__title display">{data.title}</h3>
   <p class="card__meta label">{[data.role, data.dates].filter(Boolean).join(' · ')}</p>
   <p class="card__summary">{data.summary}</p>

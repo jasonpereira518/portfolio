@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest';
 
 const CONTENT = join(process.cwd(), 'src', 'content');
 const read = (...parts: string[]) => readFileSync(join(CONTENT, ...parts), 'utf8');
-const dataFiles = ['site.yaml', 'numbers.yaml', 'experience.yaml', 'education.yaml', 'about.yaml', 'resume.yaml'];
+const dataFiles = ['site.yaml', 'numbers.yaml', 'experience.yaml', 'education.yaml', 'about.yaml', 'achievements.yaml'];
 const projectFiles = readdirSync(join(CONTENT, 'projects')).filter((file) => file.endsWith('.md'));
 const everything: [string, string][] = [
   ...dataFiles.map((file): [string, string] => [file, read(file)]),
@@ -34,6 +34,7 @@ describe('copy rules from the content spec', () => {
     [/YOLOv5/i, 'the work used YOLOv3'],
     [/\(\d{3}\)\s*\d{3}-\d{4}/, 'no phone number on the site'],
     [/May 2027/, 'graduation is May 2028'],
+    [/Associate Speaker|Intern Builder/i, 'AWS-internal credentials stay off the site'],
   ];
 
   test.each(everything)('%s avoids banned phrases', (_file, text) => {
