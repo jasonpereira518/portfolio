@@ -26,6 +26,17 @@ const projects = defineCollection({
     color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
     problem: z.string().optional(),
     result: z.string().optional(),
+    // /projects only. A one-line description under a flagship's title.
+    blurb: z.string().optional(),
+    // Gold medal on the image, e.g. "1st Place · Duke AI Hackathon". Name the event, never imply a placement that was not won.
+    badge: z.string().optional(),
+    // What the medal's hover card says under the title: a sentence or two on the win or the project.
+    badgeDetail: z.string().optional(),
+    // Plays on hover. A filename in public/projects/. On a flagship it replaces the cover; on a card it plays in the popup.
+    video: z.string().optional(),
+    // A card's thumbnail (a filename in src/assets/projects/cards/) and its alt text. Without one the card is text only.
+    thumb: z.string().optional(),
+    thumbAlt: z.string().optional(),
   }),
 });
 

@@ -10,6 +10,7 @@ const islands: Partial<Record<string, () => Promise<Island>>> = {
   showcase: () => import('./showcase'),
   numbers: () => import('./numbers'),
   contours: () => import('./contours-live'),
+  'projects-media': () => import('./projects-media'),
   statement: () => import('./statement'),
 };
 

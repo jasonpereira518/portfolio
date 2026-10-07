@@ -18,11 +18,11 @@ test('body text is set in DM Sans and loads it, while the display type stays Arc
   // Sentences, such as the about bio.
   expect(await family('.about__bio'), '.about__bio').toContain('DM Sans');
   // Except the project and role summaries, which are set in Calibri.
-  for (const selector of ['.work__summary', '.xp__summary']) {
+  for (const selector of ['.projects__summary', '.xp__summary']) {
     expect(await family(selector), selector).toMatch(/^Calibri/);
   }
   // The wide, uppercase voice: headings, labels, the hero pitch and the project tabs.
-  for (const selector of ['.display', '.label', '.hero__pitch', '.work__tab']) {
+  for (const selector of ['.display', '.label', '.hero__pitch', '.projects__tab']) {
     expect(await family(selector), selector).toContain('Archivo');
   }
   // The font file is really downloaded and in use, not just named.

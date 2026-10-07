@@ -1,0 +1,141 @@
+---
+interface Props {
+  // "1st Place · Duke AI Hackathon": the part before " · " is the lead, the rest names the event.
+  text: string;
+  // A sentence or two of what happened, shown under the title in the hover card.
+  detail?: string;
+}
+
+const { text, detail } = Astro.props;
+const [lead, ...rest] = text.split(' · ');
+const event = rest.join(' · ');
+// The hover card is for the mouse; this gives everyone else the same words.
+const label = [lead, event, detail].filter(Boolean).join('. ');
+
+// The seal is a laurel wreath round a star, in a 36 x 36 box. One branch is drawn up the left side, then mirrored.
+const CENTER = 18;
+const rad = (degrees: number) => (degrees * Math.PI) / 180;
+const STEM = 10.4;
+const point = (angle: number, radius: number) => `${(CENTER + radius * Math.cos(rad(angle))).toFixed(2)} ${(CENTER + radius * Math.sin(rad(angle))).toFixed(2)}`;
+// 0 is due right and 90 is straight down, so angles from 98 to 240 climb the left side from the bottom.
+const stem = `M${point(98, STEM)} A${STEM} ${STEM} 0 0 1 ${point(240, STEM)}`;
+// A pair of leaves at each step, one just outside the stem and one just inside, each tilted away from it.
+const leaves = Array.from({ length: 6 }, (_, index) => 100 + index * 27).flatMap((angle) =>
+  [1, -1].map((side) => {
+    const radius = STEM + side * 1.15;
+    return {
+      x: CENTER + radius * Math.cos(rad(angle)),
+      y: CENTER + radius * Math.sin(rad(angle)),
+      turn: angle + 90 - side * 34,
+    };
+  }),
+);
+const star = Array.from({ length: 10 }, (_, index) => {
+  const radius = index % 2 === 0 ? 4.6 : 1.9;
+  const angle = rad(-90 + index * 36);
+  return `${(CENTER + radius * Math.cos(angle)).toFixed(2)},${(CENTER + radius * Math.sin(angle)).toFixed(2)}`;
+}).join(' ');
+---
+<span class="medal" role="img" aria-label={label}>
+  <svg class="medal__icon" viewBox="0 0 36 36" aria-hidden="true">
+    <defs>
+      <linearGradient id="medal-gold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffe680" />
+        <stop offset="0.55" stop-color="#fbc928" />
+        <stop offset="1" stop-color="#e3a400" />
+      </linearGradient>
+      <g id="medal-branch">
+        <path d={stem} fill="none" stroke="#fbc928" stroke-width="0.5" />
+        {leaves.map((leaf) => (
+          <ellipse rx="2.3" ry="0.95" transform={`translate(${leaf.x.toFixed(2)} ${leaf.y.toFixed(2)}) rotate(${leaf.turn.toFixed(1)})`} />
+        ))}
+      </g>
+    </defs>
+    <circle cx="18" cy="18" r="17.25" fill="#121210" stroke="url(#medal-gold)" stroke-width="1.1" />
+    <circle cx="18" cy="18" r="14.6" fill="none" stroke="#fbc928" stroke-width="0.4" opacity="0.55" />
+    <g fill="url(#medal-gold)">
+      <use href="#medal-branch" />
+      <use href="#medal-branch" transform="matrix(-1 0 0 1 36 0)" />
+    </g>
+    <polygon points={star} fill="url(#medal-gold)" />
+  </svg>
+  <span class="medal__tip" aria-hidden="true">
+    <span class="medal__lead">{lead}</span>
+    {event && <span class="medal__event">{event}</span>}
+    {detail && <span class="medal__detail">{detail}</span>}
+  </span>
+</span>
+
+<style>
+  /* Straddles the top-right corner of a position:relative box that does not clip, so it sits on the corner and the
+     hover card can overhang the edge. The parent sets the size with --medal-size. */
+  .medal {
+    position: absolute;
+    z-index: 3;
+    top: -0.3em;
+    right: -0.3em;
+    font-size: var(--medal-size, 2.75rem);
+    line-height: 1;
+  }
+
+  .medal__icon {
+    display: block;
+    width: 1em;
+    height: 1em;
+    filter: drop-shadow(0 0.05em 0.1em rgb(0 0 0 / 0.35));
+  }
+
+  .medal__tip {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    right: 0;
+    display: grid;
+    gap: 0.25rem;
+    width: max-content;
+    max-width: min(18rem, 80vw);
+    padding: 0.9rem 1rem 1rem;
+    border-radius: var(--media-radius);
+    background: var(--ink);
+    box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 0.3);
+    color: var(--paper);
+    font-size: 1rem;
+    text-align: left;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.25rem);
+    transition: opacity 0.18s var(--ease), transform 0.18s var(--ease), visibility 0s linear 0.18s;
+    pointer-events: none;
+  }
+
+  .medal:hover .medal__tip {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .medal__lead {
+    color: var(--gold);
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .medal__event {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-style: italic;
+    line-height: 1.1;
+  }
+
+  .medal__detail {
+    margin-top: 0.25rem;
+    color: rgb(236 231 220 / 0.72);
+    font-family: Calibri, Carlito, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+</style>

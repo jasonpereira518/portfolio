@@ -1,14 +1,14 @@
 import { expect, test, type Locator } from './fixtures';
 
-test.describe('selected work', () => {
+test.describe('selected projects', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.locator('#work').scrollIntoViewIfNeeded();
-    await expect(page.locator('#work')).toHaveAttribute('data-enhanced', 'true');
+    await page.locator('#projects').scrollIntoViewIfNeeded();
+    await expect(page.locator('#projects')).toHaveAttribute('data-enhanced', 'true');
   });
 
   test('shows one project at a time and switches on click', async ({ page }) => {
-    const section = page.locator('#work');
+    const section = page.locator('#projects');
     await expect(section.getByRole('tab')).toHaveCount(4);
     await expect(section.getByRole('tabpanel')).toHaveCount(1);
     await expect(section.getByRole('heading', { name: 'Case Closed' })).toBeVisible();
@@ -19,7 +19,7 @@ test.describe('selected work', () => {
   });
 
   test('arrow keys move between tabs and wrap around', async ({ page }) => {
-    const section = page.locator('#work');
+    const section = page.locator('#projects');
     await section.getByRole('tab', { name: /Case Closed/ }).focus();
     await page.keyboard.press('ArrowRight');
     await expect(section.getByRole('tab', { name: /Orbit/ })).toBeFocused();
@@ -30,7 +30,7 @@ test.describe('selected work', () => {
   });
 
   test('arrow keys held with a modifier leave the selected tab alone, so browser shortcuts still work', async ({ page }) => {
-    const section = page.locator('#work');
+    const section = page.locator('#projects');
     const first = section.getByRole('tab', { name: /Case Closed/ });
     await first.focus();
     await page.keyboard.press('Alt+ArrowRight');
@@ -41,7 +41,7 @@ test.describe('selected work', () => {
 
   test('every cover has alt text that describes the image, not a generic label', async ({ page }) => {
     const alts = await page
-      .locator('#work .work__stage img')
+      .locator('#projects .projects__stage img')
       .evaluateAll((images) => images.map((image) => image.getAttribute('alt') ?? ''));
     expect(alts).toHaveLength(4);
     for (const alt of alts) {
@@ -53,7 +53,7 @@ test.describe('selected work', () => {
 
   test('the benchmark chart is shown whole, while screenshots fill their frame', async ({ page }) => {
     const fit = (panel: string) =>
-      page.locator(`#${panel} .work__stage img`).evaluate((image) => getComputedStyle(image).objectFit);
+      page.locator(`#${panel} .projects__stage img`).evaluate((image) => getComputedStyle(image).objectFit);
     expect(await fit('panel-gpu-portfolio-engine')).toBe('contain');
     expect(await fit('panel-streetlab')).toBe('cover');
   });
@@ -62,14 +62,14 @@ test.describe('selected work', () => {
     // The page is marked as scripted before first paint, so the hidden panels are never laid out
     // and their lazy covers are never requested.
     const loaded = await page
-      .locator('#work .work__panel[hidden] .work__stage img')
+      .locator('#projects .projects__panel[hidden] .projects__stage img')
       .evaluateAll((images: HTMLImageElement[]) => images.map((image) => image.complete && image.naturalWidth > 0));
     expect(loaded).toEqual([false, false, false]);
   });
 
   test('pointing at a tab starts loading its cover before the project is shown', async ({ page }) => {
-    const section = page.locator('#work');
-    const cover = section.locator('#panel-orbit .work__stage img');
+    const section = page.locator('#projects');
+    const cover = section.locator('#panel-orbit .projects__stage img');
     await expect(cover).toHaveAttribute('loading', 'lazy');
     await section.getByRole('tab', { name: /Orbit/ }).hover();
     await expect(cover).toHaveAttribute('loading', 'eager');
@@ -79,10 +79,10 @@ test.describe('selected work', () => {
     await expect(section.getByRole('heading', { name: 'Orbit' })).toBeHidden();
   });
 
-  test('the visible project links to its case study, and the section links to all work', async ({ page }) => {
-    const section = page.locator('#work');
-    await expect(section.getByRole('link', { name: 'Read the case study' })).toHaveAttribute('href', '/work/case-closed');
-    await expect(section.getByRole('link', { name: 'All work' })).toHaveAttribute('href', '/work');
+  test('the visible project links to its case study, and the section links to all projects', async ({ page }) => {
+    const section = page.locator('#projects');
+    await expect(section.getByRole('link', { name: 'Read the case study' })).toHaveAttribute('href', '/projects/case-closed');
+    await expect(section.getByRole('link', { name: 'All projects' })).toHaveAttribute('href', '/projects');
   });
 });
 
@@ -90,14 +90,14 @@ for (const width of [320, 375, 820, 1024, 1440]) {
   test(`no project title breaks inside a word at ${width}px wide`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
-    const section = page.locator('#work');
+    const section = page.locator('#projects');
     await section.scrollIntoViewIfNeeded();
     await expect(section).toHaveAttribute('data-enhanced', 'true');
 
     for (const name of [/Case Closed/, /Orbit/, /StreetLab/, /GPU Portfolio Engine/]) {
       await section.getByRole('tab', { name }).click();
       const overflows = await section
-        .locator('.work__panel:not([hidden]) .work__title')
+        .locator('.projects__panel:not([hidden]) .projects__title')
         .evaluate((title: HTMLElement) => {
           title.style.overflowWrap = 'normal'; // without the safety net, a word that does not fit overflows its column
           return title.scrollWidth > title.parentElement!.clientWidth;
@@ -111,7 +111,7 @@ test('if the showcase script fails to load, all four projects are shown stacked 
   // A stale cached page can point at a hashed chunk that no longer exists; simulate that by aborting it.
   await page.route('**/_astro/showcase.*.js', (route) => route.abort());
   await page.goto('/');
-  const section = page.locator('#work');
+  const section = page.locator('#projects');
   await section.scrollIntoViewIfNeeded();
 
   await expect(section).toHaveAttribute('data-island-failed', 'true');
@@ -148,7 +148,7 @@ for (const width of [375, 820, 1024, 1440]) {
   test(`a long project name shrinks to two natural lines of height at ${width}px wide, instead of growing the section`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
-    const section = page.locator('#work');
+    const section = page.locator('#projects');
     await section.scrollIntoViewIfNeeded();
     await expect(section).toHaveAttribute('data-enhanced', 'true');
 
@@ -172,8 +172,8 @@ for (const width of [375, 820, 1024, 1440]) {
   });
 }
 
-test('on the work index a long project name is smaller rather than taller than two natural lines', async ({ page }) => {
-  await page.goto('/work');
+test('on the projects index a long project name is smaller rather than taller than two natural lines', async ({ page }) => {
+  await page.goto('/projects');
   const titles = page.locator('.feature__title');
   await expect(titles).toHaveCount(4);
   const orbit = await measure(titles.filter({ hasText: /^Orbit$/ }));
@@ -185,7 +185,7 @@ test('on the work index a long project name is smaller rather than taller than t
 
 test('a project that is online has a "See it live" button next to its case study button', async ({ page }) => {
   await page.goto('/');
-  const section = page.locator('#work');
+  const section = page.locator('#projects');
   await section.scrollIntoViewIfNeeded();
   await expect(section).toHaveAttribute('data-enhanced', 'true');
   const live: Record<string, string | null> = {
@@ -209,22 +209,22 @@ test('a project that is online has a "See it live" button next to its case study
   }
 });
 
-test('each project title on the work index is in its project colour', async ({ page }) => {
-  await page.goto('/work');
+test('each project title on the projects index is in its project colour', async ({ page }) => {
+  await page.goto('/projects');
   for (const [title, colour] of Object.entries(TITLE_COLOURS)) {
     await expect(page.getByRole('heading', { name: title, exact: true })).toHaveCSS('color', colour);
   }
 });
 
-test('each selected-work title and case study heading is in its project colour', async ({ page }) => {
+test('each selected-project title and case study heading is in its project colour', async ({ page }) => {
   await page.goto('/');
-  const section = page.locator('#work');
+  const section = page.locator('#projects');
   await section.scrollIntoViewIfNeeded();
   await expect(section).toHaveAttribute('data-enhanced', 'true');
   for (const [title, colour] of Object.entries(TITLE_COLOURS)) {
     await section.getByRole('tab', { name: new RegExp(title.split(' ')[0]) }).click();
     await expect(section.getByRole('heading', { name: title, exact: true })).toHaveCSS('color', colour);
   }
-  await page.goto('/work/case-closed');
+  await page.goto('/projects/case-closed');
   await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('color', TITLE_COLOURS['Case Closed']);
 });

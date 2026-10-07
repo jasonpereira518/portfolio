@@ -6,7 +6,7 @@ test.describe('hero', () => {
     const hero = page.locator('.hero');
     await expect(hero.getByText('AI engineer who ships.')).toBeVisible();
     await expect(hero.getByText('Co-founder of Case Closed.')).toBeVisible();
-    await expect(hero.getByRole('link', { name: 'See the work' })).toHaveAttribute('href', '#work');
+    await expect(hero.getByRole('link', { name: 'See the projects' })).toHaveAttribute('href', '#projects');
     await expect(hero.getByRole('link', { name: 'Achievements' })).toHaveAttribute('href', '/achievements');
     await expect(hero.getByText('Open to Summer 2027 internships')).toBeVisible();
     // The backdrop is decorative: a still, with the looping footage over it.

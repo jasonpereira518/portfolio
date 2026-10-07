@@ -10,6 +10,7 @@ role: Solo build
 dates: Jul 2026–present
 status: Live prototype; used by me and a few pilot testers
 summary: "A personal networking CRM for a job search: who you know, how warm they are, and who is drifting."
+blurb: "Personal networking CRM that shows who is warm and who is drifting"
 proof:
   - 466 commits
   - Exposes an MCP server

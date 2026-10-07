@@ -5,6 +5,11 @@ export default defineConfig({
   site: 'https://jasonpereira.live',
   // Astro 7 defaults to JSX-style whitespace stripping; this keeps the spaces between inline elements.
   compressHTML: true,
+  // The projects pages used to live under /work; old links still land on the right page.
+  redirects: {
+    '/work': '/projects',
+    '/work/[slug]': '/projects/[slug]',
+  },
   fonts: [
     {
       provider: fontProviders.local(),

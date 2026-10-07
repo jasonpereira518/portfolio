@@ -1,40 +1,69 @@
 ---
+import { getImage, Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import { asset } from '../lib/assets';
+import Medal from './Medal.astro';
 
 interface Props {
   project: CollectionEntry<'projects'>;
 }
 
-// The card's id is the project's slug, so other pages can link straight to it (/work#brain-bubble-pop).
+// The card's id is the project's slug, so other pages can link straight to it (/projects#brain-bubble-pop).
 const { id, data } = Astro.props.project;
+
+// A card with a thumbnail shows it to the right of the text. Hovering it opens the larger image (or the video) next to
+// the cursor; src/scripts/projects-media.ts reads these two data attributes.
+const thumb = data.thumb ? asset(`projects/cards/${data.thumb}`) : undefined;
+const peek = thumb ? (await getImage({ src: thumb, width: 1280 })).src : undefined;
 ---
-<article class="card" id={id}>
-  <h3 class="card__title display">{data.title}</h3>
-  <p class="card__meta label">{[data.role, data.dates].filter(Boolean).join(' · ')}</p>
-  <p class="card__summary">{data.summary}</p>
-  <p class="card__status label">{data.status}</p>
-  {data.links.length > 0 && (
-    <ul class="card__links">
-      {data.links.map((link) => (
-        <li>
-          <a href={link.href} target="_blank" rel="noopener">{link.label}</a>
-        </li>
-      ))}
-    </ul>
+<article class:list={['card', { 'card--thumb': thumb }]} id={id}>
+  <div class="card__text">
+    <h3 class="card__title display">{data.title}</h3>
+    <p class="card__meta label">{[data.role, data.dates].filter(Boolean).join(' · ')}</p>
+    <p class="card__summary">{data.summary}</p>
+    <p class="card__status label">{data.status}</p>
+    {data.links.length > 0 && (
+      <ul class="card__links">
+        {data.links.map((link) => (
+          <li>
+            <a href={link.href} target="_blank" rel="noopener">{link.label}</a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+  {thumb && (
+    <div class="card__frame">
+      <div class="card__thumb" data-peek={peek} data-peek-video={data.video ? `/projects/${data.video}` : undefined}>
+        <Image
+          src={thumb}
+          alt={data.thumbAlt ?? `${data.title} screenshot`}
+          widths={[320, 480, 640]}
+          sizes="(max-width: 700px) 92vw, 16rem"
+          loading="lazy"
+        />
+      </div>
+      {data.badge && <Medal text={data.badge} detail={data.badgeDetail} />}
+    </div>
   )}
 </article>
 
 <style>
   .card {
     display: grid;
-    align-content: start;
-    gap: 0.5rem;
+    gap: 1rem clamp(1.5rem, 4vw, 3rem);
     padding-block: clamp(1.25rem, 2.5vw, 2rem);
     border-bottom: 1px solid var(--line);
   }
 
+  .card__text {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+  }
+
   .card__title {
-    font-size: clamp(1.15rem, 1rem + 0.8vw, 1.75rem);
+    font-size: clamp(1.3rem, 1.05rem + 1vw, 2.25rem);
     overflow-wrap: anywhere;
   }
 
@@ -45,6 +74,7 @@ const { id, data } = Astro.props.project;
 
   .card__summary {
     font-family: Calibri, Carlito, 'Segoe UI', sans-serif;
+    font-size: 1.125rem;
     max-width: 52ch;
   }
 
@@ -53,5 +83,42 @@ const { id, data } = Astro.props.project;
     flex-wrap: wrap;
     gap: 0.25rem 1.25rem;
     font-weight: 700;
+  }
+
+  /* The frame does not clip, so the medal's hover card can hang over the thumbnail's edge. */
+  .card__frame {
+    --medal-size: 1.75rem;
+    position: relative;
+  }
+
+  .card__thumb {
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--media-radius);
+    background: var(--line);
+    cursor: zoom-in;
+  }
+
+  .card__thumb :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Stacked, the thumbnail would stretch the card's whole width, so it is held to a sensible size. */
+  .card__frame {
+    max-width: 28rem;
+  }
+
+  /* The cards sit two to a row from 800px, so the thumbnail only fits beside the text once each card is wide enough. */
+  @media (min-width: 1100px) {
+    .card--thumb {
+      grid-template-columns: minmax(0, 1fr) clamp(8.5rem, 12vw, 11rem);
+      align-items: center;
+    }
+
+    .card__frame {
+      max-width: none;
+    }
   }
 </style>

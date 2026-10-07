@@ -10,6 +10,9 @@ role: "Co-founder. Front end and UI/UX, contributing across backend and AI; cust
 dates: Nov 2025–present
 status: Live in early access; attorneys testing
 summary: "Keeps a case's record, research, analysis and first draft connected for solo and small-firm litigators."
+blurb: "AI-powered legal research workspace, backed by UNC's 1789 Student Venture Fund"
+badge: "1st Place · Duke AI Hackathon"
+badgeDetail: "Built in 36 hours and placed 1st of 220+ competitors, judged by 34+ professors and industry judges. Nov 2025."
 proof:
   - 1st of 220+ at the Duke AI Hackathon
   - Searches 9M+ court opinions

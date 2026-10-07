@@ -8,7 +8,7 @@ test('the achievements page has awards, certifications, and publications and tal
     await expect(article.getByRole('heading', { level: 2, name: heading, exact: true })).toBeVisible();
   }
   await expect(article.locator('.ach__featured > li')).toHaveCount(6);
-  await expect(article.getByRole('link', { name: /Case Closed/ }).first()).toHaveAttribute('href', '/work/case-closed');
+  await expect(article.getByRole('link', { name: /Case Closed/ }).first()).toHaveAttribute('href', '/projects/case-closed');
   // A bare # in YAML starts a comment; this detail must keep its number.
   await expect(article.getByText('Marine Corps League Detachment #750')).toBeVisible();
   await expect(article.locator('.ach__authors')).toHaveText('Adala, V., Jun, T., Pereira, J., Sandwar, V., & Fernandes, A.');
@@ -32,7 +32,7 @@ test('the paper links to its journal page', async ({ page }) => {
 
 test('links to a project card land on that card', async ({ page }) => {
   await page.goto('/achievements');
-  const hrefs = await page.locator('.ach a[href^="/work#"]').evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+  const hrefs = await page.locator('.ach a[href^="/projects#"]').evaluateAll((links) => links.map((link) => link.getAttribute('href')));
   expect(hrefs.length).toBeGreaterThan(0);
   for (const href of hrefs) {
     await page.goto(href!);
@@ -49,7 +49,7 @@ test('the resume page still works by its URL, but nothing links to it and search
   }
   await expect(page.getByRole('link', { name: 'Download PDF' })).toHaveCount(0);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
-  for (const path of ['/', '/work', '/achievements', '/work/case-closed']) {
+  for (const path of ['/', '/projects', '/achievements', '/projects/case-closed']) {
     await page.goto(path);
     await expect(page.locator('a[href="/resume"]'), path).toHaveCount(0);
   }

@@ -45,8 +45,8 @@ test('the intro never blocks the page beneath it', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.intro')).toHaveAttribute('aria-hidden', 'true');
   await expect(page.locator('html')).toHaveClass(/\bhas-intro\b/);
-  await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Work' }).click();
-  await expect(page).toHaveURL(/\/work\/?$/);
+  await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Projects' }).click();
+  await expect(page).toHaveURL(/\/projects\/?$/);
 });
 
 test('reloading the page plays the intro again', async ({ page }) => {
@@ -80,7 +80,7 @@ test('hiding the page during the intro ends it at once', async ({ page }) => {
 test('moving between pages does not replay the intro', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.intro')).toBeHidden({ timeout: 5000 });
-  await page.goto('/work', { waitUntil: 'domcontentloaded' });
+  await page.goto('/projects', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('html')).not.toHaveClass(/\bhas-intro\b/);
   await expect(page.locator('.intro')).toBeHidden();
 });

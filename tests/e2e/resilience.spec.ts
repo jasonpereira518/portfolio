@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 
-const pages = ['/', '/work', '/work/case-closed', '/achievements', '/404'];
+const pages = ['/', '/projects', '/projects/case-closed', '/achievements', '/404'];
 
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
@@ -10,16 +10,16 @@ test.describe('without JavaScript', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Jason Pereira' })).toBeVisible();
     await expect(page.getByText('I build AI systems that')).toBeVisible();
     for (const title of ['Case Closed', 'Orbit', 'StreetLab', 'GPU Portfolio & Risk Decision Engine']) {
-      await expect(page.locator('#work').getByRole('heading', { name: title })).toBeVisible();
+      await expect(page.locator('#projects').getByRole('heading', { name: title })).toBeVisible();
     }
-    await expect(page.locator('#work [role="tablist"]')).toBeHidden();
+    await expect(page.locator('#projects [role="tablist"]')).toBeHidden();
     await expect(page.locator('.numbers__numeral').first()).toHaveText('220+');
     await expect(page.getByRole('link', { name: 'jasonpereira518@gmail.com' })).toBeVisible();
   });
 
   test('no stacked project title breaks inside a word', async ({ page }) => {
     await page.goto('/');
-    const overflowing = await page.locator('#work .work__title').evaluateAll((titles: HTMLElement[]) =>
+    const overflowing = await page.locator('#projects .projects__title').evaluateAll((titles: HTMLElement[]) =>
       titles
         .filter((title) => {
           title.style.overflowWrap = 'normal'; // without the safety net, a word that does not fit overflows its column
@@ -36,9 +36,9 @@ test('if the page script fails to load, the page goes back to its no-script layo
   await page.goto('/');
   await expect(page.locator('html')).not.toHaveClass(/\bjs\b/);
   for (const title of ['Case Closed', 'Orbit', 'StreetLab', 'GPU Portfolio & Risk Decision Engine']) {
-    await expect(page.locator('#work').getByRole('heading', { name: title })).toBeVisible();
+    await expect(page.locator('#projects').getByRole('heading', { name: title })).toBeVisible();
   }
-  await expect(page.locator('#work [role="tablist"]')).toBeHidden();
+  await expect(page.locator('#projects [role="tablist"]')).toBeHidden();
 });
 
 test.describe('layout', () => {

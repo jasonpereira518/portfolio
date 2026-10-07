@@ -6,16 +6,16 @@ import { getFlagship, liveUrl } from '../../lib/content';
 
 const projects = await getFlagship();
 ---
-<section class="work section theme-paper" id="work" data-island="showcase">
+<section class="projects section theme-paper" id="projects" data-island="showcase">
   <header class="section__head">
-    <h2 class="label">Selected work</h2>
-    <a class="label" href="/work">All work</a>
+    <h2 class="label">Selected projects</h2>
+    <a class="label" href="/projects">All projects</a>
   </header>
 
-  <div class="work__tabs" role="tablist" aria-label="Selected work">
+  <div class="projects__tabs" role="tablist" aria-label="Selected projects">
     {projects.map((project, index) => (
       <button
-        class="work__tab"
+        class="projects__tab"
         type="button"
         role="tab"
         id={`tab-${project.id}`}
@@ -23,31 +23,31 @@ const projects = await getFlagship();
         aria-selected={index === 0 ? 'true' : 'false'}
         tabindex={index === 0 ? 0 : -1}
       >
-        <span class="work__num">{String(index + 1).padStart(2, '0')}</span>{' '}{project.data.short}
+        <span class="projects__num">{String(index + 1).padStart(2, '0')}</span>{' '}{project.data.short}
       </button>
     ))}
   </div>
 
   {projects.map((project) => (
-    <article class="work__panel" role="tabpanel" id={`panel-${project.id}`} aria-labelledby={`tab-${project.id}`}>
-      <div class="work__info">
-        <h3 class="work__title display" data-title-lines="2" style={project.data.color ? `--project:${project.data.color}` : undefined}>{project.data.title}</h3>
-        <p class="work__tagline serif">{project.data.tagline}</p>
-        <p class="work__summary">{project.data.summary}</p>
-        <ul class="work__proof">
+    <article class="projects__panel" role="tabpanel" id={`panel-${project.id}`} aria-labelledby={`tab-${project.id}`}>
+      <div class="projects__info">
+        <h3 class="projects__title display" data-title-lines="2" style={project.data.color ? `--project:${project.data.color}` : undefined}>{project.data.title}</h3>
+        <p class="projects__tagline serif">{project.data.tagline}</p>
+        <p class="projects__summary">{project.data.summary}</p>
+        <ul class="projects__proof">
           {project.data.proof.map((point) => <li>{point}</li>)}
         </ul>
-        <p class="work__status label">{project.data.status}</p>
-        <div class="work__actions">
-          <Button href={`/work/${project.id}`}>Read the case study</Button>
+        <p class="projects__status label">{project.data.status}</p>
+        <div class="projects__actions">
+          <Button href={`/projects/${project.id}`}>Read the case study</Button>
           {liveUrl(project) && (
             <Button href={liveUrl(project)!} variant="solid" external>See it live</Button>
           )}
         </div>
       </div>
-      <div class:list={['work__stage', { 'work__stage--whole': project.data.coverFit === 'contain' }]}>
+      <div class:list={['projects__stage', { 'projects__stage--whole': project.data.coverFit === 'contain' }]}>
         <Image
-          src={asset(`work/${project.data.cover}`)}
+          src={asset(`projects/${project.data.cover}`)}
           alt={project.data.coverAlt}
           widths={[640, 960, 1280, 1600]}
           sizes="(max-width: 800px) 92vw, 56vw"
@@ -59,7 +59,7 @@ const projects = await getFlagship();
 </section>
 
 <style>
-  .work__tabs {
+  .projects__tabs {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem clamp(1rem, 2.4vw, 2.5rem);
@@ -68,12 +68,12 @@ const projects = await getFlagship();
 
   /* The tab buttons do nothing without scripts, so they are hidden until main.ts has run.
      They are also hidden if the showcase script failed to start (main.ts sets data-island-failed). */
-  :global(html:not(.js)) .work__tabs,
-  .work[data-island-failed] .work__tabs {
+  :global(html:not(.js)) .projects__tabs,
+  .projects[data-island-failed] .projects__tabs {
     display: none;
   }
 
-  .work__tab {
+  .projects__tab {
     padding: 0.35rem 0;
     border: 0;
     border-bottom: 2px solid transparent;
@@ -86,48 +86,48 @@ const projects = await getFlagship();
     cursor: pointer;
   }
 
-  .work__tab[aria-selected='true'] {
+  .projects__tab[aria-selected='true'] {
     border-bottom-color: var(--accent);
     color: var(--fg);
   }
 
-  .work__num {
+  .projects__num {
     font-size: 0.6875rem;
     font-weight: 600;
     font-stretch: 100%;
   }
 
-  .work__panel {
+  .projects__panel {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     align-items: end;
     gap: clamp(1.5rem, 4vw, 4rem);
   }
 
-  .work__panel[hidden] {
+  .projects__panel[hidden] {
     display: none;
   }
 
   /* With scripts but before the tabs are wired up, show only the first project so nothing jumps.
      A failed section is excluded: it falls back to showing every project. */
-  :global(.js) .work:not([data-enhanced]):not([data-island-failed]) .work__panel:not(:first-of-type) {
+  :global(.js) .projects:not([data-enhanced]):not([data-island-failed]) .projects__panel:not(:first-of-type) {
     display: none;
   }
 
   /* Without scripts, or if the showcase script failed, every project is shown, stacked. */
-  :global(html:not(.js)) .work__panel + .work__panel,
-  .work[data-island-failed] .work__panel + .work__panel {
+  :global(html:not(.js)) .projects__panel + .projects__panel,
+  .projects[data-island-failed] .projects__panel + .projects__panel {
     margin-top: var(--section-gap);
   }
 
-  .work__info {
+  .projects__info {
     display: grid;
     justify-items: start;
     gap: 1rem;
     container-type: inline-size; /* the title below is sized from this column's width */
   }
 
-  .work__title {
+  .projects__title {
     font-size: clamp(2.2rem, 1.2rem + 4.6vw, 5.25rem);
     /* 12% of the column: the widest single word in a title, "STREETLAB", is 7.9em, so it fills about 94%
        of the column and stays on one line. Browsers without container units keep the size above, and
@@ -137,19 +137,19 @@ const projects = await getFlagship();
     color: var(--project, inherit); /* the project's own colour, from its frontmatter */
   }
 
-  .work__tagline {
+  .projects__tagline {
     color: var(--accent);
     font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2.2rem);
     line-height: 1.1;
   }
 
-  .work__summary {
+  .projects__summary {
     font-family: Calibri, Carlito, 'Segoe UI', sans-serif;
     max-width: 42ch;
     font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem);
   }
 
-  .work__proof {
+  .projects__proof {
     display: grid;
     gap: 0.4rem;
     width: 100%;
@@ -158,41 +158,41 @@ const projects = await getFlagship();
     font-weight: 700;
   }
 
-  .work__status {
+  .projects__status {
     color: var(--muted);
   }
 
   /* The case study, and (for a project that is online) a button to see it live. */
-  .work__actions {
+  .projects__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
   }
 
-  .work__stage {
+  .projects__stage {
     overflow: hidden;
     aspect-ratio: 16 / 10;
     border-radius: calc(var(--radius) * 0.6);
     background: var(--line);
   }
 
-  .work__stage :global(img) {
+  .projects__stage :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
   /* A chart is shown whole on its own white ground; a screenshot is cropped to fill the frame. */
-  .work__stage--whole {
+  .projects__stage--whole {
     background: #fff;
   }
 
-  .work__stage--whole :global(img) {
+  .projects__stage--whole :global(img) {
     object-fit: contain;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .work__panel:not([hidden]) .work__stage {
+    .projects__panel:not([hidden]) .projects__stage {
       animation: stage-in 0.6s var(--ease);
     }
   }
@@ -205,11 +205,11 @@ const projects = await getFlagship();
   }
 
   @media (max-width: 800px) {
-    .work__panel {
+    .projects__panel {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .work__stage {
+    .projects__stage {
       order: -1;
     }
   }

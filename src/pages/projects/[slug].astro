@@ -19,12 +19,12 @@ type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 const { project, next } = Astro.props;
 const { data } = project;
 const { Content } = await render(project);
-const cover = asset(`work/${data.cover}`);
-const gallery = assetsIn(`work/${project.id}`);
+const cover = asset(`projects/${data.cover}`);
+const gallery = assetsIn(`projects/${project.id}`);
 ---
 <Base title={data.title} description={data.summary}>
   <article class="case section theme-paper">
-    <p class="case__crumb label"><a href="/work">Work</a> / {data.tagline}</p>
+    <p class="case__crumb label"><a href="/projects">Projects</a> / {data.tagline}</p>
     <h1 class="case__title display" data-title-lines="2" style={data.color ? `--project:${data.color}` : undefined}>{data.title}</h1>
     <p class="case__summary">{data.summary}</p>
 
@@ -90,7 +90,7 @@ const gallery = assetsIn(`work/${project.id}`);
       </ul>
     )}
 
-    <a class="case__next" href={`/work/${next.id}`}>
+    <a class="case__next" href={`/projects/${next.id}`}>
       <span class="label">Next</span>
       <span class="case__next-title display" data-title-lines="2" style={next.data.color ? `--project:${next.data.color}` : undefined}>{next.data.title}</span>
     </a>

@@ -10,6 +10,7 @@ role: Solo build
 dates: Jul/Aug 2026–present
 status: Built; CPU and GPU paths committed
 summary: "A portfolio optimizer built twice, on CPU and GPU, with a parity suite proving both give the same answer."
+blurb: "Portfolio optimizer built on CPU and GPU, with a parity suite proving both agree"
 proof:
   - QP solve 2.48–2.66× faster at 3,000 assets
   - Parity to 1e-6

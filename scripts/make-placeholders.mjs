@@ -39,7 +39,7 @@ const photos = [
 const jobs = [
   { file: 'portrait.png', svg: portrait(1200, 1500), format: 'png' },
   ...covers.map((slug) => ({
-    file: `work/${slug}.png`,
+    file: `projects/${slug}.png`,
     svg: card(1600, 1000, `PLACEHOLDER: ${slug.toUpperCase()}`, INK, PAPER),
     format: 'png',
   })),
