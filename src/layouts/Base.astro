@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import Analytics from '@vercel/analytics/astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import Intro from '../components/Intro.astro';
 import Nav from '../components/Nav.astro';
@@ -26,6 +27,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
+    <Analytics />
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical.href} />
