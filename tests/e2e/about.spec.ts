@@ -111,9 +111,60 @@ test('about shows the bio, four numbered facts, interests and six collage images
   await expect(section.locator('.about__photo img')).toHaveCount(6);
 });
 
+for (const width of [375, 1024, 1440, 1920]) {
+  test(`at ${width}px the collage is staggered, uncropped, led by Quick and TEDx, and fits beside the copy`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const { photos, collage, copy, overflow } = await page.evaluate(() => {
+      // Layout boxes, not on-screen ones: the parallax moves each photo by a transform.
+      const columns = [...document.querySelectorAll<HTMLElement>('#about .about__column')];
+      return {
+        photos: [...document.querySelectorAll<HTMLElement>('#about .about__photo')].map((figure) => {
+          const img = figure.querySelector('img')!;
+          return {
+            alt: img.alt,
+            left: figure.offsetLeft,
+            width: img.offsetWidth,
+            height: img.offsetHeight,
+            intended: Number(getComputedStyle(figure).getPropertyValue('--ratio')),
+            natural: Number(img.getAttribute('width')) / Number(img.getAttribute('height')),
+            shift: getComputedStyle(figure).getPropertyValue('--shift'),
+          };
+        }),
+        collage: document.querySelector<HTMLElement>('#about .about__collage')!.offsetHeight,
+        copy: document.querySelector<HTMLElement>('#about .about__copy')!.offsetHeight,
+        overflow: columns.some((column) => {
+          const last = column.lastElementChild as HTMLElement;
+          return last.offsetTop - column.offsetTop + last.offsetHeight > column.clientHeight + 1;
+        }),
+      };
+    });
+    // Every photo keeps its own shape, except the one deliberately cropped, and that only slightly.
+    for (const photo of photos) expect(Math.abs(photo.width / photo.height / photo.intended - 1), photo.alt).toBeLessThan(0.02);
+    for (const photo of photos) expect(Math.abs(photo.intended / photo.natural - 1), photo.alt).toBeLessThan(0.2);
+    // Quick and TEDx are the largest; the Marine Corps award comes next.
+    const area = (pattern: RegExp) => photos.filter((photo) => pattern.test(photo.alt)).map((p) => p.width * p.height)[0];
+    const [quick, tedx, marines] = [area(/Amazon Quick/), area(/TEDxUNC/), area(/Marine Corps/)];
+    for (const photo of photos.filter((p) => !/Amazon Quick|TEDxUNC/.test(p.alt))) {
+      expect(Math.min(quick, tedx), photo.alt).toBeGreaterThan(photo.width * photo.height);
+    }
+    for (const photo of photos.filter((p) => !/Amazon Quick|TEDxUNC|Marine Corps/.test(p.alt))) {
+      expect(marines, photo.alt).toBeGreaterThanOrEqual(photo.width * photo.height * 0.95);
+    }
+    // Staggered: photos do not all start at the same left edge, and each drifts at its own speed.
+    expect(new Set(photos.map((photo) => photo.left)).size).toBeGreaterThan(2);
+    expect(new Set(photos.map((photo) => photo.shift)).size).toBe(photos.length);
+    // On desktop the collage is exactly as tall as the copy, and no photo runs past it.
+    if (width >= 960) {
+      expect(Math.abs(collage - copy)).toBeLessThanOrEqual(1);
+      expect(overflow).toBe(false);
+    }
+  });
+}
+
 test('a collage photo is described by its own alt text', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('#about .about__photo img').first()).toHaveAttribute('alt', /^Four people/);
+  await expect(page.locator('#about .about__photo img').first()).toHaveAttribute('alt', /^Jason with three colleagues/);
 });
 
 test('a school with a logo shows it at the far right of its row', async ({ page }) => {
