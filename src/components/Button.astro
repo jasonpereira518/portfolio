@@ -3,12 +3,19 @@ interface Props {
   href: string;
   variant?: 'outline' | 'solid';
   external?: boolean;
+  /** A brand colour to fill the button with on hover, in place of the theme colour. */
+  brand?: string;
 }
 
-const { href, variant = 'outline', external = false } = Astro.props;
+const { href, variant = 'outline', external = false, brand } = Astro.props;
 const externalAttrs = external ? { target: '_blank', rel: 'noopener' } : {};
 ---
-<a class:list={['button', `button--${variant}`]} href={href} {...externalAttrs}>
+<a
+  class:list={['button', `button--${variant}`, { 'button--brand': brand }]}
+  href={href}
+  style={brand ? `--brand:${brand}` : undefined}
+  {...externalAttrs}
+>
   <span><slot /></span>
   <svg class="button__arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
     <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
@@ -45,6 +52,12 @@ const externalAttrs = external ? { target: '_blank', rel: 'noopener' } : {};
     border-color: var(--fg);
     background: var(--fg);
     color: var(--bg);
+  }
+
+  .button--brand:hover {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: #fff;
   }
 
   .button--solid:hover {

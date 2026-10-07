@@ -13,9 +13,11 @@ const year = new Date().getFullYear();
     <a class="footer__email display" href={`mailto:${site.email}`} data-fit><span>{site.email}</span></a>
     <div class="footer__actions">
       <Button href={`mailto:${site.email}`} variant="solid">Email</Button>
-      <Button href={site.links.linkedin} external>LinkedIn</Button>
-      <Button href={site.links.github} external>GitHub</Button>
-      <Button href={site.links.scholar} external>Google Scholar</Button>
+      <!-- Each profile fills with its brand colour on hover. GitHub's is near-black, lost on this panel, so it uses
+           GitHub's Octocat purple. -->
+      <Button href={site.links.linkedin} external brand="#0A66C2">LinkedIn</Button>
+      <Button href={site.links.github} external brand="#6E5494">GitHub</Button>
+      <Button href={site.links.scholar} external brand="#4285F4">Google Scholar</Button>
       <Button href="/achievements">Achievements</Button>
     </div>
     <div class="footer__meta label">
@@ -24,6 +26,7 @@ const year = new Date().getFullYear();
         <a href="/">Home</a>
         <a href="/work">Work</a>
         <a href="/achievements">Achievements</a>
+        <a href="/gallery">Gallery</a>
       </nav>
     </div>
   </div>
