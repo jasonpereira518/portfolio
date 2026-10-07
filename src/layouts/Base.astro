@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import CommandPalette from '../components/CommandPalette.astro';
 import Intro from '../components/Intro.astro';
 import Nav from '../components/Nav.astro';
 import Contact from '../components/sections/Contact.astro';
@@ -78,6 +79,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <slot />
     </main>
     <Contact />
+    <CommandPalette />
     <script>
       import '../scripts/main.ts';
     </script>

@@ -1,0 +1,133 @@
+---
+import { buildCommands } from '../lib/palette';
+import { getProjects, getSite } from '../lib/content';
+
+const commands = buildCommands(await getSite(), await getProjects());
+// `<` is escaped so no string in the data can close the script element.
+const data = JSON.stringify(commands).replace(/</g, '\\u003c');
+---
+{/* The ⌘K palette. src/scripts/palette.ts fills the list and opens it, loaded on the first ⌘K / Ctrl+K. A closed
+    <dialog> is not rendered and cannot take focus, so the page's tab order is unchanged. */}
+<script is:inline type="application/json" id="palette-data" set:html={data} />
+<dialog id="palette" class="palette theme-ink" aria-label="Command palette" data-lenis-prevent>
+  <input
+    class="palette__input"
+    type="text"
+    role="combobox"
+    aria-label="Search commands"
+    aria-expanded="true"
+    aria-controls="palette-list"
+    aria-autocomplete="list"
+    autocomplete="off"
+    spellcheck="false"
+    placeholder="Jump to a project, copy email, open LinkedIn…"
+  />
+  <ul class="palette__list" id="palette-list" role="listbox" aria-label="Commands"></ul>
+  <p class="palette__foot label" role="status" data-default="↑↓ move · ↵ select · esc close">↑↓ move · ↵ select · esc close</p>
+</dialog>
+
+<style>
+  .palette {
+    width: min(36rem, calc(100vw - 2 * var(--gutter)));
+    margin: 14vh auto auto;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: min(var(--radius), 1.25rem);
+    overflow: hidden;
+    font-family: var(--font-body);
+  }
+
+  .palette::backdrop {
+    background: rgb(18 18 16 / 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .palette[open] {
+      animation: palette-in 0.16s var(--ease);
+    }
+  }
+
+  @keyframes palette-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem) scale(0.98);
+    }
+  }
+
+  .palette__input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 1.1rem 1.25rem;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 1.0625rem;
+  }
+
+  .palette__input::placeholder {
+    color: var(--muted);
+  }
+
+  /* The panel's border already frames the input, so a second ring would double up. */
+  .palette__input:focus-visible {
+    outline: none;
+  }
+
+  .palette__list {
+    max-height: min(24rem, 55vh);
+    margin: 0;
+    padding: 0.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    list-style: none;
+  }
+
+  .palette__foot {
+    margin: 0;
+    padding: 0.7rem 1.25rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+  }
+
+  /* The list is filled by script, so its items carry no scope attribute. */
+  .palette :global(.palette__group) {
+    padding: 0.6rem 0.75rem 0.3rem;
+    color: var(--muted);
+  }
+
+  .palette :global(.palette__option) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+  }
+
+  .palette :global(.palette__option[aria-selected='true']) {
+    background: var(--accent);
+    color: var(--ink);
+  }
+
+  .palette :global(.palette__hint) {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 0.875rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .palette :global(.palette__option[aria-selected='true'] .palette__hint) {
+    color: inherit;
+  }
+
+  .palette :global(.palette__empty) {
+    padding: 1rem 0.75rem;
+    color: var(--muted);
+  }
+</style>
