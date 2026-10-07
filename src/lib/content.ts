@@ -35,6 +35,13 @@ export async function getAchievements() {
   return entry.data;
 }
 
+/** The /gallery photos, best first. */
+export async function getGallery() {
+  const entry = await getEntry('gallery', 'main');
+  if (!entry) throw new Error('src/content/gallery.yaml must contain a "main" entry');
+  return entry.data.photos;
+}
+
 export async function getResume() {
   const entry = await getEntry('resume', 'main');
   if (!entry) throw new Error('src/content/resume.yaml must contain a "main" entry');

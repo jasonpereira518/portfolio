@@ -2,6 +2,7 @@
 main:
   featured:
     - title: Duke AI Hackathon
+      photo: duke-hackathon
       result: 1st of 220+
       meta: Nov 2025 · Productivity & Enterprise Tools track
       context: Built in 36 hours and judged by a panel of 34+.
@@ -14,6 +15,7 @@ main:
       link: Brain Bubble Pop
       href: /work#brain-bubble-pop
     - title: AWS Global AI Expo Challenge
+      photo: aws-quick-sprint
       result: Final showcase
       meta: "2026"
       context: Quick Sprint Demo Packs, an enablement initiative for AWS Solutions Architects.
@@ -26,6 +28,7 @@ main:
       meta: The Dean's List · Jan 2026
       context: Nomination-based. Twenty of Charlotte's most influential leaders aged 14–19, giving back to the city.
     - title: Eagle Scout
+      photo: eagle-celebration
       result: Highest rank
       meta: Scouting America · Oct 2024
       context: Gold and Bronze Eagle Palms, Order of the Arrow (elected by peers) and 32 merit badges, after 11 years in Scouting.
@@ -41,12 +44,15 @@ main:
     - title: Wells Fargo Scholarship
       detail: Oct 2025
     - title: 4th place, FBLA National Leadership Conference
+      photo: fbla-nlc
       detail: Website Design · Anaheim, CA · Jul 2025
     - title: 2× FBLA North Carolina state champion
+      photo: fbla-nc-website
       detail: Website Design (Mar 2025) · Social Media Strategies (Mar 2024)
     - title: 2nd place, TSA North Carolina
       detail: Structural Design & Engineering · Mar 2024
     - title: Good Citizenship Award
+      photo: good-citizenship
       detail: "Marine Corps League Detachment #750"
     - title: Honors Carolina · Dean's List · Buckley Public Service Scholars
       detail: UNC-Chapel Hill

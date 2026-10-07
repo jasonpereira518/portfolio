@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
 
-test('nav shows the name, the location with a live clock, and four links', async ({ page }) => {
+test('nav shows the name, the location with a live clock, and five links', async ({ page }) => {
   await page.goto('/');
   const nav = page.locator('header.nav');
   await expect(nav.getByRole('link', { name: 'Jason Pereira' })).toHaveAttribute('href', '/');
@@ -8,7 +8,7 @@ test('nav shows the name, the location with a live clock, and four links', async
   await expect(nav.locator('[data-clock]')).toHaveText(/^\d{2}:\d{2} ET$/);
   const links = nav.getByRole('navigation', { name: 'Primary' }).getByRole('link');
   // innerText leaves out the hidden short label, and is uppercase like the nav, so match without case.
-  await expect(links).toHaveText([/^work$/i, /^about$/i, /^achievements$/i, /^contact$/i], { useInnerText: true });
+  await expect(links).toHaveText([/^work$/i, /^about$/i, /^achievements$/i, /^gallery$/i, /^contact$/i], { useInnerText: true });
 });
 
 test('on a phone the nav shortens Achievements to Awards so every link fits on screen', async ({ page }) => {

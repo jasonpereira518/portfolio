@@ -11,6 +11,7 @@ const islands: Partial<Record<string, () => Promise<Island>>> = {
   numbers: () => import('./numbers'),
   contours: () => import('./contours-live'),
   statement: () => import('./statement'),
+  gallery: () => import('./gallery'),
 };
 
 // Base.astro adds the `js` class in <head>, before first paint. The marker tells its fallback that this

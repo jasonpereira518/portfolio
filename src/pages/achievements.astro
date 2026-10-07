@@ -1,8 +1,17 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import { getAchievements, getSite } from '../lib/content';
+import { asset } from '../lib/assets';
+import { getAchievements, getGallery, getSite } from '../lib/content';
 
-const [site, achievements] = await Promise.all([getSite(), getAchievements()]);
+const [site, achievements, gallery] = await Promise.all([getSite(), getAchievements(), getGallery()]);
+// The gallery photo a row links to, by its id in gallery.yaml.
+const photoFor = (id?: string) => {
+  if (!id) return undefined;
+  const photo = gallery.find((entry) => entry.id === id);
+  if (!photo) throw new Error(`achievements.yaml names photo "${id}", which is not in gallery.yaml`);
+  return photo;
+};
 const { featured, more, certifications, publication, talks } = achievements;
 const certs = [
   { list: certifications.aws, label: undefined },
@@ -39,6 +48,11 @@ const lastAuthor = publication.authors.length - 1;
               {award.context}
               {award.href && <a class="ach__link" href={award.href}>{award.link} →</a>}
             </p>
+            {photoFor(award.photo) && (
+              <a class="ach__thumb" draggable="false" href={`/gallery#${award.photo}`} aria-label={`Photo: ${photoFor(award.photo)!.caption}`}>
+                <Image src={asset(photoFor(award.photo)!.file)} alt="" width={192} height={192} fit="cover" draggable="false" />
+              </a>
+            )}
           </li>
         ))}
       </ol>
@@ -49,6 +63,11 @@ const lastAuthor = publication.authors.length - 1;
           <li class="ach__item" data-reveal>
             {item.href ? <a class="ach__item-title" href={item.href}>{item.title}</a> : <span class="ach__item-title">{item.title}</span>}
             {item.detail && <span class="ach__item-detail">{item.detail}</span>}
+            {photoFor(item.photo) && (
+              <a class="ach__thumb ach__thumb--small" draggable="false" href={`/gallery#${item.photo}`} aria-label={`Photo: ${photoFor(item.photo)!.caption}`}>
+                <Image src={asset(photoFor(item.photo)!.file)} alt="" width={128} height={128} fit="cover" draggable="false" />
+              </a>
+            )}
           </li>
         ))}
       </ul>
@@ -193,11 +212,16 @@ const lastAuthor = publication.authors.length - 1;
 
   @media (min-width: 900px) {
     .ach__row {
-      grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) minmax(0, 5fr);
+      grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) minmax(0, 5fr) 6rem;
       grid-template-rows: auto 1fr;
       grid-template-areas:
-        'name result context'
-        'name meta context';
+        'name result context thumb'
+        'name meta context thumb';
+    }
+
+    .ach__thumb {
+      grid-area: thumb;
+      justify-self: end;
     }
 
     .ach__name {
@@ -215,6 +239,39 @@ const lastAuthor = publication.authors.length - 1;
 
     .ach__context {
       grid-area: context;
+    }
+  }
+
+  /* A row's photo: a small square that opens it on the gallery page. */
+  .ach__thumb {
+    display: block;
+    width: 6rem;
+    aspect-ratio: 1;
+    margin-top: 0.5rem;
+    overflow: hidden;
+    border-radius: 6px;
+  }
+
+  .ach__thumb--small {
+    width: 3.25rem;
+    margin-top: 0.25rem;
+  }
+
+  .ach__thumb :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s var(--ease);
+  }
+
+  .ach__thumb:hover :global(img),
+  .ach__thumb:focus-visible :global(img) {
+    transform: scale(1.08);
+  }
+
+  @media (min-width: 900px) {
+    .ach__thumb {
+      margin-top: 0;
     }
   }
 
@@ -252,8 +309,15 @@ const lastAuthor = publication.authors.length - 1;
 
   @media (min-width: 700px) {
     .ach__item {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      align-items: baseline;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr) 4rem;
+      align-items: center;
+    }
+
+    /* Beats the featured rows' grid-area: these rows have no 'thumb' area, so it would add a new row. */
+    .ach__thumb.ach__thumb--small {
+      grid-area: 1 / 3;
+      justify-self: end;
+      margin-top: 0;
     }
 
     .ach__talk {

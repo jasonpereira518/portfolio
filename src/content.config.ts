@@ -121,10 +121,19 @@ const achievements = defineCollection({
           context: z.string(),
           link: z.string().optional(),
           href: z.string().optional(),
+          // The id of a photo in gallery.yaml. The row then shows it as a thumbnail linking to /gallery#<id>.
+          photo: z.string().optional(),
         }),
       )
       .length(6),
-    more: z.array(z.object({ title: z.string(), detail: z.string().optional(), href: z.string().optional() })),
+    more: z.array(
+      z.object({
+        title: z.string(),
+        detail: z.string().optional(),
+        href: z.string().optional(),
+        photo: z.string().optional(),
+      }),
+    ),
     certifications: z.object({ note: z.string(), aws: z.array(certification), other: z.array(certification) }),
     publication: z.object({
       title: z.string(),
@@ -134,6 +143,26 @@ const achievements = defineCollection({
       url: z.url(),
     }),
     talks: z.array(z.object({ title: z.string(), event: z.string(), date: z.string(), note: z.string() })),
+  }),
+});
+
+// The /gallery wall. Photo order is rank; `file` is a path under src/assets/, and `href` the page the caption links to.
+const gallery = defineCollection({
+  loader: file('src/content/gallery.yaml'),
+  schema: z.object({
+    photos: z
+      .array(
+        z.object({
+          id: z.string().regex(/^[a-z0-9-]+$/),
+          // A feature photo fills the wall's full height and zooms in as it reaches the middle of the screen.
+          feature: z.boolean().default(false),
+          file: z.string(),
+          caption: z.string(),
+          alt: z.string(),
+          href: z.string().optional(),
+        }),
+      )
+      .min(1),
   }),
 });
 
@@ -148,4 +177,4 @@ const resume = defineCollection({
   }),
 });
 
-export const collections = { projects, site, numbers, experience, education, about, achievements, resume };
+export const collections = { projects, site, numbers, experience, education, about, achievements, gallery, resume };
