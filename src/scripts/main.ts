@@ -119,6 +119,19 @@ const nearView = new IntersectionObserver(
 );
 document.querySelectorAll<HTMLElement>('[data-island]').forEach((el) => nearView.observe(el));
 
+// ⌘K / Ctrl+K opens the command palette. Its script is fetched on the first press, so it costs nothing at load.
+let palette: Promise<typeof import('./palette')> | undefined;
+addEventListener('keydown', (event) => {
+  if (event.key.toLowerCase() !== 'k' || !(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) return;
+  event.preventDefault();
+  if (event.repeat) return;
+  palette ??= import('./palette');
+  palette.then((module) => module.toggle()).catch((error: unknown) => {
+    palette = undefined;
+    console.error('Command palette failed to start', error);
+  });
+});
+
 // Smooth scrolling for mouse and trackpad users, loaded once the browser is idle.
 if (!matchMedia('(prefers-reduced-motion: reduce)').matches && matchMedia('(pointer: fine)').matches) {
   const start = () => {
