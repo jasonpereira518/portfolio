@@ -136,8 +136,11 @@ const publicationLabel = resume.publication.url.replace(/^https?:\/\//, '');
     margin-top: 0.5rem;
   }
 
+  /* minmax(0, 1fr), not the implicit auto column: a long unbroken line (the publication URL) must wrap rather than
+     stretch the column past a 320px screen. */
   .resume__block {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0 2rem;
     margin-top: clamp(2.5rem, 6vw, 5rem);
     border-bottom: 1px solid var(--line);

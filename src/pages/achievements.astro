@@ -206,6 +206,14 @@ const lastAuthor = publication.authors.length - 1;
     font-weight: 700;
   }
 
+  /* On a narrow screen the link wraps onto its own line: start it flush with the text above, not indented. */
+  @media (max-width: 899px) {
+    .ach__link {
+      display: block;
+      margin: 0.4rem 0 0;
+    }
+  }
+
   .ach__authors strong {
     color: var(--fg);
   }

@@ -112,4 +112,21 @@ const links = [
       display: none;
     }
   }
+
+  /* The smallest phones (320px): the name and three links need about 316px, so tighten both to fit in 288. */
+  @media (max-width: 360px) {
+    .nav {
+      gap: 0.5rem;
+    }
+
+    .nav__name {
+      font-size: 0.75rem;
+      letter-spacing: 0;
+    }
+
+    .nav__links {
+      gap: 0.6rem;
+      letter-spacing: 0.02em;
+    }
+  }
 </style>
