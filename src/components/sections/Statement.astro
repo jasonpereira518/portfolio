@@ -59,7 +59,7 @@ const marqueeText = marquee.map((word) => word.text + word.tail).join(' ');
   @media (prefers-reduced-motion: no-preference) {
     :global(.js) .statement__word {
       opacity: 0.14;
-      transition: opacity 0.25s var(--ease);
+      transition: opacity 0.5s var(--ease);
     }
 
     :global(.js) .statement[data-island-failed] .statement__word,

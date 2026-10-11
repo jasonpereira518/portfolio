@@ -14,14 +14,14 @@ main:
     - Hip-hop and playlist curation
     - Hackathons
   collage:
-    - file: 01.jpg
-      alt: "Four people standing side by side at an indoor event, two of them holding laptops."
-    - file: 02.jpg
-      alt: "Jason speaking on stage at TEDxUNC, with the TEDxUNC logo on the screen behind him."
     - file: 03.jpg
       alt: "Jason with three colleagues in front of an Amazon Quick demo-pack presentation on screen at AWS."
+    - file: 02.jpg
+      alt: "Jason speaking on stage at TEDxUNC, with the TEDxUNC logo on the screen behind him."
     - file: 04.jpg
       alt: "Jason in his Eagle Scout uniform receiving a Marine Corps League Good Citizenship Award."
+    - file: 01.jpg
+      alt: "Four people standing side by side at an indoor event, two of them holding laptops."
     - file: 05.jpg
       alt: "Jason and four others wearing NCCTM conference lanyards in a convention centre hallway."
     - file: 06.jpg

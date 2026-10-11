@@ -7,6 +7,7 @@ const links = [
   { href: '/#about', label: 'About', optional: true },
   // `short` replaces the label on phones, where the full one would push Contact off the screen.
   { href: '/achievements', label: 'Achievements', short: 'Awards', optional: false },
+  { href: '/gallery', label: 'Gallery', optional: true },
   { href: '#contact', label: 'Contact', optional: false },
 ];
 ---
@@ -109,6 +110,23 @@ const links = [
   @media (max-width: 400px) {
     .nav__links a[data-optional] {
       display: none;
+    }
+  }
+
+  /* The smallest phones (320px): the name and three links need about 316px, so tighten both to fit in 288. */
+  @media (max-width: 360px) {
+    .nav {
+      gap: 0.5rem;
+    }
+
+    .nav__name {
+      font-size: 0.75rem;
+      letter-spacing: 0;
+    }
+
+    .nav__links {
+      gap: 0.6rem;
+      letter-spacing: 0.02em;
     }
   }
 </style>

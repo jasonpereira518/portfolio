@@ -4,6 +4,25 @@ import { asset } from '../../lib/assets';
 import { getAbout } from '../../lib/content';
 
 const about = await getAbout();
+const photos = about.collage.map((photo) => ({ ...photo, image: asset(`collage/${photo.file}`) }));
+
+// The collage is two staggered columns. Each photo keeps its own shape (except where `crop` trims it to a new aspect
+// ratio, keeping the `focus` point in frame); what varies is which column it sits in, which
+// edge it hugs, how big it is (on desktop, a share of the copy's height, so the collage fits beside the text; at most
+// `width`% of its column, which is all it takes on a phone), and how fast it drifts as the page scrolls (its parallax shift, in px).
+// By position in about.yaml: Quick and TEDx lead and are largest, then the Marine Corps award.
+const place = [
+  { column: 0, height: 32, width: 100, edge: 'start', shift: 6 }, // Amazon Quick
+  { column: 1, height: 43, width: 100, edge: 'start', shift: 10 }, // TEDxUNC
+  { column: 0, height: 28, width: 85, edge: 'end', shift: 14 }, // Marine Corps League
+  // Four at an event: cropped from 9:16 to 2:3, mostly from the empty ceiling, so it can be wider.
+  { column: 0, height: 34, width: 65, edge: 'start', shift: 20, crop: 2 / 3, focus: '50% 85%' },
+  { column: 1, height: 20, width: 95, edge: 'end', shift: 17 },
+  { column: 1, height: 23.5, width: 95, edge: 'start', shift: 24 }, // FBLA
+];
+const columns = [0, 1].map((column) =>
+  photos.map((photo, index) => ({ ...photo, ...place[index], ratio: place[index].crop ?? photo.image.width / photo.image.height })).filter((photo) => photo.column === column),
+);
 ---
 <section class="about section theme-ink" id="about">
   <header class="section__head">
@@ -25,18 +44,25 @@ const about = await getAbout();
       <p class="about__interests">{about.interests.join(' · ')}</p>
     </div>
     <div class="about__collage">
-      {about.collage.map((photo, index) => (
-        <figure class:list={['about__photo', `about__photo--${index + 1}`]}>
-          <Picture
-            src={asset(`collage/${photo.file}`)}
-            formats={['avif', 'webp']}
-            alt={photo.alt ?? ''}
-            widths={[320, 480, 640, 960]}
-            sizes="(max-width: 960px) 46vw, 26vw"
-            loading="lazy"
-          />
-          {photo.caption && <figcaption class="label">{photo.caption}</figcaption>}
-        </figure>
+      {columns.map((column) => (
+        <div class="about__column">
+          {column.map((photo) => (
+            <figure
+              class:list={['about__photo', `about__photo--${photo.edge}`]}
+              style={`--width:${photo.width}%;--height:${photo.height};--ratio:${photo.ratio};--shift:${photo.shift}px${photo.focus ? `;--focus:${photo.focus}` : ''}`}
+            >
+              <Picture
+                src={photo.image}
+                formats={['avif', 'webp']}
+                alt={photo.alt ?? ''}
+                widths={[320, 480, 640, 960]}
+                sizes="(max-width: 960px) 56vw, 28vw"
+                loading="lazy"
+              />
+              {photo.caption && <figcaption class="label">{photo.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
       ))}
     </div>
   </div>
@@ -98,21 +124,58 @@ const about = await getAbout();
     margin-top: 0.5rem;
   }
 
-  /* A scattered collage: six photos on a six-column grid, each nudged off the row. */
+  /* Two staggered columns: the right one starts lower, and photos alternate edges at different widths. On desktop
+     the collage stretches to the copy's height and each column spreads its photos down that height. */
   .about__collage {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    align-items: start;
-    gap: clamp(0.75rem, 2vw, 1.5rem);
+    grid-template-columns: minmax(0, 14fr) minmax(0, 11fr);
+    gap: clamp(0.625rem, 1.2vw, 1rem);
+  }
+
+  @media (min-width: 960px) {
+    /* A size container adds no height of its own, so it takes the copy's height, and photos can size against it. */
+    .about__collage {
+      container-type: size;
+      align-self: stretch;
+    }
+  }
+
+  .about__column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Room between photos for each one to drift at its own speed without running into the next: neighbours in a
+       column differ in shift by 8px at most, under the smallest gap. */
+    gap: clamp(0.625rem, 0.85vw, 0.75rem);
+  }
+
+  .about__column + .about__column {
+    padding-top: clamp(2rem, 8%, 5rem);
   }
 
   .about__photo {
-    --shift: 0px;
+    width: var(--width);
+  }
+
+  @media (min-width: 960px) {
+    /* Its share of the collage's height, turned into a width by its aspect ratio, up to its share of the column. */
+    .about__photo {
+      width: min(var(--width), var(--height) * 1cqh * var(--ratio));
+    }
+  }
+
+  .about__photo--end {
+    align-self: flex-end;
   }
 
   .about__photo :global(img) {
+    display: block;
     width: 100%;
     height: auto;
+    /* The photo's own ratio, or its crop. */
+    aspect-ratio: var(--ratio);
+    object-fit: cover;
+    object-position: var(--focus, 50% 50%);
     border-radius: calc(var(--radius) / 2);
   }
 
@@ -121,51 +184,26 @@ const about = await getAbout();
     color: var(--muted);
   }
 
-  .about__photo--1 {
-    grid-column: 1 / span 3;
-  }
-
-  .about__photo--2 {
-    grid-column: 4 / span 3;
-    margin-top: 30%;
-    --shift: -40px;
-  }
-
-  .about__photo--3 {
-    grid-column: 2 / span 2;
-    --shift: 30px;
-  }
-
-  .about__photo--4 {
-    grid-column: 4 / span 3;
-    --shift: -20px;
-  }
-
-  .about__photo--5 {
-    grid-column: 1 / span 4;
-    --shift: 24px;
-  }
-
-  .about__photo--6 {
-    grid-column: 5 / span 2;
-    --shift: -36px;
-  }
-
-  /* Each photo drifts a little against the scroll, where the browser supports scroll-driven animation. */
+  /* Parallax: each photo drifts against the scroll by its own --shift, so they slide past one another. Lower photos
+     in a column drift further, which opens their gap as they enter and closes it as they leave. */
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
       .about__photo {
-        animation: photo-drift linear both;
+        /* Longhands only: the minifier folds a shorthand plus animation-timeline into one `animation`, which
+           Chrome rejects. */
+        animation-name: photo-drift;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
         animation-timeline: view();
       }
 
       @keyframes photo-drift {
         from {
-          transform: translateY(calc(var(--shift) * -1));
+          transform: translateY(var(--shift));
         }
 
         to {
-          transform: translateY(var(--shift));
+          transform: translateY(calc(var(--shift) * -1));
         }
       }
     }

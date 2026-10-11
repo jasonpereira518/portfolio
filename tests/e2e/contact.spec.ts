@@ -19,6 +19,29 @@ test('the footer shows the email as a mail link, the profile buttons and the cop
   await expect(footer.getByText(/^© \d{4} Jason Pereira$/)).toBeVisible();
 });
 
+test('each profile button fills with its brand colour on hover', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' }); // no colour transition to wait out
+  await page.goto('/');
+  const footer = page.locator('footer#contact');
+  for (const [name, colour] of [
+    ['LinkedIn', 'rgb(10, 102, 194)'], // #0A66C2
+    ['GitHub', 'rgb(110, 84, 148)'], // #6E5494
+    ['Google Scholar', 'rgb(66, 133, 244)'], // #4285F4
+  ]) {
+    const button = footer.getByRole('link', { name });
+    await button.hover();
+    await expect(button, name).toHaveCSS('background-color', colour);
+    await expect(button, name).toHaveCSS('color', 'rgb(255, 255, 255)');
+  }
+});
+
+test('the footer links end with Gallery, at the bottom right', async ({ page }) => {
+  await page.goto('/');
+  const links = page.locator('footer#contact nav[aria-label="Footer"] a');
+  await expect(links.last()).toHaveText('Gallery');
+  await expect(links.last()).toHaveAttribute('href', '/gallery');
+});
+
 test('the email line is fitted to the width of the panel', async ({ page }) => {
   await page.goto('/');
   const email = page.locator('.footer__email');

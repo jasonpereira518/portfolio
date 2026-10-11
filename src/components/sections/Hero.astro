@@ -155,12 +155,21 @@ const poster = asset('hero-stage.jpg');
 
     .hero__cta {
       flex-direction: row;
+      flex-wrap: wrap;
       align-items: center;
     }
 
     .hero__tags {
       flex-direction: column;
       gap: 0.15rem;
+    }
+  }
+
+  /* A phone on its side: the screen is shorter than the copy plus the footer (tags and wordmark, about 100px),
+     so the footer, which is absolutely positioned, would sit on the buttons. Reserve its height under the copy. */
+  @media (max-width: 720px) and (max-height: 460px) {
+    .hero {
+      padding-bottom: 7.5rem;
     }
   }
 </style>

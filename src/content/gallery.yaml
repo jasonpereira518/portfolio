@@ -1,0 +1,92 @@
+# The /gallery wall. List order is rank: best achievement and best photo first. `feature` photos fill the wall's
+# full height and zoom in as they reach the middle of the screen.
+# Captions follow the recruiting spec: where a date is not on record, it is left out rather than guessed.
+main:
+  photos:
+    - id: aws-quick-sprint
+      feature: true
+      file: gallery/aws-quick-sprint.jpg
+      caption: AWS · Quick Sprint Demo Packs · Jul 2026
+      alt: "Jason with three colleagues in front of an Amazon Quick demo-pack presentation on screen at AWS."
+    - id: tedxunc
+      feature: true
+      file: gallery/tedxunc.jpg
+      caption: TEDxUNC · “The Velocity Paradox” · Feb 2026
+      alt: "Jason speaking on stage at TEDxUNC, with the TEDxUNC logo on the screen behind him."
+    - id: good-citizenship
+      feature: true
+      file: gallery/good-citizenship.jpg
+      caption: Marine Corps League · Good Citizenship Award
+      alt: "Jason in his Eagle Scout uniform receiving a Marine Corps League Good Citizenship Award."
+    - id: duke-hackathon
+      feature: true
+      file: gallery/duke-hackathon.jpg
+      caption: Duke AI Hackathon · 1st of 220+ · Nov 2025
+      alt: "Jason and three teammates behind two laptops showing Case Closed at the Duke AI Hackathon."
+      href: /work/case-closed
+    - id: fbla-nlc
+      feature: true
+      file: gallery/fbla-nlc.jpg
+      caption: FBLA National Leadership Conference · 4th, Website Design · Anaheim · Jul 2025
+      alt: "Jason and his teammate in suits, each holding an FBLA trophy in the convention hall."
+    - id: aws-slt
+      file: gallery/aws-slt.jpg
+      caption: AWS SLT leadership meeting · Quick Sprint Demo Packs · Summer 2026
+      alt: "Jason with AWS senior leaders and colleagues in a conference room, one joining on the screen behind them."
+    - id: eagle-celebration
+      file: gallery/eagle-celebration.jpg
+      caption: Celebration of Achievement for Eagle Scouts · 2025
+      alt: "Jason in Scout uniform speaking at a microphone on stage, with Scout leaders and officials beside him."
+    - id: fbla-nc-website
+      file: gallery/fbla-nc-website.jpg
+      caption: FBLA North Carolina · 1st, Website Design · Mar 2025
+      alt: "Jason and his teammate on the FBLA North Carolina awards stage wearing medals and holding a trophy."
+    - id: fbla-nlc-broadcast
+      file: gallery/fbla-nlc-broadcast.jpg
+      caption: FBLA NLC · 4th place, Website Design · Jul 2025
+      alt: "The FBLA national conference broadcast naming Jason Pereira and Vivaan Sandwar 4th in Website Design."
+    - id: aws-office
+      file: gallery/aws-office.jpg
+      caption: AWS · Solutions Architect intern · Summer 2026
+      alt: "Jason seated beneath a glowing AWS logo on an orange wall."
+    - id: ncctm
+      file: gallery/ncctm.jpg
+      caption: NCCTM State Conference · Nov 2024
+      alt: "Jason and four others wearing NCCTM conference lanyards in a convention centre hallway."
+      href: /achievements#publications
+    - id: fbla-nc-stage
+      file: gallery/fbla-nc-stage.jpg
+      caption: FBLA North Carolina awards
+      alt: "Jason standing between two students on stage at an FBLA North Carolina awards ceremony."
+    - id: eagle-project
+      file: gallery/eagle-project.jpg
+      caption: Eagle Scout project · four benches for MOP · Monroe, NC · Jul 2024
+      alt: "Jason's Eagle project crew seated on the new wooden benches in a freshly mulched garden bed."
+    - id: z-fellows
+      file: gallery/z-fellows.jpg
+      caption: With Cory Levy of Z Fellows
+      alt: "Jason with Cory Levy and two others at an indoor event."
+    - id: skylab-drone
+      file: gallery/skylab-drone.jpg
+      caption: Carolina Skylab · Drone Team · UNC
+      alt: "Jason holding a quadcopter drone in front of a UNC Computer Science backdrop."
+    - id: court-of-honor
+      file: gallery/court-of-honor.jpg
+      caption: Eagle Court of Honor · Troop 8, Charlotte
+      alt: "Jason and three fellow Eagle Scouts in uniform with sashes beside a Troop 8 display."
+    - id: tech-trek-microsoft
+      file: gallery/tech-trek-microsoft.jpg
+      caption: Kenan-Flagler Tech Trek · Microsoft · New York City
+      alt: "The Tech Trek group outside Microsoft's New York City storefront."
+    - id: tech-trek-ibm
+      file: gallery/tech-trek-ibm.jpg
+      caption: Kenan-Flagler Tech Trek · IBM · New York City
+      alt: "The Tech Trek group on a rooftop terrace with the Manhattan skyline behind them."
+    - id: aws-cohort
+      file: gallery/aws-cohort.jpg
+      caption: AWS intern cohort · Summer 2026
+      alt: "A large group of AWS interns and staff in a presentation room."
+    - id: fbla-shelter
+      file: gallery/fbla-shelter.jpg
+      caption: "FBLA Social Media Strategies · #HomeForEveryPet shelter visit"
+      alt: "Jason, his teammate and two shelter staff holding a kitten and a puppy among the shelter's crates."

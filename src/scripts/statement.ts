@@ -1,7 +1,7 @@
 /** The paragraph's words light up as it rises through the screen: none while its top is at 90% of the viewport
- * height, all once its top reaches 35%. Scrolling back down dims them again in reverse order. */
+ * height, all once its top reaches 5%. Scrolling back down dims them again in reverse order. */
 const START = 0.9;
-const END = 0.35;
+const END = 0.05;
 
 export function mount(section: HTMLElement): void {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;

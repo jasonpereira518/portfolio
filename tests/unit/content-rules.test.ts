@@ -1,10 +1,10 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 
 const CONTENT = join(process.cwd(), 'src', 'content');
 const read = (...parts: string[]) => readFileSync(join(CONTENT, ...parts), 'utf8');
-const dataFiles = ['site.yaml', 'numbers.yaml', 'experience.yaml', 'education.yaml', 'about.yaml', 'achievements.yaml', 'resume.yaml'];
+const dataFiles = ['site.yaml', 'numbers.yaml', 'experience.yaml', 'education.yaml', 'about.yaml', 'achievements.yaml', 'gallery.yaml', 'resume.yaml'];
 const projectFiles = readdirSync(join(CONTENT, 'projects')).filter((file) => file.endsWith('.md'));
 const everything: [string, string][] = [
   ...dataFiles.map((file): [string, string] => [file, read(file)]),
@@ -58,5 +58,24 @@ describe('copy rules from the content spec', () => {
 
   test('Intelitrade carries no landing-page figures or link', () => {
     expect(read('projects', 'intelitrade.md')).not.toMatch(/base44|127 investors|\$847/i);
+  });
+});
+
+describe('gallery', () => {
+  const gallery = read('gallery.yaml');
+  const ids = [...gallery.matchAll(/^\s*- id: (\S+)$/gm)].map((match) => match[1]);
+
+  test('every photo has a unique id and an image that exists', () => {
+    expect(ids.length).toBeGreaterThan(0);
+    expect(new Set(ids).size).toBe(ids.length);
+    const files = [...gallery.matchAll(/^\s*file: (\S+)$/gm)].map((match) => match[1]);
+    expect(files).toHaveLength(ids.length);
+    for (const file of files) expect(existsSync(join(process.cwd(), 'src', 'assets', file)), file).toBe(true);
+  });
+
+  test('every achievement photo names a photo in the gallery', () => {
+    const photos = [...read('achievements.yaml').matchAll(/^\s*photo: (\S+)$/gm)].map((match) => match[1]);
+    expect(photos.length).toBeGreaterThan(0);
+    for (const photo of photos) expect(ids, photo).toContain(photo);
   });
 });

@@ -1,0 +1,378 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { asset } from '../lib/assets';
+import { getGallery, getSite } from '../lib/content';
+
+const [site, photos] = await Promise.all([getSite(), getGallery()]);
+
+// A loose wall, two photos tall. Every photo keeps its own shape: feature photos stand the wall's full height, the
+// rest are half that and flow along two staggered lanes. Where a full-height photo would leave a hole in the
+// shorter lane, the waiting photo that best fills it goes there first. Gaps, heights and tilts vary a little, so it
+// reads as photos laid out by hand rather than a grid. Positions are in units of one half-height photo (--half).
+const tiles = await Promise.all(
+  photos.map(async (photo, index) => {
+    const image = asset(photo.file);
+    const full = await getImage({ src: image, width: Math.min(image.width, 2400), format: 'webp', quality: 90 });
+    return { ...photo, index, image, aspect: image.width / image.height, full: full.src };
+  }),
+);
+
+const GAP = 0.07; // between the two lanes, and the smallest gap between neighbours
+const WALL = 2 + GAP; // the wall's height in half-photo units
+// A steady pseudo-random number in [-1, 1] for each photo, so the looseness is the same on every build.
+const wobble = (n: number) => (Math.sin(n * 12.9898 + 78.233) * 43758.5453) % 1;
+
+const placed: { tile: (typeof tiles)[number]; x: number; y: number; w: number; h: number; tilt: number }[] = [];
+const lanes = [0, 0];
+const queue = [...tiles];
+while (queue.length > 0) {
+  let pick = 0;
+  const hole = Math.abs(lanes[0] - lanes[1]);
+  if (queue[0].feature && hole > 0.4) {
+    let best = Infinity;
+    queue.slice(0, 6).forEach((tile, i) => {
+      const miss = Math.abs(tile.aspect + GAP - hole);
+      if (!tile.feature && tile.aspect < hole + 0.35 && miss < best) [best, pick] = [miss, i];
+    });
+  }
+  const [tile] = queue.splice(pick, 1);
+  const n = tile.index;
+  const gap = GAP * (1 + 0.9 * Math.abs(wobble(n + 7)));
+  if (tile.feature) {
+    const x = Math.max(...lanes);
+    const w = tile.aspect * WALL;
+    placed.push({ tile, x, y: 0.03 * wobble(n), w, h: WALL, tilt: 0.5 * wobble(n + 3) });
+    lanes[0] = lanes[1] = x + w + gap;
+    lanes[1] += 0.18 * Math.abs(wobble(n + 11)); // the bottom lane starts a little later, so the two never line up
+  } else {
+    const lane = lanes[0] <= lanes[1] ? 0 : 1;
+    // Top-lane photos rise a little, bottom-lane ones sink a little, so the lanes never touch.
+    const nudge = 0.07 * Math.abs(wobble(n)) * (lane === 0 ? -1 : 1);
+    placed.push({ tile, x: lanes[lane], y: lane * (1 + GAP) + nudge, w: tile.aspect, h: 1, tilt: 0.9 * wobble(n + 3) });
+    lanes[lane] += tile.aspect + gap;
+  }
+}
+// Less the last photo's trailing gap: the space between one copy of the wall and the next is the scroller's gap.
+const trackWidth = Math.max(...lanes) - GAP;
+// The page keeps rank order (the lightbox steps through it); only the positions are loose.
+placed.sort((a, b) => a.tile.index - b.tile.index);
+
+// The rendered width, for the browser's image choice: the wall is about 100vh - 22rem tall (at most 44rem). A
+// feature photo is shown up to 15% larger when it zooms.
+const sizesFor = (spot: (typeof placed)[number]) => {
+  const share = (spot.w / WALL) * (spot.tile.feature ? 1.15 : 1);
+  return `min(calc((100vh - 22rem) * ${share.toFixed(3)}), ${Math.round(704 * share)}px)`;
+};
+const u = (value: number) => `calc(var(--half) * ${value.toFixed(4)})`;
+---
+<Base
+  title="Gallery"
+  description={`Photos of ${site.name} at hackathons, on stage, at AWS and in Scouting: the moments behind the achievements.`}
+>
+  <article class="gallery section theme-ink" data-island="gallery">
+    <header class="gallery__head">
+      <p class="gallery__label label">See a few of my accolades</p>
+      <h1 class="gallery__title display">Gallery</h1>
+    </header>
+
+    <div class="gallery__scroller" tabindex="-1" data-lenis-prevent-horizontal>
+      {/* Three copies so the loop can run either way: the middle one is real, the outer two are inert repeats. */}
+      {[true, false, true].map((copy) => (
+        <ul
+          class:list={['gallery__track', copy && 'gallery__track--copy']}
+          aria-hidden={copy ? 'true' : undefined}
+          inert={copy}
+          style={`width:${u(trackWidth)}`}
+        >
+          {placed.map(({ tile, x, y, w, h, tilt }) => (
+            <li
+              class="gallery__tile"
+              data-feature={tile.feature ? '' : undefined}
+              style={`left:${u(x)};top:${u(y)};width:${u(w)};height:${u(h)};rotate:${tilt.toFixed(2)}deg;--i:${tile.index};--float:${(5.5 + ((tile.index * 0.37) % 3)).toFixed(2)}s`}
+            >
+              <a
+                id={copy ? undefined : tile.id}
+                href={tile.full}
+                data-index={tile.index}
+                data-href={tile.href}
+                tabindex={copy ? -1 : undefined}
+                draggable="false"
+              >
+                <figure>
+                  <Picture
+                    src={tile.image}
+                    formats={['avif', 'webp']}
+                    alt={tile.alt}
+                    widths={[360, 540, 720, 960, 1280, 1600, 1920]}
+                    sizes={sizesFor({ tile, x, y, w, h, tilt })}
+                    quality={85}
+                    draggable="false"
+                    loading={tile.index < 3 && !copy ? 'eager' : 'lazy'}
+                  />
+                  <figcaption class="label">{tile.caption}</figcaption>
+                </figure>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ))}
+    </div>
+
+    <p class="gallery__hint label">Swipe or drag sideways · click a photo to open it · arrow keys move between photos</p>
+
+    <dialog class="gallery__box theme-ink" aria-label="Photo">
+      <figure>
+        <img class="gallery__box-img" alt="" />
+        <figcaption>
+          <span class="gallery__box-caption label"></span>
+          <a class="gallery__box-link label" hidden>Read more →</a>
+        </figcaption>
+      </figure>
+      <button class="gallery__box-btn gallery__box-prev label" type="button" aria-label="Previous photo">←</button>
+      <button class="gallery__box-btn gallery__box-next label" type="button" aria-label="Next photo">→</button>
+      <button class="gallery__box-btn gallery__box-close label" type="button" aria-label="Close" autofocus>Close</button>
+    </dialog>
+  </article>
+</Base>
+
+<style>
+  .gallery {
+    min-height: 100svh;
+    padding-top: calc(var(--nav-height) + clamp(1.5rem, 3vw, 3rem));
+    padding-bottom: clamp(1.5rem, 3vw, 3rem);
+    padding-inline: 0;
+  }
+
+  .gallery__head,
+  .gallery__hint {
+    padding-inline: var(--gutter);
+  }
+
+  .gallery__label,
+  .gallery__hint {
+    color: var(--muted);
+  }
+
+  .gallery__label {
+    margin-bottom: 1rem;
+  }
+
+  .gallery__title {
+    font-size: clamp(2rem, 1.25rem + 3vw, 4rem);
+    margin-bottom: clamp(0.75rem, 2vw, 1.5rem);
+  }
+
+  .gallery__hint {
+    margin-top: 1.5rem;
+  }
+
+  /* The wall scrolls sideways. gallery.ts drifts it; without the script it is an ordinary swipeable row. */
+  .gallery__scroller {
+    position: relative; /* tiles measure their offsets from here, in scroll coordinates */
+    /* The wall fills what the header and hint leave of the screen, so it is all in view. Two photos tall. */
+    --wall: clamp(18rem, calc(100svh - 22rem), 44rem);
+    --gap: clamp(0.5rem, 1vw, 0.9rem);
+    --half: calc(var(--wall) / 2.07); /* one half-height photo; the 2.07 is WALL in the frontmatter */
+    display: flex;
+    gap: var(--gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    /* Room above and below for a feature photo to zoom without being clipped. */
+    padding: calc(var(--wall) * 0.08) var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    outline: none;
+    cursor: grab;
+  }
+
+  .gallery__scroller::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gallery__scroller.is-dragging {
+    cursor: grabbing;
+  }
+
+  /* Photos are placed by the frontmatter (left/top/width/height in --half units), so the wall can be loose. */
+  .gallery__track {
+    position: relative;
+    flex: none;
+    height: var(--wall);
+  }
+
+  /* The second copy only exists to make the drift loop seamless, so it shows only when the drift can run. */
+  .gallery__track--copy {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .gallery__track--copy {
+      display: flex;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery__scroller {
+      scroll-snap-type: x proximity;
+    }
+
+    .gallery__tile {
+      scroll-snap-align: start;
+    }
+  }
+
+  .gallery__tile {
+    position: absolute;
+    will-change: translate;
+  }
+
+  /* gallery.ts sets the zoom (scale) as a feature photo nears the middle, and pushes its neighbours aside (translate). */
+  .gallery__tile[data-feature] {
+    z-index: 1;
+  }
+
+  .gallery__tile[data-feature] figure {
+    will-change: scale;
+  }
+
+  .gallery__tile a {
+    display: block;
+    -webkit-user-drag: none;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .gallery__tile figure {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--line);
+  }
+
+  .gallery__tile :global(picture),
+  .gallery__tile :global(img) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .gallery__tile :global(img) {
+    object-fit: cover;
+    transition: transform 0.6s var(--ease);
+  }
+
+  /* The caption sits on a dark fade at the foot of the photo, and is always readable over it. */
+  .gallery__tile figcaption {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 2rem 0.75rem 0.6rem;
+    background: linear-gradient(transparent, rgb(0 0 0 / 0.75));
+    color: #fff;
+    font-size: 0.7rem;
+    line-height: 1.35;
+  }
+
+  .gallery__tile a:hover :global(img),
+  .gallery__tile a:focus-visible :global(img) {
+    transform: scale(1.04);
+  }
+
+  /* Each photo floats a few pixels up and down, out of step with its neighbours. */
+  @media (prefers-reduced-motion: no-preference) {
+    .gallery__tile figure {
+      animation: gallery-float var(--float) ease-in-out infinite alternate;
+      box-shadow: 0 1.5rem 3rem -1.5rem rgb(0 0 0 / 0.6);
+      animation-delay: calc(var(--i) * -0.9s);
+    }
+  }
+
+  /* `translate`, not `transform`, so the zoom's `scale` can run on the same element without either undoing the other. */
+  @keyframes gallery-float {
+    from {
+      translate: 0 -5px;
+    }
+    to {
+      translate: 0 5px;
+    }
+  }
+
+  /* Lightbox */
+  .gallery__box {
+    width: 100vw;
+    max-width: none;
+    height: 100svh;
+    max-height: none;
+    margin: 0;
+    padding: clamp(3.5rem, 6vw, 5rem) var(--gutter) clamp(1.5rem, 4vw, 3rem);
+    border: 0;
+    background: #0a0a0a;
+    color: #fff;
+  }
+
+  .gallery__box::backdrop {
+    background: transparent;
+  }
+
+  .gallery__box[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .gallery__box figure {
+    display: grid;
+    gap: 1rem;
+    justify-items: center;
+    max-height: 100%;
+  }
+
+  .gallery__box-img {
+    max-width: min(100%, 1400px);
+    max-height: calc(100svh - 11rem);
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  .gallery__box figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.25rem;
+    text-align: center;
+  }
+
+  .gallery__box-link {
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .gallery__box-btn {
+    position: absolute;
+    padding: 0.75rem 1rem;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .gallery__box-prev,
+  .gallery__box-next {
+    top: 50%;
+    translate: 0 -50%;
+    font-size: 1.75rem;
+  }
+
+  .gallery__box-prev {
+    left: 0.5rem;
+  }
+
+  .gallery__box-next {
+    right: 0.5rem;
+  }
+
+  .gallery__box-close {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+</style>
