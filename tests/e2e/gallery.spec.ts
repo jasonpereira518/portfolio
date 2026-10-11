@@ -88,7 +88,7 @@ test('a link to /gallery#<id> opens straight to that photo', async ({ page }) =>
   await page.goto('/gallery#duke-hackathon');
   await expect(page.locator('.gallery__box')).toBeVisible();
   await expect(page.locator('.gallery__box-caption')).toContainText('Duke AI Hackathon');
-  await expect(page.locator('.gallery__box-link')).toHaveAttribute('href', '/work/case-closed');
+  await expect(page.locator('.gallery__box-link')).toHaveAttribute('href', '/projects/case-closed');
 });
 
 test('the wall drifts on its own and stops while the pointer is over it', async ({ page }) => {

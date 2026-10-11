@@ -42,12 +42,12 @@ export function buildCommands(site: PaletteSite, projects: PaletteProject[]): Co
     group: 'Projects',
     keywords: project.data.short,
     // Only the flagships have a page of their own; a card is an anchor on the index.
-    action: { type: 'nav', value: project.data.kind === 'flagship' ? `/work/${project.id}` : `/work#${project.id}` },
+    action: { type: 'nav', value: project.data.kind === 'flagship' ? `/projects/${project.id}` : `/projects#${project.id}` },
   }));
 
   const pages: [string, string, string][] = [
     ['Home', '/', ''],
-    ['Work', '/work', 'projects'],
+    ['Projects', '/projects', 'work'],
     ['About', '/#about', 'bio'],
     ['Achievements', '/achievements', 'awards'],
     ['Contact', '#contact', 'email'],

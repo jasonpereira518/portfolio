@@ -11,8 +11,8 @@ async function openPalette(page: Page) {
 
 test('⌘K lists every command, and Escape closes the palette', async ({ page }) => {
   await openPalette(page);
-  // 17 projects, 5 pages, 4 links.
-  await expect(palette(page).getByRole('option')).toHaveCount(26);
+  // 18 projects, 5 pages, 4 links.
+  await expect(palette(page).getByRole('option')).toHaveCount(27);
   await page.keyboard.press('Escape');
   await expect(palette(page)).toBeHidden();
 });
@@ -28,26 +28,26 @@ test('a flagship project opens its case-study page', async ({ page }) => {
   await page.keyboard.type('case closed');
   await expect(palette(page).getByRole('option')).toHaveCount(1);
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/work\/case-closed$/);
+  await expect(page).toHaveURL(/\/projects\/case-closed$/);
 });
 
 test('a card project jumps to its anchor on the work page', async ({ page }) => {
   await openPalette(page);
   await page.keyboard.type('limit order book');
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/work#limit-order-book$/);
+  await expect(page).toHaveURL(/\/projects#limit-order-book$/);
 });
 
 test('arrow keys move the highlight, and Enter runs the highlighted command', async ({ page }) => {
   await openPalette(page);
-  // "pages" is a group name, so it narrows the list to the page commands: Home, then Work.
+  // "pages" is a group name, so it narrows the list to the page commands: Home, then Projects.
   await page.keyboard.type('pages');
   await page.keyboard.press('ArrowDown');
   const second = palette(page).getByRole('option').nth(1);
   await expect(second).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('combobox')).toHaveAttribute('aria-activedescendant', (await second.getAttribute('id')) ?? '');
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/work$/);
+  await expect(page).toHaveURL(/\/projects$/);
 });
 
 test('"achiev" opens the achievements page', async ({ page }) => {

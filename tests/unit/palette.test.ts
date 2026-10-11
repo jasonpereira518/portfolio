@@ -15,8 +15,8 @@ const ids = (list: typeof commands) => list.map((command) => command.id);
 
 describe('buildCommands', () => {
   test('a flagship opens its own page and a card opens its anchor on the index', () => {
-    expect(byId('project-case-closed')?.action).toEqual({ type: 'nav', value: '/work/case-closed' });
-    expect(byId('project-limit-order-book')?.action).toEqual({ type: 'nav', value: '/work#limit-order-book' });
+    expect(byId('project-case-closed')?.action).toEqual({ type: 'nav', value: '/projects/case-closed' });
+    expect(byId('project-limit-order-book')?.action).toEqual({ type: 'nav', value: '/projects#limit-order-book' });
   });
 
   test('copies the email and opens the three profiles from the site data', () => {

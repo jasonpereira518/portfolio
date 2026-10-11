@@ -23,7 +23,7 @@ main:
       file: gallery/duke-hackathon.jpg
       caption: Duke AI Hackathon · 1st of 220+ · Nov 2025
       alt: "Jason and three teammates behind two laptops showing Case Closed at the Duke AI Hackathon."
-      href: /work/case-closed
+      href: /projects/case-closed
     - id: fbla-nlc
       feature: true
       file: gallery/fbla-nlc.jpg
