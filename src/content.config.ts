@@ -9,7 +9,7 @@ const projects = defineCollection({
     short: z.string(),
     tagline: z.string(),
     kind: z.enum(['flagship', 'card']),
-    group: z.enum(['flagship', 'quant', 'fullstack', 'mobile', 'hackathon', 'hardware']),
+    group: z.enum(['flagship', 'quant', 'ml', 'fullstack', 'mobile', 'hackathon', 'hardware']),
     order: z.number().int(),
     role: z.string(),
     dates: z.string().optional(),
@@ -34,9 +34,19 @@ const projects = defineCollection({
     badgeDetail: z.string().optional(),
     // Plays on hover. A filename in public/projects/. On a flagship it replaces the cover; on a card it plays in the popup.
     video: z.string().optional(),
+    // A flagship's alternate image: a filename in src/assets/projects/ that fades in over the cover on hover. Use it
+    // when there is no clip.
+    hoverImage: z.string().optional(),
     // A card's thumbnail (a filename in src/assets/projects/cards/) and its alt text. Without one the card is text only.
     thumb: z.string().optional(),
     thumbAlt: z.string().optional(),
+    // What the hover popup shows instead of the thumbnail (a filename in src/assets/projects/cards/). Without one the
+    // popup enlarges the thumbnail.
+    peekImage: z.string().optional(),
+    // CSS object-position for the thumbnail's crop, like "50% 30%". A tall phone screenshot is cropped to a wide frame.
+    thumbPosition: z.string().optional(),
+    // 'square' makes the thumbnail a 1:1 widget, for a square logo, icon or screen. Otherwise it is a wide frame.
+    thumbShape: z.enum(['wide', 'square']).default('wide'),
   }),
 });
 
@@ -90,6 +100,23 @@ const education = defineCollection({
     // The school's logo, as a path under src/assets/ (like logos/unc.png): a transparent image, shown at the far
     // right of the row. Without one the row is text only.
     logo: z.string().optional(),
+    // The school's colour, as a hex like #4B9CD3. Its name is set in it. Without one the name stays ink.
+    color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+    // Honours and awards, shown under the details. `prefix` is plain text before the label ("Named to "), and the
+    // label links to `href` when there is one.
+    awards: z
+      .array(
+        z.object({
+          label: z.string(),
+          prefix: z.string().optional(),
+          href: z.url().optional(),
+          // The label's text colour, as a hex like #EDC53F.
+          color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+        }),
+      )
+      .default([]),
+    // Coursework worth naming, shown as one line.
+    courses: z.array(z.string()).default([]),
   }),
 });
 

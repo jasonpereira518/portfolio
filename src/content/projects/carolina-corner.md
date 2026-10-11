@@ -9,6 +9,10 @@ role: Co-founder, Robert E. Bryan Fellowship
 dates: Nov 2025–present
 status: Web prototype complete; booth build pending
 summary: "A storytelling booth and digital archive for the UNC community: pick a prompt, record a video, receive it by email."
+thumb: carolina-corner.webp
+thumbAlt: "The Carolina Corner welcome screen: “Share a story that only you can tell.”"
+thumbShape: square
+peekImage: carolina-corner-recording.webp
 links:
   - label: Live site
     href: https://carolinacorner.com

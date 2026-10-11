@@ -11,20 +11,14 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
   </header>
   <ol class="xp__list xp__list--roles">
     {roles.map((item, index) => (
-      <li class="xp__row" data-reveal style={`--i:${index % 3}`}>
+      <li class="xp__row" data-reveal style={`--i:${index % 3}${item.data.color ? `;--org:${item.data.color}` : ''}`}>
         <div class="xp__who">
-          {item.data.logo && <Image class="xp__logo" src={asset(item.data.logo)} alt="" width={160} loading="lazy" />}
-          <h3
-            class="xp__org display"
-            data-title-lines="6"
-            style={item.data.color ? `--org:${item.data.color}` : undefined}
-          >
-            {item.data.org}
-          </h3>
+          <h3 class="xp__org display" data-title-lines="6">{item.data.org}</h3>
         </div>
         <p class="xp__role">{item.data.role}</p>
         <p class="xp__meta label">{[item.data.place, item.data.dates].filter(Boolean).join(' · ')}</p>
         <p class="xp__summary">{item.data.summary}</p>
+        {item.data.logo && <Image class="xp__logo" src={asset(item.data.logo)} alt="" width={160} loading="lazy" />}
       </li>
     ))}
   </ol>
@@ -32,18 +26,42 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
   <h2 class="xp__sub label">Education</h2>
   <ul class="xp__list xp__list--schools">
     {schools.map((item) => (
-      <li class="xp__row" data-reveal>
+      <li class="xp__row" data-reveal style={item.data.color ? `--org:${item.data.color}` : undefined}>
+        {item.data.logo && <Image class="xp__logo" src={asset(item.data.logo)} alt="" width={160} loading="lazy" />}
         <h3 class="xp__org display">{item.data.school}</h3>
         <p class="xp__role">{item.data.detail}</p>
         <p class="xp__meta label">{item.data.dates}</p>
-        {item.data.logo && <Image class="xp__logo" src={asset(item.data.logo)} alt="" width={160} loading="lazy" />}
+        {item.data.awards.length > 0 && (
+          <p class="xp__awards">
+            {item.data.awards.map((award, index) => (
+              <>
+                {index > 0 && ' · '}
+                {award.prefix}
+                {award.href ? (
+                  <a href={award.href} target="_blank" rel="noopener" style={award.color ? `color:${award.color}` : undefined}>{award.label}</a>
+                ) : (
+                  <span style={award.color ? `color:${award.color}` : undefined}>{award.label}</span>
+                )}
+              </>
+            ))}
+          </p>
+        )}
+        {item.data.courses.length > 0 && (
+          <details class="xp__courses">
+            <summary><span>Coursework</span></summary>
+            <p>{item.data.courses.join(' · ')}</p>
+          </details>
+        )}
       </li>
     ))}
   </ul>
 </section>
 
 <style>
+  /* Every logo gets the same square box, so the names and details line up whether or not a row has a logo. */
   .xp__list {
+    --logo: clamp(2.5rem, 2rem + 1.6vw, 3.5rem);
+
     border-bottom: 1px solid var(--line);
   }
 
@@ -60,31 +78,23 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
     padding-top: 0;
   }
 
-  /* The logo is a transparent image to the left of the name, decorative (the name says who it is), so it has no
-     alt text. Every logo gets the same square box, so all the names start at the same place; a row without a
-     logo is just the name. */
-  .xp__who {
-    --logo: clamp(2.5rem, 2rem + 1.6vw, 3.5rem);
-
-    display: flex;
-    align-items: center;
-    gap: clamp(0.75rem, 0.5rem + 1vw, 1.25rem);
-    min-width: 0;
-  }
-
-  .xp__who :global(.xp__logo) {
-    flex: none;
+  /* The logo is a transparent image, decorative (the name says who it is), so it has no alt text. A company's sits
+     at the far right of its row, a school's at the far left. */
+  .xp__row :global(.xp__logo) {
+    align-self: center;
     width: var(--logo);
     height: var(--logo);
     object-fit: contain;
   }
 
-  /* The name takes what the logo leaves, in the organisation's own colour. A word is never broken to fit:
-     src/scripts/fit-titles.ts makes the name smaller instead. */
+  /* A word in a name is never broken to fit: src/scripts/fit-titles.ts makes the name smaller instead. */
+  .xp__who {
+    min-width: 0;
+  }
+
   .xp__who .xp__org {
     min-width: 0;
     overflow-wrap: normal;
-    color: var(--org, inherit);
   }
 
   .xp__org {
@@ -92,8 +102,70 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
     overflow-wrap: anywhere;
   }
 
+  /* The role is set in the organisation's own colour (--org, set on the row from its frontmatter). */
   .xp__role {
+    color: var(--org, inherit);
     font-weight: 700;
+  }
+
+  /* Company and school names are in ordinary capitals rather than the display style's all caps, and at the font's
+     normal width rather than its widest. A school's name is in the school's colour. */
+  .xp__org {
+    font-stretch: 100%;
+    line-height: 1.1;
+    text-transform: none;
+  }
+
+  .xp__list--schools .xp__org {
+    color: var(--org, inherit);
+  }
+
+  /* Every school's detail line is in ink, not the school colour, so only the name carries it. */
+  .xp__list--schools .xp__role {
+    color: inherit;
+  }
+
+  /* Under a school's details: its honours in ink, then the coursework, quieter. */
+  .xp__awards {
+    font-weight: 500;
+  }
+
+  .xp__awards a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .xp__courses {
+    color: var(--muted);
+    font-family: Calibri, Carlito, 'Segoe UI', sans-serif;
+  }
+
+  /* "Coursework" is a native disclosure: the list opens under it, and the button text flips with its state. */
+  .xp__courses summary {
+    display: inline-flex;
+    gap: 0.6rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .xp__courses summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .xp__courses summary::after {
+    content: 'See more';
+    color: var(--fg);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .xp__courses[open] summary::after {
+    content: 'See less';
+  }
+
+  .xp__courses p {
+    margin-top: 0.25rem;
   }
 
   .xp__meta,
@@ -106,43 +178,62 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
     max-width: 62ch;
   }
 
-  /* A school's logo sits at the far right of its row, the same size as the roles' logos, beside all its lines. */
-  .xp__list--schools {
-    --logo: clamp(2.5rem, 2rem + 1.6vw, 3.5rem);
-  }
-
-  .xp__list--schools .xp__row {
-    grid-template-columns: minmax(0, 1fr) var(--logo);
-  }
-
-  /* Narrow screens: the lines stack in the first column, the logo beside them (wide screens place both by area). */
-  @media (max-width: 899px) {
-    .xp__list--schools .xp__row > :not(:global(.xp__logo)) {
-      grid-column: 1;
-    }
-  }
-
-  .xp__list--schools :global(.xp__logo) {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    align-self: center;
-    width: var(--logo);
-    height: var(--logo);
-    object-fit: contain;
-  }
-
   .xp__sub {
     margin: clamp(2.5rem, 5vw, 4.5rem) 0 1rem;
     color: var(--muted);
   }
 
+  /* Narrow screens: the lines stack in one column, the logo beside them (wide screens place everything by area). */
+  @media (max-width: 899px) {
+    .xp__list--roles .xp__row {
+      grid-template-columns: minmax(0, 1fr) var(--logo);
+    }
+
+    .xp__list--roles .xp__row > :not(:global(.xp__logo)) {
+      grid-column: 1;
+    }
+
+    .xp__list--roles :global(.xp__logo) {
+      grid-column: 2;
+      grid-row: 1 / span 4;
+    }
+
+    .xp__list--schools .xp__row {
+      grid-template-columns: var(--logo) minmax(0, 1fr);
+    }
+
+    .xp__list--schools .xp__row > :not(:global(.xp__logo)) {
+      grid-column: 2;
+    }
+
+    .xp__list--schools :global(.xp__logo) {
+      grid-column: 1;
+      grid-row: 1 / span 5;
+    }
+
+  }
+
   @media (min-width: 900px) {
-    .xp__row {
-      grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) minmax(0, 5fr);
+    .xp__list--roles .xp__row {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 4fr) var(--logo);
       grid-template-rows: auto 1fr;
       grid-template-areas:
-        'org role summary'
-        'org meta summary';
+        'org role summary logo'
+        'org meta summary logo';
+    }
+
+    .xp__list--schools .xp__row {
+      grid-template-columns: var(--logo) minmax(0, 4fr) minmax(0, 8fr);
+      grid-template-rows: auto auto auto 1fr;
+      grid-template-areas:
+        'logo org role'
+        'logo org meta'
+        'logo org awards'
+        'logo org courses';
+    }
+
+    .xp__row :global(.xp__logo) {
+      grid-area: logo;
     }
 
     .xp__org,
@@ -154,24 +245,16 @@ const [roles, schools] = await Promise.all([getExperience(), getEducation()]);
       align-self: start;
     }
 
-    .xp__list--roles .xp__row {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 4fr); /* wider names: the logo takes some of it */
-    }
-
     .xp__role {
       grid-area: role;
     }
 
-    /* Every school row has the logo column, so the details line up whether or not a school has a logo. */
-    .xp__list--schools .xp__row {
-      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr) var(--logo);
-      grid-template-areas:
-        'org role logo'
-        'org meta logo';
+    .xp__awards {
+      grid-area: awards;
     }
 
-    .xp__list--schools :global(.xp__logo) {
-      grid-area: logo;
+    .xp__courses {
+      grid-area: courses;
     }
 
     .xp__meta {

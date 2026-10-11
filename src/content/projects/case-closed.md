@@ -11,6 +11,7 @@ dates: Nov 2025–present
 status: Live in early access; attorneys testing
 summary: "Keeps a case's record, research, analysis and first draft connected for solo and small-firm litigators."
 blurb: "AI-powered legal research workspace, backed by UNC's 1789 Student Venture Fund"
+video: case-closed.mp4
 badge: "1st Place · Duke AI Hackathon"
 badgeDetail: "Built in 36 hours and placed 1st of 220+ competitors, judged by 34+ professors and industry judges. Nov 2025."
 proof:

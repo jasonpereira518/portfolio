@@ -9,4 +9,7 @@ role: Carolina Skylab Rocket Team, co-designer
 dates: Dec 2025–present
 status: Designed and built; static fire pending
 summary: "A small solid-propellant rocket motor designed from classical propulsion theory: 320 N·s total impulse at 500 psi chamber pressure."
+thumb: cat-45.webp
+thumbAlt: "A blueprint of a conical axisymmetric thruster with injectors, ignition chamber, thermal liner and pressure charts."
+thumbShape: square
 ---

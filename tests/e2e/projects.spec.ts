@@ -228,3 +228,30 @@ test('each selected-project title and case study heading is in its project colou
   await page.goto('/projects/case-closed');
   await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('color', TITLE_COLOURS['Case Closed']);
 });
+
+test('on the home page, hovering the GPU project fades in its architecture diagram', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.locator('#projects').scrollIntoViewIfNeeded();
+  await expect(page.locator('#projects')).toHaveAttribute('data-enhanced', 'true');
+  await page.getByRole('tab', { name: /GPU/ }).click();
+  const stage = page.locator('#panel-gpu-portfolio-engine .projects__stage');
+  const alt = stage.locator('.projects__alt');
+  await expect(alt).toHaveCSS('opacity', '0');
+  await stage.hover();
+  await expect(alt).toHaveCSS('opacity', '1');
+  await page.mouse.move(2, 2);
+  await expect(alt).toHaveCSS('opacity', '0');
+});
+
+test('on the home page, hovering a project with a clip plays it, and leaving stops it', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.locator('#projects').scrollIntoViewIfNeeded();
+  await expect(page.locator('#projects')).toHaveAttribute('data-enhanced', 'true');
+  const stage = page.locator('#panel-case-closed .projects__stage');
+  await stage.hover();
+  await expect(stage.locator('.projects__video')).toHaveClass(/is-playing/);
+  await page.mouse.move(2, 2);
+  await expect(stage.locator('.projects__video')).not.toHaveClass(/is-playing/);
+});

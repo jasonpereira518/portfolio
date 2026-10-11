@@ -33,7 +33,7 @@ test('body text is set in DM Sans and loads it, while the display type stays Arc
     .toBe(true);
 });
 
-// Each organisation's name is set in the main colour of its logo.
+// Each role is set in the main colour of its organisation's logo; the organisation's name stays ink.
 const ORGS: Record<string, string> = {
   'Amazon Web Services': 'rgb(255, 153, 0)', // #FF9900
   'Carolina Investment Group': 'rgb(35, 48, 100)', // #233064
@@ -42,7 +42,7 @@ const ORGS: Record<string, string> = {
   'Inspirit AI': 'rgb(63, 65, 117)', // #3F4175
 };
 
-test('every role has a transparent logo to the left of its name, and the name is in the logo colour', async ({ page }) => {
+test('every role has a transparent logo at the far right of its row, the name is in ink and the role in the logo colour', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/');
   const rows = page.locator('#experience .xp__list--roles .xp__row');
@@ -52,14 +52,18 @@ test('every role has a transparent logo to the left of its name, and the name is
     const logo = row.locator('.xp__logo');
     const name = row.getByRole('heading', { name: org, exact: true });
     await logo.scrollIntoViewIfNeeded();
-    await expect(name, org).toHaveCSS('color', colour);
+    await expect(row, org).toHaveClass(/is-in/); // the reveal moves the row while it plays, so measure after it
+    await page.waitForTimeout(900);
+    await expect(name, org).toHaveCSS('color', 'rgb(18, 18, 16)'); // ink
+    await expect(row.locator('.xp__role'), org).toHaveCSS('color', colour);
     await expect(logo, org).toHaveAttribute('alt', ''); // decorative: the name beside it says who it is
     await expect(logo, org).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect.poll(() => logo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0), { message: org }).toBe(true);
 
-    // To the left of the name, on the same line as it.
-    const [logoBox, nameBox] = [await logo.boundingBox(), await name.boundingBox()];
-    expect(logoBox!.x + logoBox!.width, org).toBeLessThanOrEqual(nameBox!.x + 1);
+    // Flush with the right edge of the row, level with the name.
+    const [logoBox, nameBox, rowBox] = [await logo.boundingBox(), await name.boundingBox(), await row.boundingBox()];
+    expect(Math.abs(rowBox!.x + rowBox!.width - (logoBox!.x + logoBox!.width)), org).toBeLessThan(1);
+    expect(logoBox!.x, org).toBeGreaterThanOrEqual(nameBox!.x + nameBox!.width - 1);
     expect(logoBox!.y, org).toBeLessThan(nameBox!.y + nameBox!.height);
     expect(logoBox!.y + logoBox!.height, org).toBeGreaterThan(nameBox!.y);
 
@@ -116,7 +120,7 @@ test('a collage photo is described by its own alt text', async ({ page }) => {
   await expect(page.locator('#about .about__photo img').first()).toHaveAttribute('alt', /^Four people/);
 });
 
-test('a school with a logo shows it at the far right of its row', async ({ page }) => {
+test('a school with a logo shows it at the far left of its row', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/');
   const rows = page.locator('#experience .xp__list--schools .xp__row');
@@ -125,8 +129,55 @@ test('a school with a logo shows it at the far right of its row', async ({ page 
   await expect(logo).toHaveAttribute('alt', '');
   await logo.scrollIntoViewIfNeeded();
   const [row, mark] = await Promise.all([unc.boundingBox(), logo.boundingBox()]);
-  expect(Math.abs(row!.x + row!.width - (mark!.x + mark!.width))).toBeLessThan(1); // flush with the right edge
+  expect(Math.abs(row!.x - mark!.x)).toBeLessThan(1); // flush with the left edge
   // A school without a logo keeps its details in line with the others.
   const lefts = await rows.locator('.xp__role').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().left));
   expect(new Set(lefts.map(Math.round)).size).toBe(1);
+});
+
+test('each school name is in the school colour, in ordinary capitals, beside a transparent logo', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  const schools: Record<string, string> = {
+    'University of North Carolina at Chapel Hill': 'rgb(75, 156, 211)', // #4B9CD3, UNC's web Carolina Blue
+    'Central Piedmont Community College': 'rgb(182, 170, 119)', // #B6AA77, the colour of the CPCC logo
+  };
+  const rows = page.locator('#experience .xp__list--schools .xp__row');
+  for (const [school, colour] of Object.entries(schools)) {
+    const row = rows.filter({ has: page.getByRole('heading', { name: school, exact: true }) });
+    const name = row.getByRole('heading', { name: school, exact: true });
+    await name.scrollIntoViewIfNeeded();
+    await expect(name, school).toHaveCSS('color', colour);
+    await expect(name, school).toHaveCSS('text-transform', 'none');
+    await expect(row.locator('.xp__role'), school).toHaveCSS('color', 'rgb(18, 18, 16)');
+    await expect(row.locator('img.xp__logo'), school).toHaveCount(1);
+  }
+});
+
+test('schools list their honours under the details, and CPCC names its coursework', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  const rows = page.locator('#experience .xp__list--schools .xp__row');
+  const unc = rows.filter({ hasText: 'University of North Carolina at Chapel Hill' });
+  await expect(unc.locator('.xp__awards')).toHaveText("Honors Carolina · Dean's List · Robert E. Bryan Fellow");
+  await expect(unc.locator('.xp__role')).not.toContainText('Honors Carolina');
+
+  const cpcc = rows.filter({ hasText: 'Central Piedmont Community College' });
+  await expect(cpcc.locator('.xp__awards')).toHaveText("Named to President's List");
+  await expect(cpcc.locator('.xp__awards a')).toHaveText("President's List");
+  await expect(cpcc.locator('.xp__awards a')).toHaveAttribute('href', /^https:\/\/www\.cpcc\.edu\/academics\/presidents-list/);
+  await expect(cpcc.locator('.xp__courses')).toContainText('CSC249 Data Structures & Algorithms');
+  await expect(cpcc.locator('.xp__courses')).toContainText('MAT273 Calculus III');
+  await expect(cpcc.locator('.xp__courses')).toContainText('MAT280 Linear Algebra');
+
+  // The dates sit directly under the details line, then the awards, then the coursework button.
+  const [role, awards, meta] = await Promise.all(
+    ['.xp__role', '.xp__awards', '.xp__meta'].map((selector) => unc.locator(selector).boundingBox()),
+  );
+  expect(meta!.y).toBeGreaterThan(role!.y);
+  expect(awards!.y).toBeGreaterThan(meta!.y);
+  await expect(unc.locator(".xp__courses summary")).toBeVisible();
+  await expect(unc.locator(".xp__courses p")).toBeHidden();
+  await unc.locator(".xp__courses summary").click();
+  await expect(unc.locator(".xp__courses p")).toContainText("2D Computer Graphics");
 });

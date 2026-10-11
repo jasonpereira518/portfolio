@@ -9,4 +9,7 @@ role: App Team Carolina iOS apprenticeship capstone
 dates: Sept 2025
 status: Built and demoed
 summary: "A social accountability app for a daily LeetCode habit, built in Swift and SwiftUI."
+thumb: leet-streak.webp
+thumbAlt: "The Leet Streak app icon: a camera, a calendar of checked days and a streak flame."
+thumbShape: square
 ---

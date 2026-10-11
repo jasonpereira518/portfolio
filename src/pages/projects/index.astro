@@ -25,10 +25,22 @@ const [flagship, groups] = await Promise.all([getFlagship(), getCardsByGroup()])
                 <Image
                   src={asset(`projects/${project.data.cover}`)}
                   alt=""
-                  widths={[480, 720, 960, 1280]}
+                  widths={[480, 720, 960, 1280, 1600]}
+                  quality={90}
                   sizes="(max-width: 800px) 92vw, 48vw"
                   loading={index < 2 ? 'eager' : 'lazy'}
                 />
+                {project.data.hoverImage && (
+                  <Image
+                    class="feature__alt"
+                    src={asset(`projects/${project.data.hoverImage}`)}
+                    alt=""
+                    widths={[480, 720, 960, 1280, 1600]}
+                    quality={90}
+                    sizes="(max-width: 800px) 92vw, 48vw"
+                    loading="lazy"
+                  />
+                )}
                 {project.data.video && (
                   <video class="feature__video" muted loop playsinline preload="none" disablepictureinpicture aria-hidden="true" tabindex="-1">
                     <source src={`/projects/${project.data.video}`} type="video/mp4" />
@@ -119,6 +131,20 @@ const [flagship, groups] = await Promise.all([getFlagship(), getCardsByGroup()])
     opacity: 1;
   }
 
+  /* An alternate image fades in over the cover while the row is hovered (CSS only, no script). */
+  .feature__media :global(.feature__alt) {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: #fff;
+    transition: opacity 0.4s var(--ease);
+  }
+
+  .feature:hover .feature__media :global(.feature__alt),
+  .feature:focus-visible .feature__media :global(.feature__alt) {
+    opacity: 1;
+  }
+
   /* A chart is shown whole on its own white ground; a screenshot is cropped to fill the frame. */
   .feature__media--whole {
     background: #fff;
@@ -175,34 +201,104 @@ const [flagship, groups] = await Promise.all([getFlagship(), getCardsByGroup()])
     }
   }
 
-  /* The hover popup is created by src/scripts/projects-media.ts, so the page's scoped styles do not reach it. */
-  :global(.peek) {
+  /* The hover preview is created by src/scripts/projects-media.ts, so the page's scoped styles do not reach it. It is
+     the same preview as on jasonpereira.live. */
+  :global(#project-hover-preview) {
+    --preview-tilt: 0deg;
     position: fixed;
-    z-index: 60;
     top: 0;
     left: 0;
-    width: min(34rem, 46vw);
-    aspect-ratio: 16 / 10;
+    z-index: 1400;
+    width: 280px;
+    height: 210px;
+    max-width: min(360px, 30vw);
+    max-height: min(300px, 38vh);
     overflow: hidden;
-    border-radius: var(--media-radius);
-    background: var(--ink);
-    box-shadow: 0 1.25rem 3rem rgb(0 0 0 / 0.35);
+    border: 1px solid rgb(145 145 155 / 0.22);
+    border-radius: 1.2rem;
+    background: #060607;
+    box-shadow: 0 22px 50px rgb(0 0 0 / 0.28);
     opacity: 0;
     visibility: hidden;
+    transform: perspective(1400px) rotateY(var(--preview-tilt)) scale(0.96);
+    transform-origin: center;
+    transition: opacity 0.22s, transform 0.22s, visibility 0.22s;
     pointer-events: none;
-    transition: opacity 0.18s var(--ease), visibility 0s linear 0.18s;
   }
 
-  :global(.peek.is-open) {
+  :global(#project-hover-preview::before) {
+    content: '';
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: -16px;
+    z-index: -1;
+    height: 24px;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 0.28);
+    filter: blur(14px);
+    pointer-events: none;
+  }
+
+  /* A fade to dark under the title. */
+  :global(#project-hover-preview::after) {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 42%;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.58), rgb(0 0 0 / 0));
+    pointer-events: none;
+  }
+
+  :global(#project-hover-preview.is-visible) {
     opacity: 1;
     visibility: visible;
-    transition-delay: 0s;
+    transform: perspective(1400px) rotateY(var(--preview-tilt)) scale(1);
   }
 
-  :global(.peek img),
-  :global(.peek video) {
+  :global(#project-hover-preview.is-right-side) {
+    --preview-tilt: -14deg;
+  }
+
+  :global(#project-hover-preview.is-left-side) {
+    --preview-tilt: 14deg;
+  }
+
+  :global(.project-hover-preview__media) {
+    width: 100%;
+    height: 100%;
+  }
+
+  :global(.project-hover-preview__image),
+  :global(.project-hover-preview__video) {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  :global(.project-hover-preview__image[hidden]),
+  :global(.project-hover-preview__video[hidden]) {
+    display: none;
+  }
+
+  :global(.project-hover-preview__title) {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 0.85rem;
+    z-index: 1;
+    margin: 0;
+    color: #f1f1f3;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-shadow: 0 2px 12px rgb(0 0 0 / 0.6);
+  }
+
+  /* Small screens and touch have no hover. */
+  @media (max-width: 1000px), (hover: none), (pointer: coarse) {
+    :global(#project-hover-preview) {
+      display: none;
+    }
   }
 </style>

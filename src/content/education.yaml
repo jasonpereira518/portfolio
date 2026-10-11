@@ -2,10 +2,36 @@
   order: 1
   school: University of North Carolina at Chapel Hill
   logo: logos/unc.png
-  detail: "B.S. Computer Science · B.S. Statistics & Analytics · Minor in Business · Honors Carolina"
+  color: "#4B9CD3"
+  detail: "B.S. Computer Science · B.S. Statistics & Analytics · Minor in Business"
   dates: Graduating May 2028
+  courses:
+    - Data Structures & Algorithms
+    - Systems Fundamentals
+    - Discrete Math
+    - Foundations of Programming
+    - Linear Algebra
+    - Computer Organization
+    - Models of Language & Computation
+    - 2D Computer Graphics
+  awards:
+    - label: Honors Carolina
+      color: "#EDC53F"
+    - label: Dean's List
+    - label: Robert E. Bryan Fellow
 - id: cpcc
   order: 2
   school: Central Piedmont Community College
+  logo: logos/cpcc.png
+  color: "#B6AA77"
   detail: "Associate in Arts (dual enrollment) · 4.0 GPA"
   dates: Completed July 2025
+  awards:
+    - prefix: "Named to "
+      label: "President's List"
+      color: "#AA985D"
+      href: "https://www.cpcc.edu/academics/presidents-list#:~:text=NC-,Jason,NC"
+  courses:
+    - CSC249 Data Structures & Algorithms
+    - MAT273 Calculus III
+    - MAT280 Linear Algebra

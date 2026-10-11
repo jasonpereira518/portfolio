@@ -1,11 +1,16 @@
 /**
  * Hover media on /projects, for mouse and trackpad users only (touch keeps the still images).
  *  - A flagship row with a clip plays it over its cover while hovered.
- *  - A card thumbnail opens a larger image, or its clip, in a popup that follows the cursor.
- * Reduced motion and data saver keep the clips off; the popup then shows the still.
+ *  - Hovering a card opens a preview of its picture (or clip) that follows the cursor, as on jasonpereira.live: it takes
+ *    the picture's own shape up to 360 x 300, tilts away from the cursor, and shows the project's title.
+ * Reduced motion and data saver keep the clips off; the preview then shows the still.
  */
-const GAP = 20;
-const MARGIN = 8;
+const GAP = 26;
+const PAD = 14;
+const MAX_WIDTH = 360;
+const MAX_HEIGHT = 300;
+const FALLBACK_WIDTH = 280;
+const FALLBACK_HEIGHT = 210;
 
 export function mount(root: HTMLElement): void {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
@@ -27,43 +32,123 @@ export function mount(root: HTMLElement): void {
     }
   }
 
-  const thumbs = root.querySelectorAll<HTMLElement>('[data-peek]');
-  if (thumbs.length === 0) return;
+  const cards = Array.from(root.querySelectorAll<HTMLElement>('.card')).filter((card) => card.querySelector('[data-peek]'));
+  if (cards.length === 0) return;
 
-  const peek = document.createElement('div');
-  peek.className = 'peek';
-  peek.setAttribute('aria-hidden', 'true');
-  document.body.append(peek);
+  // One shared preview, moved from card to card.
+  const preview = document.createElement('div');
+  preview.id = 'project-hover-preview';
+  preview.setAttribute('aria-hidden', 'true');
+  const image = document.createElement('img');
+  image.className = 'project-hover-preview__image';
+  image.alt = '';
+  const video = document.createElement('video');
+  Object.assign(video, { className: 'project-hover-preview__video', hidden: true, muted: true, loop: true, playsInline: true, preload: 'metadata' });
+  const media = document.createElement('div');
+  media.className = 'project-hover-preview__media';
+  media.append(image, video);
+  const title = document.createElement('p');
+  title.className = 'project-hover-preview__title';
+  preview.append(media, title);
+  document.body.append(preview);
 
+  let active: HTMLElement | null = null;
+  let hideTimer = 0;
+  let lastX = 0;
+  let lastY = 0;
+
+  // The preview is as big as the picture, shrunk to fit inside 360 x 300.
+  const resize = (width: number, height: number) => {
+    const w = width || FALLBACK_WIDTH;
+    const h = height || FALLBACK_HEIGHT;
+    const scale = Math.min(1, MAX_WIDTH / w, MAX_HEIGHT / h);
+    preview.style.width = `${Math.round(w * scale)}px`;
+    preview.style.height = `${Math.round(h * scale)}px`;
+    if (active && preview.classList.contains('is-visible')) place(lastX, lastY);
+  };
+
+  // To the right of the cursor and a little above it; to the left when there is no room; always on screen. The
+  // preview tilts away from the cursor, so it leans out to whichever side it is on.
   const place = (x: number, y: number) => {
-    const { offsetWidth: width, offsetHeight: height } = peek;
-    // Right of the cursor, or left of it when that runs off the screen; below it, or slid up to fit.
-    const left = x + GAP + width > innerWidth - MARGIN ? x - GAP - width : x + GAP;
-    const top = Math.min(y + GAP, innerHeight - MARGIN - height);
-    peek.style.transform = `translate3d(${Math.max(MARGIN, left)}px, ${Math.max(MARGIN, top)}px, 0)`;
+    lastX = x;
+    lastY = y;
+    const { offsetWidth: width, offsetHeight: height } = preview;
+    const lift = Math.min(56, height * 0.2);
+    let left = x + GAP;
+    let top = y - lift;
+    if (left + width > innerWidth - PAD) left = x - width - GAP;
+    if (left < PAD) left = Math.max(PAD, innerWidth - width - PAD);
+    if (top + height > innerHeight - PAD) top = innerHeight - height - PAD;
+    top = Math.max(PAD, top);
+    preview.style.left = `${Math.round(left)}px`;
+    preview.style.top = `${Math.round(top)}px`;
+    const onRight = left + width / 2 >= x;
+    preview.classList.toggle('is-right-side', onRight);
+    preview.classList.toggle('is-left-side', !onRight);
+  };
+
+  image.addEventListener('load', () => resize(image.naturalWidth, image.naturalHeight));
+  video.addEventListener('loadedmetadata', () => resize(video.videoWidth, video.videoHeight));
+
+  const show = (card: HTMLElement) => {
+    clearTimeout(hideTimer);
+    const source = card.querySelector<HTMLElement>('[data-peek]')!;
+    const clip = source.dataset.peekVideo;
+    if (clip && clips) {
+      if (!video.src.endsWith(clip)) video.src = clip;
+      video.hidden = false;
+      image.hidden = true;
+      resize(video.videoWidth, video.videoHeight);
+      void video.play().catch(() => undefined);
+    } else {
+      const still = source.dataset.peek ?? '';
+      if (!image.src.endsWith(still)) image.src = still;
+      image.hidden = false;
+      video.hidden = true;
+      video.pause();
+      resize(image.naturalWidth, image.naturalHeight);
+    }
+    title.textContent = card.querySelector('.card__title')?.textContent?.trim() ?? '';
+    active?.classList.remove('is-preview-active');
+    active = card;
+    card.classList.add('is-preview-active');
+    preview.classList.add('is-visible');
+    place(lastX, lastY);
   };
 
   const hide = () => {
-    peek.classList.remove('is-open');
-    peek.querySelector('video')?.pause();
+    clearTimeout(hideTimer);
+    hideTimer = window.setTimeout(() => {
+      preview.classList.remove('is-visible');
+      video.pause();
+      active?.classList.remove('is-preview-active');
+      active = null;
+    }, 70);
   };
 
-  for (const thumb of thumbs) {
-    thumb.addEventListener('pointerenter', (event) => {
-      const clip = thumb.dataset.peekVideo;
-      let media: HTMLImageElement | HTMLVideoElement;
-      if (clip && clips) {
-        media = Object.assign(document.createElement('video'), { src: clip, muted: true, loop: true, playsInline: true });
-        void media.play().catch(() => undefined);
-      } else {
-        media = Object.assign(new Image(), { src: thumb.dataset.peek ?? '', alt: '' });
-      }
-      peek.replaceChildren(media);
-      place(event.clientX, event.clientY);
-      peek.classList.add('is-open');
+  for (const card of cards) {
+    card.addEventListener('mouseenter', (event) => {
+      lastX = event.clientX;
+      lastY = event.clientY;
+      show(card);
     });
-    thumb.addEventListener('pointermove', (event) => place(event.clientX, event.clientY));
-    // Also fires when the page scrolls the thumbnail out from under a still cursor.
-    thumb.addEventListener('pointerleave', hide);
+    card.addEventListener('mousemove', (event) => {
+      if (active === card && preview.classList.contains('is-visible')) place(event.clientX, event.clientY);
+    });
+    card.addEventListener('mouseleave', hide);
+    // Keyboard users reach the card's links, so focusing one shows the preview too.
+    card.addEventListener('focusin', () => {
+      const rect = card.getBoundingClientRect();
+      lastX = rect.left + rect.width / 2;
+      lastY = rect.top + rect.height / 2;
+      show(card);
+    });
+    card.addEventListener('focusout', hide);
   }
+
+  const settle = () => {
+    if (active && preview.classList.contains('is-visible')) place(lastX, lastY);
+  };
+  addEventListener('scroll', settle, { passive: true });
+  addEventListener('resize', settle);
 }

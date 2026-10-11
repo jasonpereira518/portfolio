@@ -38,14 +38,28 @@ const clock = document.querySelector<HTMLElement>('[data-clock]');
 if (clock) {
   const zone = clock.dataset.tz ?? 'America/New_York';
   const label = clock.dataset.tzLabel ?? 'ET';
+  const blink = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const colon = Object.assign(document.createElement('span'), { textContent: ':' });
+  colon.style.transition = 'opacity 0.25s';
+  let shown = '';
   // An invalid time zone makes Intl throw. Log it and stop the clock so the rest of the page still starts.
-  const timer = setInterval(() => tick(), 30_000);
+  let timer = 0;
   const tick = () => {
     try {
-      clock.textContent = formatClock(new Date(), zone, label);
+      const now = new Date();
+      const text = formatClock(now, zone, label);
+      // The text is only rebuilt when the minute changes; the colon is on for even seconds and off for odd ones.
+      if (text !== shown) {
+        shown = text;
+        const [hours, minutes] = text.split(':');
+        clock.replaceChildren(hours, colon, minutes);
+      }
+      if (blink) colon.style.opacity = now.getSeconds() % 2 === 0 ? '1' : '0';
+      // Wake at the start of the next second, so the blink stays in step with the real seconds.
+      timer = window.setTimeout(tick, 1000 - now.getMilliseconds());
     } catch (error: unknown) {
       console.error('Nav clock failed', error);
-      clearInterval(timer);
+      clearTimeout(timer);
     }
   };
   tick();

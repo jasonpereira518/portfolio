@@ -11,6 +11,7 @@ dates: Aug 2026–present
 status: Cycles 1–5 built; still active
 summary: "Point it at any real address and a simulated car drives the actual streets, obeying signals and reacting to traffic."
 blurb: "Self-driving simulator that drives the real streets of any address"
+video: streetlab.mp4
 proof:
   - 1,100+ automated tests
   - 30–60 FPS in WebGPU

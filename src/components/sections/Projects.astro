@@ -1,10 +1,16 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import Button from '../Button.astro';
 import { asset } from '../../lib/assets';
 import { getFlagship, liveUrl } from '../../lib/content';
 
 const projects = await getFlagship();
+// An alternate image for a project fades in over its cover on hover; it is a background layer, so the cover stays the only image.
+const alternates = await Promise.all(
+  projects.map(async (project) =>
+    project.data.hoverImage ? (await getImage({ src: asset(`projects/${project.data.hoverImage}`), width: 1280 })).src : undefined,
+  ),
+);
 ---
 <section class="projects section theme-paper" id="projects" data-island="showcase">
   <header class="section__head">
@@ -28,7 +34,7 @@ const projects = await getFlagship();
     ))}
   </div>
 
-  {projects.map((project) => (
+  {projects.map((project, position) => (
     <article class="projects__panel" role="tabpanel" id={`panel-${project.id}`} aria-labelledby={`tab-${project.id}`}>
       <div class="projects__info">
         <h3 class="projects__title display" data-title-lines="2" style={project.data.color ? `--project:${project.data.color}` : undefined}>{project.data.title}</h3>
@@ -53,6 +59,12 @@ const projects = await getFlagship();
           sizes="(max-width: 800px) 92vw, 56vw"
           loading="lazy"
         />
+        {alternates[position] && <div class="projects__alt" style={`background-image:url(${alternates[position]})`} aria-hidden="true" />}
+        {project.data.video && (
+          <video class="projects__video" muted loop playsinline preload="none" disablepictureinpicture aria-hidden="true" tabindex="-1">
+            <source src={`/projects/${project.data.video}`} type="video/mp4" />
+          </video>
+        )}
       </div>
     </article>
   ))}
@@ -100,7 +112,7 @@ const projects = await getFlagship();
   .projects__panel {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    align-items: end;
+    align-items: start;
     gap: clamp(1.5rem, 4vw, 4rem);
   }
 
@@ -170,6 +182,7 @@ const projects = await getFlagship();
   }
 
   .projects__stage {
+    position: relative;
     overflow: hidden;
     aspect-ratio: 16 / 10;
     border-radius: calc(var(--radius) * 0.6);
@@ -180,6 +193,30 @@ const projects = await getFlagship();
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* Hover media sits over the cover: a clip (played by showcase.ts) or an alternate image. */
+  .projects__video,
+  .projects__alt {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease);
+  }
+
+  .projects__video {
+    object-fit: cover;
+  }
+
+  .projects__video:global(.is-playing),
+  .projects__panel:hover .projects__alt {
+    opacity: 1;
+  }
+
+  .projects__alt {
+    background: #fff center / contain no-repeat;
   }
 
   /* A chart is shown whole on its own white ground; a screenshot is cropped to fill the frame. */

@@ -35,6 +35,23 @@ export function mount(root: HTMLElement): void {
     });
   });
 
+  // A panel with a clip plays it over the cover while the panel is hovered (mouse and trackpad only; reduced motion
+  // and data saver keep the still).
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches && !saveData) {
+    for (const panel of panels) {
+      const video = panel.querySelector<HTMLVideoElement>('.projects__video');
+      if (!video) continue;
+      video.addEventListener('playing', () => video.classList.add('is-playing'));
+      panel.addEventListener('pointerenter', () => void video.play().catch(() => undefined));
+      panel.addEventListener('pointerleave', () => {
+        video.pause();
+        video.currentTime = 0;
+        video.classList.remove('is-playing');
+      });
+    }
+  }
+
   select(0, false);
   root.dataset.enhanced = 'true';
 }

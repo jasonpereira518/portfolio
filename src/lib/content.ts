@@ -7,6 +7,7 @@ export type Flagship = Project & { data: { cover: string; coverAlt: string; prob
 
 export const GROUP_LABELS = {
   quant: 'Quant and fintech',
+  ml: 'AI and machine learning',
   fullstack: 'Full-stack and client work',
   mobile: 'Mobile',
   hackathon: 'Hackathons',

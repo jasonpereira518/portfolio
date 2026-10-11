@@ -12,8 +12,8 @@ const everything: [string, string][] = [
 ];
 
 describe('content inventory', () => {
-  test('there are 17 projects and exactly 4 are flagship', () => {
-    expect(projectFiles).toHaveLength(17);
+  test('there are 18 projects and exactly 4 are flagship', () => {
+    expect(projectFiles).toHaveLength(18);
     const flagship = projectFiles.filter((file) => /^kind: flagship$/m.test(read('projects', file)));
     expect(flagship.sort()).toEqual(['case-closed.md', 'gpu-portfolio-engine.md', 'orbit.md', 'streetlab.md']);
   });
