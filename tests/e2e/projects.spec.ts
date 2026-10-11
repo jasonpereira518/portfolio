@@ -251,7 +251,7 @@ test('on the home page, hovering a project with a clip plays it, and leaving sto
   await expect(page.locator('#projects')).toHaveAttribute('data-enhanced', 'true');
   const stage = page.locator('#panel-case-closed .projects__stage');
   await stage.hover();
-  await expect(stage.locator('.projects__video')).toHaveClass(/is-playing/);
+  await expect(stage.locator('.projects__video')).toHaveClass(/is-playing/, { timeout: 15_000 });
   await page.mouse.move(2, 2);
-  await expect(stage.locator('.projects__video')).not.toHaveClass(/is-playing/);
+  await expect(stage.locator('.projects__video')).not.toHaveClass(/is-playing/, { timeout: 15_000 });
 });

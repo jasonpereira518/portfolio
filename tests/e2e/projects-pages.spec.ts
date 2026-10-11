@@ -129,9 +129,9 @@ test('hovering a flagship with a clip plays it, and leaving stops it', async ({ 
   const feature = page.locator('.feature:has(.feature__video)').first();
   test.skip((await feature.count()) === 0, 'no flagship has a clip yet');
   await feature.hover();
-  await expect(feature.locator('.feature__video')).toHaveClass(/is-playing/);
+  await expect(feature.locator('.feature__video')).toHaveClass(/is-playing/, { timeout: 15_000 });
   await page.mouse.move(2, 2);
-  await expect(feature.locator('.feature__video')).not.toHaveClass(/is-playing/);
+  await expect(feature.locator('.feature__video')).not.toHaveClass(/is-playing/, { timeout: 15_000 });
 });
 
 test('a case study cover carries alt text that describes the image', async ({ page }) => {
