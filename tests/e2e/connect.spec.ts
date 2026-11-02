@@ -13,11 +13,14 @@ test('/connect opens on the contact card, with every link', async ({ page }) => 
     ['LinkedIn', 'https://linkedin.com/in/jasonpereira518'],
     ['GitHub', 'https://github.com/jasonpereira518'],
     ['Google Scholar', /scholar\.google\.com/],
-    ['Resume', '/resume'],
+    ['Resume', '/Jason_Pereira_Resume.pdf'],
     ['Achievements', '/achievements'],
   ] as const) {
     await expect(card.getByRole('link', { name, exact: true }), name).toHaveAttribute('href', href);
   }
+  await expect(card.getByRole('link', { name: 'Resume', exact: true })).toHaveAttribute('target', '_blank');
+  const pdf = await page.request.get('/Jason_Pereira_Resume.pdf');
+  expect(pdf.headers()['content-type']).toContain('application/pdf');
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
 });
 

@@ -16,6 +16,7 @@ const externalAttrs = external ? { target: '_blank', rel: 'noopener' } : {};
   style={brand ? `--brand:${brand}` : undefined}
   {...externalAttrs}
 >
+  <slot name="icon" />
   <span><slot /></span>
   <svg class="button__arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
     <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
