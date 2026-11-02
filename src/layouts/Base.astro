@@ -13,15 +13,17 @@ interface Props {
   description?: string;
   /** Keeps the page out of search results, for pages reachable only by their URL (like /resume). */
   noindex?: boolean;
+  /** Never plays the first-visit intro, for pages that open on something else (like /connect's card). */
+  noIntro?: boolean;
 }
 
 const site = await getSite();
-const { title, description = site.description, noindex = false } = Astro.props;
+const { title, description = site.description, noindex = false, noIntro = false } = Astro.props;
 const fullTitle = title ? `${title} / ${site.name}` : site.name;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-no-intro={noIntro || undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -59,7 +61,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           /* Recorded before it plays, and even when it is skipped for a hidden page, so it never replays when
              moving between pages, even if the page script fails. */
           sessionStorage.setItem('jp-intro-seen', '1');
-          if ((reloaded || !seen) && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          var allowed = !document.documentElement.hasAttribute('data-no-intro');
+          if (allowed && (reloaded || !seen) && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
             document.documentElement.classList.add('has-intro');
           }
         } catch (error) {

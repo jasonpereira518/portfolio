@@ -1,0 +1,195 @@
+---
+// The contact card /connect opens on, over the homepage: the link Jason sends recruiters. Closing it (×, "View
+// portfolio", Esc or a click outside) leaves them on the homepage. Without scripts it never opens, and the footer
+// still has every link.
+import Button from './Button.astro';
+import ContourBg from './ContourBg.astro';
+import { getSite } from '../lib/content';
+
+const site = await getSite();
+---
+<dialog id="connect" class="connect theme-ink" aria-labelledby="connect-name" data-lenis-prevent>
+  <ContourBg />
+  <form method="dialog">
+    <button class="connect__close" aria-label="Close">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+        <path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+    </button>
+  </form>
+  <p class="label connect__muted">{site.availability}</p>
+  <h2 id="connect-name" class="connect__name display">{site.name}</h2>
+  <div class="connect__email">
+    <a href={`mailto:${site.email}`}>{site.email}</a>
+    <button class="connect__pill" type="button" data-copy={site.email}>Copy</button>
+  </div>
+  <div class="connect__links">
+    <Button href={`mailto:${site.email}`} variant="solid">Email</Button>
+    <!-- Same brand colours as the footer (sections/Contact.astro). -->
+    <Button href={site.links.linkedin} external brand="#0A66C2">LinkedIn</Button>
+    <Button href={site.links.github} external brand="#6E5494">GitHub</Button>
+    <Button href={site.links.scholar} external brand="#4285F4">Google Scholar</Button>
+    <Button href="/resume">Resume</Button>
+    <Button href="/achievements">Achievements</Button>
+  </div>
+  <form method="dialog" class="connect__foot">
+    <button class="connect__pill connect__pill--solid">View portfolio</button>
+  </form>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('#connect')!;
+  const copy = dialog.querySelector<HTMLButtonElement>('[data-copy]')!;
+
+  dialog.showModal();
+
+  // A click on the backdrop lands on the dialog itself, outside its box (as in palette.ts).
+  dialog.addEventListener('click', (event) => {
+    const box = dialog.getBoundingClientRect();
+    const outside = event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom;
+    if (outside) dialog.close();
+  });
+
+  // Once closed, this is just the homepage, so the address says so (and a reload doesn't bring the card back).
+  dialog.addEventListener('close', () => history.replaceState(null, '', '/'));
+
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(copy.dataset.copy!);
+      copy.textContent = 'Copied';
+    } catch {
+      copy.textContent = 'Copy failed';
+    }
+    setTimeout(() => (copy.textContent = 'Copy'), 2000);
+  });
+</script>
+
+<style>
+  .connect {
+    position: fixed;
+    isolation: isolate;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: min(34rem, calc(100vw - 2 * var(--gutter)));
+    max-height: calc(100dvh - 2 * var(--gutter));
+    margin: auto;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+  }
+
+  .connect[open] {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .connect::backdrop {
+    background: rgb(18 18 16 / 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .connect[open] {
+      animation: connect-in 0.25s var(--ease);
+    }
+  }
+
+  @keyframes connect-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem) scale(0.98);
+    }
+  }
+
+  .connect__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .connect__close:hover {
+    border-color: var(--fg);
+  }
+
+  .connect__muted {
+    color: var(--muted);
+    padding-right: 3rem; /* clear of the close button */
+  }
+
+  .connect__name {
+    font-size: clamp(2rem, 7vw, 3rem);
+  }
+
+  .connect__email {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    font-size: 1.0625rem;
+  }
+
+  .connect__email a {
+    overflow-wrap: anywhere;
+    text-decoration-color: var(--line);
+    text-underline-offset: 0.2em;
+  }
+
+  .connect__email a:hover {
+    color: var(--accent);
+  }
+
+  .connect__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .connect__foot {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Buttons styled like Button.astro's links (which are <a>s, so can't close the dialog). */
+  .connect__pill {
+    padding: 0.6rem 0.9rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      background-color 0.25s var(--ease),
+      color 0.25s var(--ease),
+      border-color 0.25s var(--ease);
+  }
+
+  .connect__pill:hover {
+    border-color: var(--fg);
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .connect__pill--solid {
+    width: 100%;
+    padding: 0.9rem 1.15rem;
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--ink);
+  }
+</style>
